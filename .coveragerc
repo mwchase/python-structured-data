@@ -6,7 +6,6 @@ branch = true
 source =
     src
     tests
-parallel = true
 
 [report]
 show_missing = true
