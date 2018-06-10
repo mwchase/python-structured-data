@@ -189,8 +189,9 @@ for _attribute in _SHADOWED_ATTRIBUTES:
 
 
 def __repr__(self):
-    return self.__class__.__qualname__ + (
-        f'({", ".join(repr(item) for item in _unpack(self))})')
+    return '{}({})'.format(
+        self.__class__.__qualname__,
+        ", ".join(repr(item) for item in _unpack(self)))
 
 
 def __eq__(self, other):
@@ -264,10 +265,11 @@ def _cant_modify(self, name):
     class_repr = repr(self.__class__.__name__)
     name_repr = repr(name)
     if inspect.getattr_static(self, name, _MISSING) is _MISSING:
-        msg = f'{class_repr} object has no attribute {name_repr}'
+        format_msg = '{class_repr} object has no attribute {name_repr}'
     else:
-        msg = f'{class_repr} object attribute {name_repr} is read-only'
-    raise AttributeError(msg)
+        format_msg = '{class_repr} object attribute {name_repr} is read-only'
+    raise AttributeError(
+        format_msg.format(class_repr=class_repr, name_repr=name_repr))
 
 
 def __setattr__(self, name, value):
@@ -305,7 +307,8 @@ def _make_constructor(_cls, name, length, subclasses, subclass_order):
             return super().__new__(cls, args)
 
     Constructor.__name__ = name
-    Constructor.__qualname__ = f'{_cls.__qualname__}.{name}'
+    Constructor.__qualname__ = '{qualname}.{name}'.format(
+        qualname=_cls.__qualname__, name=name)
 
     subclasses.add(Constructor)
     setattr(_cls, name, _EnumMember(_cls, Constructor))
@@ -396,9 +399,10 @@ def _process_class(_cls, _repr, eq, order):
                 "Can't add ordering methods if equality methods are provided.")
         collision = _set_new_functions(_cls, __lt__, __le__, __gt__, __ge__)
         if collision:
-            raise TypeError(f'Cannot overwrite attribute {collision} '
-                            f'in class {_cls.__name__}. Consider using '
-                            'functools.total_ordering')
+            raise TypeError(
+                'Cannot overwrite attribute {collision} in class '
+                '{name}. Consider using functools.total_ordering'.format(
+                    collision=collision, name=_cls.__name__))
 
     _cls.__subclass_order__ = tuple(subclass_order)
 
