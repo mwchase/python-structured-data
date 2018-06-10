@@ -10,42 +10,18 @@ env:
     - TOXENV=docs
 matrix:
   include:
-    - python: '2.7'
-      env:
-        - TOXENV=py27-cover,report,codecov
-    - python: '2.7'
-      env:
-        - TOXENV=py27-nocov
-    - python: '3.3'
-      env:
-        - TOXENV=py33-cover,report,codecov
-    - python: '3.3'
-      env:
-        - TOXENV=py33-nocov
-    - python: '3.4'
-      env:
-        - TOXENV=py34-cover,report,codecov
-    - python: '3.4'
-      env:
-        - TOXENV=py34-nocov
     - python: '3.5'
       env:
-        - TOXENV=py35-cover,report,codecov
+        - TOXENV=3.5-cover,report,codecov
     - python: '3.5'
       env:
-        - TOXENV=py35-nocov
+        - TOXENV=3.5-nocov
     - python: '3.6'
       env:
-        - TOXENV=py36-cover,report,codecov
+        - TOXENV=3.6-cover,report,codecov
     - python: '3.6'
       env:
-        - TOXENV=py36-nocov
-    - python: 'pypy-5.4'
-      env:
-        - TOXENV=pypy-cover,report,codecov
-    - python: 'pypy-5.4'
-      env:
-        - TOXENV=pypy-nocov
+        - TOXENV=3.6-nocov
 before_install:
   - python --version
   - uname -a
