@@ -12,22 +12,40 @@ matrix:
   include:
     - python: '2.7'
       env:
-        - TOXENV=py27,report,codecov
+        - TOXENV=py27-cover,report,codecov
+    - python: '2.7'
+      env:
+        - TOXENV=py27-nocov
     - python: '3.3'
       env:
-        - TOXENV=py33,report,codecov
+        - TOXENV=py33-cover,report,codecov
+    - python: '3.3'
+      env:
+        - TOXENV=py33-nocov
     - python: '3.4'
       env:
-        - TOXENV=py34,report,codecov
+        - TOXENV=py34-cover,report,codecov
+    - python: '3.4'
+      env:
+        - TOXENV=py34-nocov
     - python: '3.5'
       env:
-        - TOXENV=py35,report,codecov
+        - TOXENV=py35-cover,report,codecov
+    - python: '3.5'
+      env:
+        - TOXENV=py35-nocov
     - python: '3.6'
       env:
-        - TOXENV=py36,report,codecov
+        - TOXENV=py36-cover,report,codecov
+    - python: '3.6'
+      env:
+        - TOXENV=py36-nocov
     - python: 'pypy-5.4'
       env:
-        - TOXENV=pypy,report,codecov
+        - TOXENV=pypy-cover,report,codecov
+    - python: 'pypy-5.4'
+      env:
+        - TOXENV=pypy-nocov
 before_install:
   - python --version
   - uname -a
