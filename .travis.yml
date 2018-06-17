@@ -12,7 +12,7 @@ matrix:
   include:
     - python: '3.6'
       env:
-        - TOXENV=3.6-cover,report,codecov
+        - TOXENV=3.6-cover,report,codecov-nix
     - python: '3.6'
       env:
         - TOXENV=3.6-nocov
