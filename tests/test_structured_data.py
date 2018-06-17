@@ -12,6 +12,6 @@ def test_generic_subclass_succeeds():
 
     @structured_data.enum
     class TestClass(typing.Generic[T]):
-        pass
+        Variant: structured_data.Ctor[()]
 
     assert TestClass.Variant()
