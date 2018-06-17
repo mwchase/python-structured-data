@@ -280,6 +280,10 @@ def __delattr__(self, name):
     _cant_modify(self, name)
 
 
+def __bool__(self):
+    return True
+
+
 class _EnumMember:
 
     def __init__(self, cls, subcls):
@@ -380,6 +384,7 @@ def _process_class(_cls, _repr, eq, order):
         _cls.__new__ = __new__
 
     _set_new_functions(_cls, __setattr__, __delattr__)
+    _set_new_functions(_cls, __bool__)
 
     if _repr:
         _set_new_functions(_cls, __repr__)
