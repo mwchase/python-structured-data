@@ -21,6 +21,10 @@ class _CtorMeta(type):
     def __getitem__(cls, key):
         if cls is not Ctor:
             raise TypeError
+
+        if key == ():
+            return cls
+
         if not isinstance(key, tuple):
             key = (key,)
 
@@ -93,7 +97,9 @@ def _args_length(constructor, global_ns):
             # references FROM a Ctor, but not within a decorated class.
             return None
     # We were given or constructed a Ctor, so just look at it.
-    if issubclass(constructor, Ctor) and constructor is not Ctor:
+    if issubclass(constructor, Ctor):
+        if constructor is Ctor:
+            return 0
         return len(constructor.__args__)
     # It wasn't a Ctor, so ignore it.
     return None
