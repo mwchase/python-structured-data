@@ -30,3 +30,8 @@ def test_ctor_controls_subclass_creation(structured_data):
     with pytest.raises(TypeError):
         class CantMake(structured_data.Ctor, object):
             pass
+
+
+def test_ctor_cant_index_twice(structured_data):
+    with pytest.raises(TypeError):
+        assert not structured_data.Ctor[list][list]
