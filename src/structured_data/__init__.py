@@ -167,7 +167,7 @@ _SHADOWED_ATTRIBUTES = {
 }
 
 
-class EnumConstructor:
+class _EnumConstructor:
 
     """Base class for ADT Constructor classes."""
 
@@ -191,7 +191,7 @@ class EnumConstructor:
 
 
 for _attribute in _SHADOWED_ATTRIBUTES:
-    setattr(EnumConstructor, _attribute, None)
+    setattr(_EnumConstructor, _attribute, None)
 
 
 def __repr__(self):
@@ -305,7 +305,7 @@ class _EnumMember:
 
 
 def _make_constructor(_cls, name, length, subclasses, subclass_order):
-    class Constructor(_cls, EnumConstructor, tuple):
+    class Constructor(_cls, _EnumConstructor, tuple):
         """Auto-generated subclass of an ADT."""
         __slots__ = ()
 
@@ -495,7 +495,7 @@ def names(target):
         elif isinstance(item, AsPattern):
             to_process.append(item.match)
             to_process.append(item.matcher)
-        elif isinstance(item, EnumConstructor):
+        elif isinstance(item, _EnumConstructor):
             to_process.extend(reversed(_unpack(item)))
         elif isinstance(item, tuple):
             to_process.extend(reversed(item))
@@ -516,7 +516,7 @@ def _match(target, value):
         elif isinstance(target, AsPattern):
             to_process.append((target.match, value))
             to_process.append((target.matcher, value))
-        elif isinstance(target, EnumConstructor):
+        elif isinstance(target, _EnumConstructor):
             to_process.extend(zip(reversed(_unpack(target)),
                                   reversed(desugar(type(target), value))))
         elif (isinstance(target, tuple) and
