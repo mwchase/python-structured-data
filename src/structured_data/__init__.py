@@ -41,6 +41,8 @@ class Ctor(metaclass=_CtorMeta):
     enum-decorated class with it.
     """
 
+    __args__ = ()
+
 
 @staticmethod
 def __new__(cls, name, bases, namespace):
@@ -98,8 +100,6 @@ def _args_length(constructor, global_ns):
             return None
     # We were given or constructed a Ctor, so just look at it.
     if issubclass(constructor, Ctor):
-        if constructor is Ctor:
-            return 0
         return len(constructor.__args__)
     # It wasn't a Ctor, so ignore it.
     return None
