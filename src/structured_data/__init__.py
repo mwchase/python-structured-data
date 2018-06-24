@@ -140,7 +140,7 @@ def _unpack(instance: tuple) -> tuple:
 
     This function is not meant for general use.
     """
-    return desugar(type(instance), instance)
+    return desugar(instance.__class__, instance)
 
 
 def _enum_base(obj):
