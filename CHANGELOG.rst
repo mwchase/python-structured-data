@@ -9,7 +9,7 @@ Added
 ~~~~~
 
 - Explicit ``__bool__`` implementation, to consider all constructor instances as truthy, unless defined otherwise.
-- Supported on Python 3.7.
+- Python 3.7 support.
 
 Changed
 ~~~~~~~
