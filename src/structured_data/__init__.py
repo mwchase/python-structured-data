@@ -41,6 +41,8 @@ class Ctor(metaclass=_CtorMeta):
     enum-decorated class with it.
     """
 
+    __args__ = ()
+
 
 @staticmethod
 def __new__(cls, name, bases, namespace):
@@ -98,8 +100,6 @@ def _args_length(constructor, global_ns):
             return None
     # We were given or constructed a Ctor, so just look at it.
     if issubclass(constructor, Ctor):
-        if constructor is Ctor:
-            return 0
         return len(constructor.__args__)
     # It wasn't a Ctor, so ignore it.
     return None
@@ -140,7 +140,7 @@ def _unpack(instance: tuple) -> tuple:
 
     This function is not meant for general use.
     """
-    return desugar(type(instance), instance)
+    return desugar(instance.__class__, instance)
 
 
 def _enum_base(obj):
@@ -167,7 +167,7 @@ _SHADOWED_ATTRIBUTES = {
 }
 
 
-class EnumConstructor:
+class _EnumConstructor:
 
     """Base class for ADT Constructor classes."""
 
@@ -191,7 +191,7 @@ class EnumConstructor:
 
 
 for _attribute in _SHADOWED_ATTRIBUTES:
-    setattr(EnumConstructor, _attribute, None)
+    setattr(_EnumConstructor, _attribute, None)
 
 
 def __repr__(self):
@@ -305,7 +305,7 @@ class _EnumMember:
 
 
 def _make_constructor(_cls, name, length, subclasses, subclass_order):
-    class Constructor(_cls, EnumConstructor, tuple):
+    class Constructor(_cls, _EnumConstructor, tuple):
         """Auto-generated subclass of an ADT."""
         __slots__ = ()
 
@@ -495,7 +495,7 @@ def names(target):
         elif isinstance(item, AsPattern):
             to_process.append(item.match)
             to_process.append(item.matcher)
-        elif isinstance(item, EnumConstructor):
+        elif isinstance(item, _EnumConstructor):
             to_process.extend(reversed(_unpack(item)))
         elif isinstance(item, tuple):
             to_process.extend(reversed(item))
@@ -516,7 +516,7 @@ def _match(target, value):
         elif isinstance(target, AsPattern):
             to_process.append((target.match, value))
             to_process.append((target.matcher, value))
-        elif isinstance(target, EnumConstructor):
+        elif isinstance(target, _EnumConstructor):
             to_process.extend(zip(reversed(_unpack(target)),
                                   reversed(desugar(type(target), value))))
         elif (isinstance(target, tuple) and
