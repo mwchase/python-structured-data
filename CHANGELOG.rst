@@ -9,12 +9,19 @@ Added
 ~~~~~
 
 - Explicit ``__bool__`` implementation, to consider all constructor instances as truthy, unless defined otherwise.
+- Supported on Python 3.7.
 
 Changed
 ~~~~~~~
 
 - Marked the enum constructor base class as private. (``EnumConstructor`` -> ``_EnumConstructor``)
-- Restricted scope of test coverage to versions with partial support. (Python 3.6)
+- Switched scope of test coverage to supported versions. (Python 3.7)
+
+Removed
+~~~~~~~
+
+- Support for Python 3.6 and earlier.
+- Incidental functionality required by supported Python 3.6. (Hooks to enable restricted subclassing.)
 
 0.1.0 (2018-06-10)
 ------------------
