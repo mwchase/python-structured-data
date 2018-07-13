@@ -325,19 +325,6 @@ def _make_constructor(_cls, name, length, subclasses, subclass_order):
     subclass_order.append(Constructor)
 
 
-def _allow_subclassing_generic(cls):
-    return hasattr(
-        typing, 'GenericMeta') and isinstance(cls, typing.GenericMeta)
-
-
-_SUBCLASS_CHECKS = [_allow_subclassing_generic]
-
-
-def add_subclass_check(predicate):
-    """Allow additional subclasses."""
-    _SUBCLASS_CHECKS.append(predicate)
-
-
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
@@ -358,17 +345,9 @@ def _process_class(_cls, _repr, eq, order):
         _make_constructor(
             _cls, name, length, subclasses, subclass_order)
 
-    if any(predicate(_cls) for predicate in _SUBCLASS_CHECKS):
-        @classmethod
-        def __init_subclass__(cls, **kwargs):
-            if issubclass(cls, tuple(subclasses)):
-                raise TypeError
-            # Allow it to go through otherwise, because Generic.
-            return super(_cls, cls).__init_subclass__(**kwargs)
-    else:
-        @classmethod
-        def __init_subclass__(cls, **kwargs):
-            raise TypeError
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
 
     _cls.__init_subclass__ = __init_subclass__
 
