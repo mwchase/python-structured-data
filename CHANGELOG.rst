@@ -21,7 +21,7 @@ Removed
 ~~~~~~~
 
 - Support for Python 3.6 and earlier.
-- Incidental functionality required by supported Python 3.6. (Hooks to enable restricted subclassing.)
+- Incidental functionality required by supported Python 3.6 versions. (Hooks to enable restricted subclassing.)
 
 0.1.0 (2018-06-10)
 ------------------
