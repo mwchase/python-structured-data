@@ -16,15 +16,15 @@ class EnumConstructor:
         my_dir = []
         for attribute in super_dir:
             static_attribute = inspect.getattr_static(self, attribute)
-            if attribute in _SHADOWED_ATTRIBUTES and static_attribute is None:
+            if attribute in SHADOWED_ATTRIBUTES and static_attribute is None:
                 continue
-            if isinstance(static_attribute, _EnumMember):
+            if isinstance(static_attribute, EnumMember):
                 continue
             my_dir.append(attribute)
         return my_dir
 
 
-_SHADOWED_ATTRIBUTES = {
+SHADOWED_ATTRIBUTES = {
     '__add__',
     '__contains__',
     '__getitem__',
@@ -44,11 +44,11 @@ _SHADOWED_ATTRIBUTES = {
 }
 
 
-for _attribute in _SHADOWED_ATTRIBUTES:
+for _attribute in SHADOWED_ATTRIBUTES:
     setattr(EnumConstructor, _attribute, None)
 
 
-class _EnumMember:
+class EnumMember:
 
     def __init__(self, cls, subcls):
         if not issubclass(subcls, cls):
@@ -79,5 +79,8 @@ def make_constructor(_cls, name, length, subclasses, subclass_order):
         qualname=_cls.__qualname__, name=name)
 
     subclasses.add(Constructor)
-    setattr(_cls, name, _EnumMember(_cls, Constructor))
+    setattr(_cls, name, EnumMember(_cls, Constructor))
     subclass_order.append(Constructor)
+
+
+__all__ = ['EnumConstructor', 'make_constructor']
