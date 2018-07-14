@@ -1,3 +1,16 @@
+import pytest
+
+
+def test_cant_use_keyword(match):
+    with pytest.raises(ValueError):
+        assert not match.Pattern('def')
+
+
+def test_must_be_identifier(match):
+    with pytest.raises(ValueError):
+        assert not match.Pattern('1')
+
+
 def test_matching(enum, match):
 
     @enum.enum
