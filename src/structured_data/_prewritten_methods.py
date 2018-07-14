@@ -1,6 +1,6 @@
 import inspect
 
-from _unpack import unpack
+from ._unpack import unpack
 
 
 def _enum_base(obj):
