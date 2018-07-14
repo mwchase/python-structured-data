@@ -1,8 +1,25 @@
 import collections
 import keyword
+import weakref
 
 from ._enum_constructor import EnumConstructor
 from ._unpack import unpack
+
+ATTRIBUTE_CONSTRUCTORS = weakref.WeakKeyDictionary()
+ATTRIBUTE_CACHE = weakref.WeakKeyDictionary()
+
+
+class AttributeConstructor:
+
+    __slots__ = ('__weakref__',)
+
+    def __init__(self, constructor):
+        ATTRIBUTE_CONSTRUCTORS[self] = constructor
+        ATTRIBUTE_CACHE[self] = {}
+
+    def __getattribute__(self, name):
+        return ATTRIBUTE_CACHE[self].setdefault(
+            name, ATTRIBUTE_CONSTRUCTORS[self](name))
 
 
 class MatchFailure(BaseException):
@@ -133,4 +150,7 @@ class ValueMatcher:
         return self.matches is not None
 
 
-__all__ = ['MatchFailure', 'Pattern', 'ValueMatcher', 'desugar', 'names']
+pat = AttributeConstructor(Pattern)
+
+
+__all__ = ['MatchFailure', 'Pattern', 'ValueMatcher', 'desugar', 'names', 'pat']
