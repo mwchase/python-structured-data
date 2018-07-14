@@ -1,4 +1,9 @@
+import typing
+
 import pytest
+
+
+T = typing.TypeVar('T')
 
 
 def test_generic_subclass_succeeds(enum):

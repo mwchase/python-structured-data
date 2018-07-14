@@ -1,8 +1,3 @@
-import typing
-
-T = typing.TypeVar('T')
-
-
 def test_matching(enum, match):
 
     @enum.enum
