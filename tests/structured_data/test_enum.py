@@ -33,7 +33,7 @@ def test_ctor_cant_index_twice(enum):
         assert not enum.Ctor[list][list]
 
 
-def ctor_cant_assign_attribute(enum):
+def test_ctor_cant_assign_attribute(enum):
     ctor = enum.Ctor[list]
     with pytest.raises(AttributeError):
         ctor.args = ()
