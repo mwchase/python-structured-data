@@ -28,13 +28,19 @@ def test_ctor_converts_to_tuple(structured_data):
 
 def test_ctor_controls_subclass_creation(structured_data):
     with pytest.raises(TypeError):
-        class CantMake(structured_data.Ctor, object):
+        class CantMake(structured_data.Ctor):
             pass
 
 
 def test_ctor_cant_index_twice(structured_data):
     with pytest.raises(TypeError):
         assert not structured_data.Ctor[list][list]
+
+
+def ctor_cant_assign_attribute(structured_data):
+    ctor = structured_data.Ctor[list]
+    with pytest.raises(AttributeError):
+        ctor.args = ()
 
 
 def test_matching(structured_data):

@@ -16,42 +16,36 @@ _CTOR_CACHE = {}
 __version__ = '0.2.1'
 
 
-class _CtorMeta(type):
-
-    def __getitem__(cls, key):
-        if cls is not Ctor:
-            raise TypeError
-
-        if key == ():
-            return cls
-
-        if not isinstance(key, tuple):
-            key = (key,)
-
-        class SpecializedCtor(cls):
-            """Generated subclass of Ctor, for type annotations."""
-            __args__ = key
-        return _CTOR_CACHE.setdefault(key, SpecializedCtor)
-
-
-class Ctor(metaclass=_CtorMeta):
+class Ctor:
     """Marker class for enum constructors.
 
     To use, index with a sequence of types, and annotate a variable in an
     enum-decorated class with it.
     """
 
-    __args__ = ()
+    args = ()
 
+    def __new__(cls, args):
+        if args == ():
+            return cls
+        self = object.__new__(cls)
+        object.__setattr__(self, 'args', args)
+        return _CTOR_CACHE.setdefault(args, self)
 
-@staticmethod
-def __new__(cls, name, bases, namespace):
-    if bases != (Ctor,):
+    def __setattr__(self, name, value):
+        raise AttributeError(name)
+
+    def __init_subclass__(cls, **kwargs):
         raise TypeError
-    return super(_CtorMeta, cls).__new__(cls, name, bases, namespace)
+
+    def __class_getitem__(cls, args):
+        if not isinstance(args, tuple):
+            args = (args,)
+        return cls(args)
 
 
-_CtorMeta.__new__ = __new__
+def _is_ctor(ctor):
+    return Ctor in (ctor, ctor.__class__)
 
 
 def _args_length(constructor, global_ns):
@@ -99,8 +93,8 @@ def _args_length(constructor, global_ns):
             # references FROM a Ctor, but not within a decorated class.
             return None
     # We were given or constructed a Ctor, so just look at it.
-    if issubclass(constructor, Ctor):
-        return len(constructor.__args__)
+    if _is_ctor(constructor):
+        return len(constructor.args)
     # It wasn't a Ctor, so ignore it.
     return None
 
