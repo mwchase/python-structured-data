@@ -78,7 +78,7 @@ def names(target):
         elif isinstance(item, AsPattern):
             to_process.append(item.match)
             to_process.append(item.matcher)
-        elif isinstance(item, _EnumConstructor):
+        elif isinstance(item, EnumConstructor):
             to_process.extend(reversed(unpack(item)))
         elif isinstance(item, tuple):
             to_process.extend(reversed(item))

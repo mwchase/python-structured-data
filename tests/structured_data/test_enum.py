@@ -2,7 +2,6 @@ import typing
 
 import pytest
 
-
 T = typing.TypeVar('T')
 
 
