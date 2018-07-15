@@ -14,7 +14,7 @@ Changed
 ~~~~~~~
 
 - Broke the package into many smaller modules.
-- Switched many attributes to use ``WeakKeyDictionary``s instead.
+- Switched many attributes to use a ``WeakKeyDictionary`` instead.
 - Moved prewritten methods into a class to avoid defining reserved methods at the module level.
 
 Removed
