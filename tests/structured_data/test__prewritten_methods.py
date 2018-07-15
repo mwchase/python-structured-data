@@ -11,6 +11,8 @@ def classes(_enum_constructor, _prewritten_methods):
 
         __slots__ = ()
 
+        an_attr = None
+
     class Derived2(Base):
 
         __slots__ = ()
@@ -70,6 +72,8 @@ def test_hash(classes):
 def test_cant_set(classes):
     with pytest.raises(AttributeError):
         classes[1]().attr = None
+    with pytest.raises(AttributeError):
+        classes[1]().__slots__ = None
 
 
 def test_cant_del(classes):
