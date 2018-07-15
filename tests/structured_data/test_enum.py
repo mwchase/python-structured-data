@@ -75,5 +75,8 @@ def test_valid_eq(option_class):
         assert option_class.Left(1) != option_class.Right(1)
         assert option_class.Left(1) != option_class.Left(2)
     else:
+        instance = option_class.Left(1)
+        assert instance
         # The base class should compare by object identity instead.
+        assert instance == instance
         assert option_class.Left(1) != option_class.Left(1)
