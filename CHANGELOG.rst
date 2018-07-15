@@ -5,6 +5,17 @@ Changelog
 Unreleased
 ----------
 
+0.2.1 (2018-07-13)
+------------------
+
+Fixed
+~~~~~
+
+- Removed an incorrect classifier. This code cannot run on pypy.
+
+0.2.0 (2018-07-13)
+------------------
+
 Added
 ~~~~~
 
