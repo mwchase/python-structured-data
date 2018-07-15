@@ -107,8 +107,8 @@ def _name(cls, function) -> str:
 def _set_new_functions(cls, *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
-    If any attributes are already defined, fail before setting any, and return
-    the already-defined name.
+    If any attributes are already defined, fail *before* setting any, and
+    return the already-defined name.
     """
     for function in functions:
         if _name(cls, function) in cls.__dict__:
