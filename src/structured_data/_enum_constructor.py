@@ -3,7 +3,6 @@ import weakref
 
 
 class EnumConstructor:
-
     """Base class for ADT Constructor classes."""
 
     __slots__ = ()

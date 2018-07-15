@@ -27,6 +27,7 @@ def cant_modify(self, name):
 
 
 class PrewrittenMethods:
+    """Methods for classes decorated with ``structured_data.enum``."""
 
     def __repr__(self):
         return '{}({})'.format(
