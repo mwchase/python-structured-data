@@ -74,9 +74,15 @@ def test_valid_eq(option_class):
         # This next one is invalid type-wise.
         assert option_class.Left(1) != option_class.Right(1)
         assert option_class.Left(1) != option_class.Left(2)
+        assert hash(option_class.Left(1))
     else:
         instance = option_class.Left(1)
         assert instance
         # The base class should compare by object identity instead.
         assert instance == instance
         assert option_class.Left(1) != option_class.Left(1)
+
+
+def test_cant_hash():
+    with pytest.raises(TypeError):
+        assert not hash(enum_options.CustomEq.Left(1))

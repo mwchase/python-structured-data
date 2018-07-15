@@ -67,4 +67,14 @@ class ReprAndOrder:
     order = True
 
 
+@enum.enum
+class CustomEq:
+
+    Left: enum.Ctor[int]
+    Right: enum.Ctor[str]
+
+    def __eq__(self, other):
+        return self is other
+
+
 TEST_CLASSES = [AllFalse, EqOnly, MinimalOrder, ReprOnly, ReprAndEq, ReprAndOrder]
