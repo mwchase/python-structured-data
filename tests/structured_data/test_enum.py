@@ -88,3 +88,7 @@ def test_cant_hash():
         assert not hash(enum_options.CustomEq.Left(1))
     assert (
         enum_options.CustomEq.Left(1) != enum_options.CustomEq.Left(1))
+
+
+def test_str(option_class):
+    assert str(option_class.Left(1)) == repr(option_class.Left(1))
