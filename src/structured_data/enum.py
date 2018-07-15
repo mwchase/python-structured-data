@@ -47,10 +47,6 @@ class Ctor:
 ARGS[Ctor] = ()
 
 
-def _is_ctor(ctor):
-    return Ctor in (ctor, ctor.__class__)
-
-
 def _args_length(constructor, global_ns):
     # Handle forward declarations. Needed for 3.7 compatinility.
     if isinstance(constructor, str):
