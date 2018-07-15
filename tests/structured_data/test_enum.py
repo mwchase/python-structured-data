@@ -14,6 +14,11 @@ def enum_module(request):
         f'.enum_with_{request.param}', __name__.rpartition('.')[0])
 
 
+@pytest.fixture(scope='session', params=enum_options.TEST_CLASSES)
+def option_class(request):
+    return request.param
+
+
 def test_generic_subclass_succeeds(enum):
 
     @enum.enum
@@ -59,3 +64,16 @@ def test_enum_class(enum_module):
         for (index, typ) in enumerate(enum_class.right_type):
             expected_annotations_right[f'_{index}'] = typ
         assert annotations_right == expected_annotations_right
+
+
+def test_valid_eq(option_class):
+    if option_class.eq:
+        assert option_class.Left(1) == option_class.Left(1)
+        assert option_class.Right('abc') == option_class.Right('abc')
+        assert option_class.Left(1) != option_class.Right('abc')
+        # This next one is invalid type-wise.
+        assert option_class.Left(1) != option_class.Right(1)
+        assert option_class.Left(1) != option_class.Left(2)
+    else:
+        # The base class should compare by object identity instead.
+        assert option_class.Left(1) != option_class.Left(1)
