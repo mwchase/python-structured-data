@@ -3,6 +3,8 @@ import typing
 
 import pytest
 
+from . import enum_options
+
 T = typing.TypeVar('T')
 
 
