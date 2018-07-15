@@ -29,4 +29,12 @@ class StringedTwice:
     Right: "enum.Ctor['str']"
 
 
-TEST_CLASSES = [Basic, StringedInternally, StringedExternally, StringedTwice]
+@enum.enum
+class Tupled:
+
+    Left: enum.Ctor[int, 'int']
+    Right: "enum.Ctor[str, 'str']"
+
+
+TEST_CLASSES = [
+    Basic, StringedInternally, StringedExternally, StringedTwice, Tupled]

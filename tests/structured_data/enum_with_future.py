@@ -17,4 +17,11 @@ class StringedInternally:
     Right: enum.Ctor['str']
 
 
-TEST_CLASSES = [Basic, StringedInternally]
+@enum.enum
+class Tupled:
+
+    Left: enum.Ctor[int, 'int']
+    Right: enum.Ctor[str, 'str']
+
+
+TEST_CLASSES = [Basic, StringedInternally, Tupled]
