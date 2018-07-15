@@ -1,8 +1,15 @@
+import importlib
 import typing
 
 import pytest
 
 T = typing.TypeVar('T')
+
+
+@pytest.fixture(scope='session', params=['current', 'future'])
+def enum_module(request):
+    return importlib.import_module(
+        f'.enum_with_{request.param}', __name__.rpartition('.')[0])
 
 
 def test_generic_subclass_succeeds(enum):
@@ -31,3 +38,8 @@ def test_ctor_controls_subclass_creation(enum):
 def test_ctor_cant_index_twice(enum):
     with pytest.raises(TypeError):
         assert not enum.Ctor[list][list]
+
+
+def test_enum_class(enum_module):
+    for enum_class in enum_module.TEST_CLASSES:
+        assert enum_class
