@@ -23,6 +23,10 @@ class EnumConstructor:
             my_dir.append(attribute)
         return my_dir
 
+    __eq__ = object.__eq__
+    __ne__ = object.__ne__
+    __hash__ = object.__hash__
+
 
 SHADOWED_ATTRIBUTES = {
     '__add__',
@@ -34,9 +38,6 @@ SHADOWED_ATTRIBUTES = {
     '__rmul__',
     'count',
     'index',
-    '__hash__',
-    '__eq__',
-    '__ne__',
     '__lt__',
     '__le__',
     '__gt__',
