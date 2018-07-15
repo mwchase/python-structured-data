@@ -5,6 +5,23 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Simpler way to create match bindings.
+
+Changed
+~~~~~~~
+
+- Broke the package into many smaller modules.
+- Switched many attributes to use ``WeakKeyDictionary``s instead.
+- Moved prewritten methods into a class to avoid defining reserved methods at the module level.
+
+Removed
+~~~~~~~
+
+- Ctor metaclass.
+
 0.2.1 (2018-07-13)
 ------------------
 
