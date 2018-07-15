@@ -27,17 +27,12 @@ class Ctor:
     enum-decorated class with it.
     """
 
-    args = ()
-
     def __new__(cls, args):
         if args == ():
             return cls
         self = object.__new__(cls)
-        object.__setattr__(self, 'args', args)
+        ARGS[self] = args
         return _CTOR_CACHE.setdefault(args, self)
-
-    def __setattr__(self, name, value):
-        raise AttributeError(name)
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError
@@ -46,6 +41,9 @@ class Ctor:
         if not isinstance(args, tuple):
             args = (args,)
         return cls(args)
+
+
+ARGS[Ctor] = ()
 
 
 def _is_ctor(ctor):
@@ -96,9 +94,10 @@ def _args_length(constructor, global_ns):
             # The basic solution is to document that you can have forward
             # references FROM a Ctor, but not within a decorated class.
             return None
-    # We were given or constructed a Ctor, so just look at it.
-    if _is_ctor(constructor):
-        return len(constructor.args)
+    # Try to interpret the current value as a Ctor
+    ctor_args = ARGS.get(constructor)
+    if ctor_args is not None:
+        return len(ctor_args)
     # It wasn't a Ctor, so ignore it.
     return None
 

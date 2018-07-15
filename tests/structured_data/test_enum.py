@@ -31,9 +31,3 @@ def test_ctor_controls_subclass_creation(enum):
 def test_ctor_cant_index_twice(enum):
     with pytest.raises(TypeError):
         assert not enum.Ctor[list][list]
-
-
-def test_ctor_cant_assign_attribute(enum):
-    ctor = enum.Ctor[list]
-    with pytest.raises(AttributeError):
-        ctor.args = ()
