@@ -18,6 +18,7 @@ Changed
 - Broke the package into many smaller modules.
 - Switched many attributes to use a ``WeakKeyDictionary`` instead.
 - Moved prewritten methods into a class to avoid defining reserved methods at the module level.
+- When assigning equality methods is disabled for a decorated class, the default behavior is now ``object`` semantics, rather than failing comparison and hashing with a ``TypeError``.
 
 Removed
 ~~~~~~~
