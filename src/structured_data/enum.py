@@ -5,6 +5,8 @@ import sys
 import typing
 import weakref
 
+import astor
+
 from ._enum_constructor import make_constructor
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
@@ -47,7 +49,7 @@ class Ctor:
 ARGS[Ctor] = ()
 
 
-def _args_length(constructor, global_ns):
+def _args(constructor, global_ns):
     # Handle forward declarations. Needed for 3.7 compatinility.
     if isinstance(constructor, str):
         # Leverage Python's parser instead of trying to parse by hand.
@@ -72,13 +74,13 @@ def _args_length(constructor, global_ns):
             if value is Ctor:
                 # Pull the information directly off a Tuple node.
                 if isinstance(index, ast.Tuple):
-                    return len(index.elts)
+                    return tuple(astor.to_source(elt) for elt in index.elts)
                 # Otherwise, assume it's a sequence of length 1.
                 # It's possible for this heuristic to return false answers, BUT
                 # it seems like everywhere that AST inspection and evaluation
                 # disagree, it needs syntax that breaks mypy, so it's sort of
                 # like it doesn't matter.
-                return 1
+                return (astor.to_source(index),)
         try:
             # If the above conditions didn't hold, maybe it's an alias.
             # We could try to validate the AST, but we need to know the value
@@ -92,11 +94,7 @@ def _args_length(constructor, global_ns):
             # references FROM a Ctor, but not within a decorated class.
             return None
     # Try to interpret the current value as a Ctor
-    ctor_args = ARGS.get(constructor)
-    if ctor_args is not None:
-        return len(ctor_args)
-    # It wasn't a Ctor, so ignore it.
-    return None
+    return ARGS.get(constructor)
 
 
 def _name(cls, function) -> str:
@@ -122,20 +120,20 @@ def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
 
-    lengths = {}
+    argses = {}
     subclasses = set()
     subclass_order = []
     for cls in reversed(_cls.__mro__):
         for key, value in getattr(cls, '__annotations__', {}).items():
-            length = _args_length(value, sys.modules[cls.__module__].__dict__)
+            args = _args(value, sys.modules[cls.__module__].__dict__)
             # Shadow redone annotations.
-            if length is None:
-                lengths.pop(key, None)
+            if args is None:
+                argses.pop(key, None)
             else:
-                lengths[key] = length
+                argses[key] = args
 
-    for name, length in lengths.items():
-        make_constructor(_cls, name, length, subclasses, subclass_order)
+    for name, args in argses.items():
+        make_constructor(_cls, name, args, subclasses, subclass_order)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

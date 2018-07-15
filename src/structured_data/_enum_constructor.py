@@ -65,7 +65,9 @@ class EnumMember:
 ENUM_BASES = weakref.WeakKeyDictionary()
 
 
-def make_constructor(_cls, name, length, subclasses, subclass_order):
+def make_constructor(_cls, name, args, subclasses, subclass_order):
+    length = len(args)
+
     class Constructor(_cls, EnumConstructor, tuple):
         """Auto-generated subclass of an ADT."""
         __slots__ = ()
