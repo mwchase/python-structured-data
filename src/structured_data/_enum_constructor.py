@@ -87,5 +87,16 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
     setattr(_cls, name, EnumMember(_cls, Constructor))
     subclass_order.append(Constructor)
 
+    annotations = {f'_{index}': arg for (index, arg) in enumerate(args)}
+    parameters = [
+        inspect.Parameter(
+            name, inspect.Parameter.POSITIONAL_ONLY, annotation=arg)
+        for (name, arg) in annotations.items()]
+    annotations['return'] = _cls.__qualname__
+
+    Constructor.__new__.__signature__ = inspect.Signature(
+        parameters, return_annotation=_cls.__qualname__)
+    Constructor.__new__.__annotations__ = annotations
+
 
 __all__ = ['EnumConstructor', 'make_constructor']
