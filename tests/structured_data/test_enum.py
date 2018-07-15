@@ -86,3 +86,5 @@ def test_valid_eq(option_class):
 def test_cant_hash():
     with pytest.raises(TypeError):
         assert not hash(enum_options.CustomEq.Left(1))
+    assert (
+        enum_options.CustomEq.Left(1) != enum_options.CustomEq.Left(1))
