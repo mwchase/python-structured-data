@@ -37,3 +37,27 @@ def test_ne(classes):
     assert not (classes[1]() != classes[1]())
     assert classes[1]() != classes[2]()
     assert classes[1]() != (True,)
+
+
+def test_lt(classes):
+    assert not (classes[1]() < classes[1]())
+    assert classes[1]() < classes[2]()
+    assert classes[1]() < (True,)
+
+
+def test_le(classes):
+    assert classes[1]() <= classes[1]()
+    assert classes[1]() <= classes[2]()
+    assert classes[1]() <= ()
+
+
+def test_gt(classes):
+    assert not (classes[1]() > classes[1]())
+    assert not (classes[1]() > classes[2]())
+    assert not (classes[1]() > (True,))
+
+
+def test_ge(classes):
+    assert classes[1]() >= classes[1]()
+    assert not (classes[1]() >= classes[2]())
+    assert classes[1]() >= ()
