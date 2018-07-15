@@ -61,3 +61,21 @@ def test_ge(classes):
     assert classes[1]() >= classes[1]()
     assert not (classes[1]() >= classes[2]())
     assert classes[1]() >= ()
+
+
+def test_hash(classes):
+    assert hash(classes[1]()) == hash(())
+
+
+def test_cant_set(classes):
+    with pytest.raises(AttributeError):
+        classes[1]().attr = None
+
+
+def test_cant_del(classes):
+    with pytest.raises(AttributeError):
+        del classes[1]().attr
+
+
+def test_bool(classes):
+    assert classes[1]()
