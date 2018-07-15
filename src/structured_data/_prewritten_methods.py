@@ -1,4 +1,5 @@
 import inspect
+import weakref
 
 from ._enum_constructor import ENUM_BASES
 from ._unpack import unpack
@@ -9,6 +10,9 @@ def enum_base(obj):
 
 
 MISSING = object()
+
+
+SUBCLASS_ORDER = weakref.WeakKeyDictionary()
 
 
 def cant_modify(self, name):
@@ -47,7 +51,7 @@ class PrewrittenMethods:
         if other.__class__ is self.__class__:
             return unpack(self) < unpack(other)
         if enum_base(other) is enum_base(self):
-            order = enum_base(self).__subclass_order__
+            order = SUBCLASS_ORDER.get(enum_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index < other_index
@@ -57,7 +61,7 @@ class PrewrittenMethods:
         if other.__class__ is self.__class__:
             return unpack(self) <= unpack(other)
         if enum_base(other) is enum_base(self):
-            order = enum_base(self).__subclass_order__
+            order = SUBCLASS_ORDER.get(enum_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index <= other_index
@@ -67,7 +71,7 @@ class PrewrittenMethods:
         if other.__class__ is self.__class__:
             return unpack(self) > unpack(other)
         if enum_base(other) is enum_base(self):
-            order = enum_base(self).__subclass_order__
+            order = SUBCLASS_ORDER.get(enum_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index > other_index
@@ -77,7 +81,7 @@ class PrewrittenMethods:
         if other.__class__ is self.__class__:
             return unpack(self) >= unpack(other)
         if enum_base(other) is enum_base(self):
-            order = enum_base(self).__subclass_order__
+            order = SUBCLASS_ORDER.get(enum_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index >= other_index

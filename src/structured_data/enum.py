@@ -3,9 +3,10 @@
 import ast
 import sys
 import typing
+import weakref
 
 from ._enum_constructor import make_constructor
-from ._prewritten_methods import PrewrittenMethods
+from ._prewritten_methods import PrewrittenMethods, SUBCLASS_ORDER
 
 # pylint disables, pending config file
 # pylint: disable=too-few-public-methods
@@ -14,6 +15,9 @@ from ._prewritten_methods import PrewrittenMethods
 _CTOR_CACHE = {}
 
 __version__ = '0.2.1'
+
+
+ARGS = weakref.WeakKeyDictionary()
 
 
 class Ctor:
@@ -193,7 +197,7 @@ def _process_class(_cls, _repr, eq, order):
                 '{name}. Consider using functools.total_ordering'.format(
                     collision=collision, name=_cls.__name__))
 
-    _cls.__subclass_order__ = tuple(subclass_order)
+    SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
     return _cls
 
