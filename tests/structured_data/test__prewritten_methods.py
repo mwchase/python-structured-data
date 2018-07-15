@@ -22,4 +22,4 @@ def classes(_enum_constructor, _prewritten_methods):
 
 
 def test_repr(classes):
-    assert repr(classes[1]()) == 'Derived1()'
+    assert repr(classes[1]()) == 'classes.<locals>.Derived1()'
