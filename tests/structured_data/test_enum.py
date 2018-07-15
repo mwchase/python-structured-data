@@ -43,3 +43,17 @@ def test_ctor_cant_index_twice(enum):
 def test_enum_class(enum_module):
     for enum_class in enum_module.TEST_CLASSES:
         assert enum_class
+
+        annotations_left = typing.get_type_hints(
+            enum_class.Left.__new__, vars(enum_module))
+        expected_annotations_left = {'return': enum_class}
+        for (index, typ) in enumerate(enum_class.left_type):
+            expected_annotations_left[f'_{index}'] = typ
+        assert annotations_left == expected_annotations_left
+
+        annotations_right = typing.get_type_hints(
+            enum_class.Right.__new__, vars(enum_module))
+        expected_annotations_right = {'return': enum_class}
+        for (index, typ) in enumerate(enum_class.right_type):
+            expected_annotations_right[f'_{index}'] = typ
+        assert annotations_right == expected_annotations_right
