@@ -11,3 +11,15 @@ def enum():
 def match():
     from structured_data import match
     return match
+
+
+@pytest.fixture(scope='session')
+def _prewritten_methods():
+    from structured_data import _prewritten_methods
+    return _prewritten_methods
+
+
+@pytest.fixture(scope='session')
+def _enum_constructor():
+    from structured_data import _enum_constructor
+    return _enum_constructor

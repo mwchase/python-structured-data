@@ -1,10 +1,11 @@
 import inspect
 
+from ._enum_constructor import ENUM_BASES
 from ._unpack import unpack
 
 
 def enum_base(obj):
-    return getattr(obj.__class__, '__enum_base__', None)
+    return ENUM_BASES.get(obj.__class__)
 
 
 MISSING = object()

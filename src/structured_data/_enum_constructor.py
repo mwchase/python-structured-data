@@ -1,4 +1,5 @@
 import inspect
+import weakref
 
 
 class EnumConstructor:
@@ -62,17 +63,20 @@ class EnumMember:
         raise AttributeError('Can only access enum members through base class.')
 
 
+ENUM_BASES = weakref.WeakKeyDictionary()
+
+
 def make_constructor(_cls, name, length, subclasses, subclass_order):
     class Constructor(_cls, EnumConstructor, tuple):
         """Auto-generated subclass of an ADT."""
         __slots__ = ()
 
-        __enum_base__ = _cls
-
         def __new__(cls, *args):
             if len(args) != length:
                 raise ValueError
             return super().__new__(cls, args)
+
+    ENUM_BASES[Constructor] = _cls
 
     Constructor.__name__ = name
     Constructor.__qualname__ = '{qualname}.{name}'.format(
