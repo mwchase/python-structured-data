@@ -4,5 +4,5 @@ def test_maybe(data):
 
 
 def test_result(data):
-    assert data.Result.Ok(5)
-    assert data.Result.Err('failed')
+    assert data.Either.Left('failed')
+    assert data.Either.Right(5)

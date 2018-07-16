@@ -15,7 +15,7 @@ class Maybe(typing.Generic[T]):
 
 
 @enum.enum
-class Result(typing.Generic[R, E]):
+class Either(typing.Generic[E, R]):
 
-    Ok: enum.Ctor[R]
-    Err: enum.Ctor[E]
+    Left: enum.Ctor[E]
+    Right: enum.Ctor[R]

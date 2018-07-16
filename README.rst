@@ -99,10 +99,10 @@ Here are implementations of common algebraic data types in other languages:
         Nothing: enum.Ctor
 
     @enum.enum
-    class Result(typing.Generic[R, E]):
+    class Either(typing.Generic[E, R]):
 
-        Ok: enum.Ctor[R]
-        Err: enum.Ctor[E]
+        Left: enum.Ctor[E]
+        Right: enum.Ctor[R]
 
 * Free software: MIT license
 
