@@ -120,7 +120,7 @@ def _match(target, value):
             to_process.extend(zip(reversed(unpack(target)),
                                   reversed(desugar(type(target), value))))
         elif (isinstance(target, tuple) and
-              target.__class__ is value.__class__ and
+              isinstance(value, target.__class__) and
               len(target) == len(value)):
             to_process.extend(zip(reversed(target), reversed(value)))
         elif isinstance(target, tuple) or target != value:
