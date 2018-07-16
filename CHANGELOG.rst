@@ -11,6 +11,7 @@ Added
 - Simpler way to create match bindings.
 - Dependency on the ``astor`` library.
 - First attempt at populating the annotations and signature of the generated constructors.
+- ``data`` module containing some generic algebraic data types.
 
 Changed
 ~~~~~~~
