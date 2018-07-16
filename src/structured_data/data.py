@@ -2,7 +2,6 @@ import typing
 
 from . import enum
 
-
 T = typing.TypeVar('T')
 R = typing.TypeVar('R')
 E = typing.TypeVar('E')
