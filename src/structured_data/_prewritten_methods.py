@@ -37,16 +37,12 @@ class PrewrittenMethods:
     def __eq__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) == unpack(other)
-        if enum_base(other) is enum_base(self):
-            return False
-        return NotImplemented
+        return False
 
     def __ne__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) != unpack(other)
-        if enum_base(other) is enum_base(self):
-            return True
-        return NotImplemented
+        return True
 
     def __lt__(self, other):
         if other.__class__ is self.__class__:
@@ -56,7 +52,7 @@ class PrewrittenMethods:
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index < other_index
-        return NotImplemented
+        raise TypeError
 
     def __le__(self, other):
         if other.__class__ is self.__class__:
@@ -66,7 +62,7 @@ class PrewrittenMethods:
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index <= other_index
-        return NotImplemented
+        raise TypeError
 
     def __gt__(self, other):
         if other.__class__ is self.__class__:
@@ -76,7 +72,7 @@ class PrewrittenMethods:
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index > other_index
-        return NotImplemented
+        raise TypeError
 
     def __ge__(self, other):
         if other.__class__ is self.__class__:
@@ -86,7 +82,7 @@ class PrewrittenMethods:
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index >= other_index
-        return NotImplemented
+        raise TypeError
 
     def __hash__(self):
         return hash(unpack(self))

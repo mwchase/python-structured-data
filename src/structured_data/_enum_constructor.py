@@ -23,9 +23,14 @@ class EnumConstructor:
             my_dir.append(attribute)
         return my_dir
 
-    __eq__ = object.__eq__
-    __ne__ = object.__ne__
-    __hash__ = object.__hash__
+    def __eq__(self, other):
+        return id(self) == id(other)
+
+    def __ne__(self, other):
+        return id(self) != id(other)
+
+    def __hash__(self):
+        return object.__hash__(self)
 
 
 SHADOWED_ATTRIBUTES = {
