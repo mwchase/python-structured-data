@@ -60,7 +60,7 @@ Overview
 .. end-badges
 
 Code generators for immutable structured data, including algebraic data types, and functions to destructure them.
-Structured Data provides two public modules: :module:`structured_data.enum` and :module:`structured_data.match`.
+Structured Data provides two public modules: ``structured_data.enum`` and ``structured_data.match``.
 
 The ``enum`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
 
