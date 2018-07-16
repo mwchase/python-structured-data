@@ -87,3 +87,8 @@ def test_cant_hash():
 
 def test_str(option_class):
     assert str(option_class.Left(1)) == repr(option_class.Left(1))
+
+
+def test_cant_init_superclass(option_class):
+    with pytest.raises(TypeError):
+        assert not option_class(())
