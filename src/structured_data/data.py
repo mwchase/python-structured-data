@@ -26,24 +26,21 @@ class Maybe(typing.Generic[T]):
         return typing.cast(Maybe[B], self)
 
     @classmethod
-    def return_(cls: 'typing.Type[Maybe[T]]', t: T) -> 'Maybe[T]':
+    def unit(cls: 'typing.Type[Maybe[T]]', t: T) -> 'Maybe[T]':
         return cls.Just(t)
 
-    def apply(self: 'Maybe[typing.Callable[[A], [B]]]', a: 'Maybe[A]') -> 'Maybe[B]':
+    def join(self: 'Maybe[Maybe[A]]') -> 'Maybe[A]':
         just_matcher = Maybe.Just(match.pat.a)
-        applied = self.fmap(a.fmap)
-        value_matcher = match.ValueMatcher(applied)
+        value_matcher = match.ValueMatcher(self)
         if value_matcher.match(just_matcher):
             return value_matcher.matches['a']
-        return typing.cast(Maybe[B], applied)
+        return typing.cast(Maybe[A], self)
+
+    def apply(self: 'Maybe[typing.Callable[[A], [B]]]', a: 'Maybe[A]') -> 'Maybe[B]':
+        return self.bind(a.fmap)
 
     def bind(self: 'Maybe[A]', func: 'typing.Callable[[A], Maybe[B]]') -> 'Maybe[B]':
-        just_matcher = Maybe.Just(match.pat.a)
-        applied = self.fmap(func)
-        value_matcher = match.ValueMatcher(applied)
-        if value_matcher.match(just_matcher):
-            return value_matcher.matches['a']
-        return typing.cast(Maybe[B], applied)
+        return self.fmap(func).join()
 
 
 @enum.enum
@@ -60,21 +57,18 @@ class Either(typing.Generic[E, R]):
         return typing.cast(Either[A, C], self)
 
     @classmethod
-    def return_(cls: 'typing.Type[Either[A, T]]', t: T) -> 'Either[A, T]':
+    def unit(cls: 'typing.Type[Either[A, T]]', t: T) -> 'Either[A, T]':
         return cls.Right(t)
 
-    def apply(self: 'Either[A, typing.Callable[[B], C]]', b: 'Either[A, B]') -> 'Either[A, C]':
+    def join(self: 'Either[A, Either[A, B]]') -> 'Either[A, B]':
         right_matcher = Either.Right(match.pat.right)
-        applied = self.fmap(b.fmap)
-        value_matcher = match.ValueMatcher(applied)
+        value_matcher = match.ValueMatcher(self)
         if value_matcher.match(right_matcher):
             return value_matcher.matches['right']
-        return typing.cast(Either[A, C], applied)
+        return typing.cast(Either[A, B], self)
+
+    def apply(self: 'Either[A, typing.Callable[[B], C]]', b: 'Either[A, B]') -> 'Either[A, C]':
+        return self.bind(b.fmap)
 
     def bind(self: 'Either[A, B]', func: 'typing.Callable[[B], Either[A, C]]') -> 'Either[A, C]':
-        right_matcher = Either.Right(match.pat.right)
-        applied = self.fmap(func)
-        value_matcher = match.ValueMatcher(applied)
-        if value_matcher.match(right_matcher):
-            return value_matcher.matches['right']
-        return typing.cast(Either[A, C], applied)
+        return self.fmap(func).join()
