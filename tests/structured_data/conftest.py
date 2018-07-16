@@ -23,3 +23,9 @@ def _prewritten_methods():
 def _enum_constructor():
     from structured_data import _enum_constructor
     return _enum_constructor
+
+
+@pytest.fixture(scope='session')
+def data():
+    from structured_data import data
+    return data
