@@ -123,7 +123,7 @@ def _process_class(_cls, _repr, eq, order):
     subclass_order = []
     for cls in reversed(_cls.__mro__):
         for key, value in getattr(cls, '__annotations__', {}).items():
-            args = _args(value, sys.modules[cls.__module__].__dict__)
+            args = _args(value, vars(sys.modules[cls.__module__]))
             # Shadow redone annotations.
             if args is None:
                 argses.pop(key, None)
