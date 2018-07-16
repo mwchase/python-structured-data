@@ -21,7 +21,6 @@ Changed
 - Switched many attributes to use a ``WeakKeyDictionary`` instead.
 - Moved prewritten methods into a class to avoid defining reserved methods at the module level.
 - When assigning equality methods is disabled for a decorated class, the default behavior is now ``object`` semantics, rather than failing comparison and hashing with a ``TypeError``.
-- The baseline equality behavior for ``EnumConstructor`` is now explicitly by ``id``.
 - The prewritten comparison methods no longer return ``NotImplemented``.
 
 Removed
