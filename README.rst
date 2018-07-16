@@ -108,6 +108,19 @@ The ``data`` module provides classes based on these examples.
 
 * Free software: MIT license
 
+Should I Use This?
+==================
+
+Until there's a major version out, probably not.
+
+There are several alternatives in the standard library that may be better suited to particular use-cases:
+
+- The ``namedtuple`` factory creates tuple classes with a single structure; the ``typing.NamedTuple`` class offers the ability to include type information. The interface is slightly awkward, and the values expose their tuple-nature easily.
+- The ``enum`` module provides base classes to create finite enumerations. Unlike NamedTuple, the ability to convert values into an underlying type must be opted into in the class definition.
+- The ``dataclasses`` module provides a class decorator that converts a class into one with a single structure, similar to a namedtuple, but with more customization: instances are mutable by default, and it's possible to generate implementations of common protocols.
+- The Structured Data ``enum`` decorator is inspired by the design of ``dataclasses``. (A previous attempt used metaclasses inspired by the ``enum`` module, and was a nightmare.) Unlike ``enum``, it doesn't require all instances to be defined up front; instead each class defines constructors using a sequence of types, which ultimately determines the number of arguments the constructor takes. Unlike ``namedtuple`` and ``dataclasses``, it allows instances to have multiple shapes with their own type signatures. Unlike using regular classes, the set of shapes is specified up front.
+- If you want multiple shapes, and don't want to specify them ahead of time, your best bet is probably a normal tree of classes, where the leaf classes are ``dataclasses``.
+
 Installation
 ============
 
