@@ -14,11 +14,6 @@ def enum_module(request):
         f'.enum_with_{request.param}', __name__.rpartition('.')[0])
 
 
-@pytest.fixture(scope='session', params=enum_options.TEST_CLASSES)
-def option_class(request):
-    return request.param
-
-
 def test_generic_subclass_succeeds(enum):
 
     @enum.enum

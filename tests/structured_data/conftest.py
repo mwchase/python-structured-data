@@ -1,5 +1,7 @@
 import pytest
 
+from . import enum_options
+
 
 @pytest.fixture(scope='session')
 def enum():
@@ -29,3 +31,8 @@ def _enum_constructor():
 def data():
     from structured_data import data
     return data
+
+
+@pytest.fixture(scope='session', params=enum_options.TEST_CLASSES)
+def option_class(request):
+    return request.param
