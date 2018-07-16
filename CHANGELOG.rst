@@ -12,6 +12,7 @@ Added
 - Dependency on the ``astor`` library.
 - First attempt at populating the annotations and signature of the generated constructors.
 - ``data`` module containing some generic algebraic data types.
+- Attempts at monad implementations for ``data`` classes.
 
 Changed
 ~~~~~~~
