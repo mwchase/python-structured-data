@@ -17,8 +17,6 @@ from ._prewritten_methods import PrewrittenMethods
 
 _CTOR_CACHE = {}
 
-__version__ = '0.2.1'
-
 
 ARGS = weakref.WeakKeyDictionary()
 
