@@ -60,7 +60,7 @@ Overview
 .. end-badges
 
 Code generators for immutable structured data, including algebraic data types, and functions to destructure them.
-Structured Data provides two public modules: ``structured_data.enum`` and ``structured_data.match``.
+Structured Data provides three public modules: ``structured_data.enum``, ``structured_data.match``, and ``structured_data.data``.
 
 The ``enum`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
 
@@ -103,6 +103,8 @@ Here are implementations of common algebraic data types in other languages:
 
         Left: enum.Ctor[E]
         Right: enum.Ctor[R]
+
+The ``data`` module provides classes based on these examples.
 
 * Free software: MIT license
 
