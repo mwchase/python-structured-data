@@ -1,15 +1,10 @@
 import typing
 
 from . import enum
-from . import match
 
 T = typing.TypeVar('T')
 R = typing.TypeVar('R')
 E = typing.TypeVar('E')
-
-A = typing.TypeVar('A')
-B = typing.TypeVar('B')
-C = typing.TypeVar('C')
 
 
 @enum.enum
