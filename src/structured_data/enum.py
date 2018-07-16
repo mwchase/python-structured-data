@@ -133,11 +133,7 @@ def _process_class(_cls, _repr, eq, order):
     for name, args in argses.items():
         make_constructor(_cls, name, args, subclasses, subclass_order)
 
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        raise TypeError
-
-    _cls.__init_subclass__ = __init_subclass__
+    _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
     @staticmethod
     def __new__(cls, args):

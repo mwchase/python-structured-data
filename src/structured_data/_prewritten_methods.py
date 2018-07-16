@@ -29,6 +29,9 @@ def cant_modify(self, name):
 class PrewrittenMethods:
     """Methods for classes decorated with ``structured_data.enum``."""
 
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
     def __repr__(self):
         return '{}({})'.format(
             self.__class__.__qualname__,
