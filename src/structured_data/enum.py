@@ -138,6 +138,7 @@ def _process_class(_cls, _repr, eq, order):
         return super(_cls, cls).__new__(cls, args)
 
     if _set_new_functions(_cls, __new__):
+        del __new__
         base__new__ = _cls.__new__
 
         @staticmethod
