@@ -33,3 +33,20 @@ def test_matching(enum, match):
 def test_as(match):
     pat = match.pat.hello
     assert pat @ match.pat._ is pat
+
+
+def test_map_interface(match):
+    matcher = match.ValueMatcher((1, 2, 3, 4))
+    matcher.match((match.pat.a, match.pat._, match.pat._, match.pat.b))
+    assert len(matcher.matches) == 2
+    with pytest.raises(KeyError):
+        assert not matcher.matches[None]
+
+    matcher.matches[match.pat.c] = 7
+    del matcher.matches[match.pat.c]
+
+    with pytest.raises(TypeError):
+        matcher.matches[None] = None
+
+    with pytest.raises(KeyError):
+        del matcher.matches[None]
