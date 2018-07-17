@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Mapping class especially for match values. It's capable of quickly and concisely pulling out groups of variables, but it also properly supports extracting just a single value.
+
 0.3.0 (2018-07-15)
 ------------------
 
