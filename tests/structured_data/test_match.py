@@ -28,6 +28,7 @@ def test_matching(enum, match):
             match.pat.b, match.pat.c)))
     assert matcher.matches == dict(tup=(1, 2), a=2, b='a', c='b')
     assert matcher.matches[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
+    assert list(matcher.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
 
 
 def test_as(match):
