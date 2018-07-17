@@ -110,6 +110,21 @@ def _set_new_functions(cls, *functions) -> typing.Optional[str]:
     return None
 
 
+def _enum_super(_cls):
+    def base(cls, args):
+        return super(_cls, cls).__new__(cls, args)
+    return base
+
+
+def _make_nested_new(_cls, subclasses, base__new__):
+    @staticmethod
+    def __new__(cls, args):
+        if cls not in subclasses:
+            raise TypeError
+        return base__new__(cls, args)
+    return __new__
+
+
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
@@ -131,23 +146,8 @@ def _process_class(_cls, _repr, eq, order):
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
-    @staticmethod
-    def __new__(cls, args):
-        if cls not in subclasses:
-            raise TypeError
-        return super(_cls, cls).__new__(cls, args)
-
-    if _set_new_functions(_cls, __new__):
-        del __new__
-        base__new__ = _cls.__new__
-
-        @staticmethod
-        def __new__(cls, args):
-            if cls not in subclasses:
-                raise TypeError
-            return base__new__(cls, args)
-
-        _cls.__new__ = __new__
+    if _set_new_functions(_cls, _make_nested_new(_cls, subclasses, _enum_super(_cls))):
+        _cls.__new__ = _make_nested_new(_cls, subclasses, _cls.__new__)
 
     _set_new_functions(
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__)
