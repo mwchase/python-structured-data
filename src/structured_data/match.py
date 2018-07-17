@@ -119,6 +119,13 @@ PROCESSORS = (
 )
 
 
+def get_processor(processor_pairs, item):
+    for predicate, meta in processor_pairs:
+        if predicate(item):
+            return meta(item)
+    return None
+
+
 def names(target):
     """Return every name bound by a target."""
     name_list = []
@@ -131,12 +138,10 @@ def names(target):
                 raise ValueError
             names_seen.add(item.name)
             name_list.append(item.name)
-            continue
-        for predicate, meta in PROCESSORS:
-            if predicate(item):
-                processor = meta(item)
+        else:
+            processor = get_processor(PROCESSORS, item)
+            if processor:
                 to_process.extend(processor(item))
-                break
     return name_list
 
 
@@ -185,14 +190,11 @@ def _match(target, value):
                 raise ValueError
             match_dict[target.name] = value
             continue
-        for predicate, meta in PROCESSORS:
-            if predicate(target):
-                processor = meta(target)
-                to_process.extend(zip(processor(target), processor(value)))
-                break
-        else:
-            if target != value:
-                raise MatchFailure
+        processor = get_processor(PROCESSORS, target)
+        if processor:
+            to_process.extend(zip(processor(target), processor(value)))
+        elif target != value:
+            raise MatchFailure
     return match_dict
 
 
