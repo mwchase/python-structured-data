@@ -12,7 +12,7 @@ Overview
     * - tests
       - | |travis| |appveyor| |requires|
         | |codecov|
-        | |codacy|
+        | |codacy| |codebeat| |scrutinizer|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -40,6 +40,14 @@ Overview
 .. |codacy| image:: https://img.shields.io/codacy/1a9e4a5640b446768c21a87d3566d33e.svg?style=flat
     :target: https://www.codacy.com/app/max-chase/python-structured-data
     :alt: Codacy Code Quality Status
+
+.. |codebeat| image:: https://codebeat.co/badges/de1fa625-e4d4-4e11-bf94-ee9b4a0acf91
+    :target: https://codebeat.co/projects/github-com-mwchase-python-structured-data-master
+    :alt: Codebeat Code Quality Status
+
+.. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
+    :target: https://scrutinizer-ci.com/g/mwchase/python-structured-data/?branch=master
+    :alt: Scrutinizer Code Quality Status
 
 .. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
     :alt: PyPI Package latest release
