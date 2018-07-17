@@ -80,6 +80,45 @@ class AsPattern(tuple):
         return self[1]
 
 
+def isinstance_predicate(typ):
+    def predicate(target):
+        return isinstance(target, typ)
+    return predicate
+
+
+def as_pattern_processor(target):
+    def processor(value):
+        if target is value:
+            yield target.match
+            yield target.matcher
+        else:
+            yield value
+            yield value
+    return processor
+
+
+def enum_processor(target):
+    def processor(value):
+        yield from reversed(desugar(type(target), value))
+    return processor
+
+
+def tuple_processor(target):
+    def processor(value):
+        if isinstance(value, target.__class__) and len(target) == len(value):
+            yield from reversed(value)
+        else:
+            raise MatchFailure
+    return processor
+
+
+PROCESSORS = (
+    (isinstance_predicate(AsPattern), as_pattern_processor),
+    (isinstance_predicate(EnumConstructor), enum_processor),
+    (isinstance_predicate(tuple), tuple_processor),
+)
+
+
 def names(target):
     """Return every name bound by a target."""
     name_list = []
@@ -92,13 +131,12 @@ def names(target):
                 raise ValueError
             names_seen.add(item.name)
             name_list.append(item.name)
-        elif isinstance(item, AsPattern):
-            to_process.append(item.match)
-            to_process.append(item.matcher)
-        elif isinstance(item, EnumConstructor):
-            to_process.extend(reversed(unpack(item)))
-        elif isinstance(item, tuple):
-            to_process.extend(reversed(item))
+            continue
+        for predicate, meta in PROCESSORS:
+            if predicate(item):
+                processor = meta(item)
+                to_process.extend(processor(item))
+                break
     return name_list
 
 
@@ -141,23 +179,20 @@ def _match(target, value):
     while to_process:
         target, value = to_process.pop()
         if target is DISCARD:
-            pass
-        elif isinstance(target, Pattern):
+            continue
+        if isinstance(target, Pattern):
             if target.name in match_dict:
                 raise ValueError
             match_dict[target.name] = value
-        elif isinstance(target, AsPattern):
-            to_process.append((target.match, value))
-            to_process.append((target.matcher, value))
-        elif isinstance(target, EnumConstructor):
-            to_process.extend(zip(reversed(unpack(target)),
-                                  reversed(desugar(type(target), value))))
-        elif (isinstance(target, tuple) and
-              isinstance(value, target.__class__) and
-              len(target) == len(value)):
-            to_process.extend(zip(reversed(target), reversed(value)))
-        elif isinstance(target, tuple) or target != value:
-            raise MatchFailure
+            continue
+        for predicate, meta in PROCESSORS:
+            if predicate(target):
+                processor = meta(target)
+                to_process.extend(zip(processor(target), processor(value)))
+                break
+        else:
+            if target != value:
+                raise MatchFailure
     return match_dict
 
 
