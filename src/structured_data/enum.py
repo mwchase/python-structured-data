@@ -11,10 +11,6 @@ from ._enum_constructor import make_constructor
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
 
-# pylint disables, pending config file
-# pylint: disable=too-few-public-methods
-
-
 _CTOR_CACHE = {}
 
 

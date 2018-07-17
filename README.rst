@@ -12,6 +12,7 @@ Overview
     * - tests
       - | |travis| |appveyor| |requires|
         | |codecov|
+        | |codacy|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -35,6 +36,10 @@ Overview
 .. |codecov| image:: https://codecov.io/github/mwchase/python-structured-data/coverage.svg?branch=master
     :alt: Coverage Status
     :target: https://codecov.io/github/mwchase/python-structured-data
+
+.. |codacy| image:: https://img.shields.io/codacy/1a9e4a5640b446768c21a87d3566d33e.svg?style=flat
+    :target: https://www.codacy.com/app/max-chase/python-structured-data
+    :alt: Codacy Code Quality Status
 
 .. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
     :alt: PyPI Package latest release
