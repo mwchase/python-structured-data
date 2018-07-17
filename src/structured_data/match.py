@@ -102,8 +102,41 @@ def names(target):
     yield from name_list
 
 
+class MatchDict(collections.abc.MutableMapping):
+
+    def __init__(self):
+        self.data = {}
+
+    def __getitem__(self, key):
+        if isinstance(key, Pattern):
+            key = key.name
+        if isinstance(key, str):
+            return self.data[key]
+        if isinstance(key, tuple):
+            return tuple(self[sub_key] for sub_key in key)
+        raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        if isinstance(key, Pattern):
+            key = key.name
+        if not isinstance(key, str):
+            raise TypeError
+        self.data[key] = value
+
+    def __delitem__(self, key):
+        if isinstance(key, Pattern):
+            key = key.name
+        del self.data[key]
+
+    def __iter__(self):
+        yield from self.data
+
+    def __len__(self):
+        return len(self.data)
+
+
 def _match(target, value):
-    match_dict = collections.OrderedDict()
+    match_dict = MatchDict()
     to_process = [(target, value)]
     while to_process:
         target, value = to_process.pop()
@@ -126,12 +159,6 @@ def _match(target, value):
         elif isinstance(target, tuple) or target != value:
             raise MatchFailure
     return match_dict
-
-
-def get_values(dct, keys):
-    """Unpack a dict, in order."""
-    for key in keys:
-        yield dct[key]
 
 
 class ValueMatcher:
