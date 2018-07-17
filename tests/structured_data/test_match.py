@@ -22,13 +22,15 @@ def test_matching(enum, match):
         (match.pat._, 4),
         match.pat._))
     assert matcher.matches is None
-    assert matcher.match((
+    structure = (
         match.pat.tup @ (1, match.pat.a),
         TestClass.StrPair(
-            match.pat.b, match.pat.c)))
+            match.pat.b, match.pat.c))
+    assert matcher.match(structure)
     assert matcher.matches == dict(tup=(1, 2), a=2, b='a', c='b')
     assert matcher.matches[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
     assert list(matcher.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
+    assert match.names(structure) == ['tup', 'a', 'b', 'c']
 
 
 def test_as(match):

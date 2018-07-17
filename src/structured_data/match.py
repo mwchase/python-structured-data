@@ -99,7 +99,7 @@ def names(target):
             to_process.extend(reversed(unpack(item)))
         elif isinstance(item, tuple):
             to_process.extend(reversed(item))
-    yield from name_list
+    return name_list
 
 
 class MatchDict(collections.abc.MutableMapping):
