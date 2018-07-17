@@ -27,3 +27,9 @@ def test_matching(enum, match):
         TestClass.StrPair(
             match.pat.b, match.pat.c)))
     assert matcher.matches == dict(tup=(1, 2), a=2, b='a', c='b')
+    assert matcher.matches[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
+
+
+def test_as(match):
+    pat = match.pat.hello
+    assert pat @ match.pat._ is pat

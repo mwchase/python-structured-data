@@ -65,8 +65,8 @@ class AsPattern(tuple):
     __slots__ = ()
 
     def __new__(cls, matcher: Pattern, match):
-        if matcher is DISCARD:
-            return match
+        if match is DISCARD:
+            return matcher
         return super().__new__(cls, (matcher, match))
 
     @property
