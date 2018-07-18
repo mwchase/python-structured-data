@@ -51,14 +51,11 @@ for _attribute in SHADOWED_ATTRIBUTES:
 
 class EnumMember:
 
-    def __init__(self, cls, subcls):
-        if not issubclass(subcls, cls):
-            raise ValueError
-        self.cls = cls
+    def __init__(self, subcls):
         self.subcls = subcls
 
     def __get__(self, obj, cls):
-        if cls is self.cls and obj is None:
+        if cls is ENUM_BASES[self.subcls] and obj is None:
             return self.subcls
         raise AttributeError('Can only access enum members through base class.')
 
@@ -85,7 +82,7 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
         qualname=_cls.__qualname__, name=name)
 
     subclasses.add(Constructor)
-    setattr(_cls, name, EnumMember(_cls, Constructor))
+    setattr(_cls, name, EnumMember(Constructor))
     subclass_order.append(Constructor)
 
     annotations = {f'_{index}': arg for (index, arg) in enumerate(args)}
