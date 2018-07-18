@@ -92,3 +92,22 @@ def test_str(option_class):
 def test_cant_init_superclass(option_class):
     with pytest.raises(TypeError):
         assert not option_class(())
+
+
+def test_customize_constructors():
+    assert enum_options.CustomInitSubclass.subclasses == [
+        enum_options.CustomInitSubclass.Left,
+        enum_options.CustomInitSubclass.Right]
+
+
+def test_custom_new():
+    assert enum_options.CustomNew.Left(1) in enum_options.CUSTOM_NEW_INSTANCES
+    assert enum_options.CustomNew.instances == 1
+
+
+def test_invalid_options(enum):
+    for repr_on in (False, True):
+        class CantMake:
+            pass
+        with pytest.raises(ValueError):
+            enum.enum(repr=repr_on, eq=False, order=True)(CantMake)
