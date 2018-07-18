@@ -111,3 +111,19 @@ def test_invalid_options(enum):
             pass
         with pytest.raises(ValueError):
             enum.enum(repr=repr_on, eq=False, order=True)(CantMake)
+
+
+def test_cant_generate_order(enum):
+    for repr_on in (False, True):
+        class CantMake:
+            __eq__ = True
+        with pytest.raises(ValueError):
+            enum.enum(repr=repr_on, eq=True, order=True)(CantMake)
+
+
+def test_cant_overwrite_order(enum):
+    for repr_on in (False, True):
+        class CantMake:
+            __le__ = True
+        with pytest.raises(TypeError):
+            enum.enum(repr=repr_on, eq=True, order=True)(CantMake)
