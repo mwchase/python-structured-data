@@ -126,6 +126,11 @@ def get_processor(processor_pairs, item):
     return None
 
 
+def not_in(container, name):
+    if name in container:
+        raise ValueError
+
+
 def names(target):
     """Return every name bound by a target."""
     name_list = []
@@ -134,8 +139,7 @@ def names(target):
     while to_process:
         item = to_process.pop()
         if isinstance(item, Pattern):
-            if item.name in names_seen:
-                raise ValueError
+            not_in(names_seen, item.name)
             names_seen.add(item.name)
             name_list.append(item.name)
         else:
@@ -186,8 +190,7 @@ def _match(target, value):
         if target is DISCARD:
             continue
         if isinstance(target, Pattern):
-            if target.name in match_dict:
-                raise ValueError
+            not_in(match_dict, target.name)
             match_dict[target.name] = value
             continue
         processor = get_processor(PROCESSORS, target)
