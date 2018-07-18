@@ -53,3 +53,22 @@ def test_map_interface(match):
 
     with pytest.raises(KeyError):
         del matcher.matches[None]
+
+
+def test_duplicated_binding(match):
+    structure = (match.pat.a, match.pat.a)
+    with pytest.raises(ValueError):
+        assert not match.names(structure)
+
+
+def test_different_length_tuples(match):
+    assert not match.ValueMatcher((1,)).match((1, 1))
+
+
+def test_different_constructors(enum, match):
+    @enum.enum
+    class TestClass:
+        Left: enum.Ctor[int]
+        Right: enum.Ctor[str]
+    matcher = match.ValueMatcher(TestClass.Left(5))
+    assert not matcher.match(TestClass.Right('abc'))
