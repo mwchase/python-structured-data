@@ -153,6 +153,25 @@ def _set_hash(cls, set_hash):
         cls.__hash__ = PrewrittenMethods.__hash__
 
 
+def _add_order(cls, set_order, equality_methods_were_set):
+    if set_order:
+        if not equality_methods_were_set:
+            raise ValueError(
+                "Can't add ordering methods if equality methods are provided.")
+        collision = _set_new_functions(
+            cls,
+            PrewrittenMethods.__lt__,
+            PrewrittenMethods.__le__,
+            PrewrittenMethods.__gt__,
+            PrewrittenMethods.__ge__
+            )
+        if collision:
+            raise TypeError(
+                'Cannot overwrite attribute {collision} in class '
+                '{name}. Consider using functools.total_ordering'.format(
+                    collision=collision, name=cls.__name__))
+
+
 def _custom_new(cls, subclasses):
     basic_new = _make_nested_new(cls, subclasses, _enum_super(cls))
     if _set_new_functions(cls, basic_new):
@@ -191,22 +210,7 @@ def _process_class(_cls, _repr, eq, order):
 
     _set_hash(_cls, equality_methods_were_set)
 
-    if order:
-        if not equality_methods_were_set:
-            raise ValueError(
-                "Can't add ordering methods if equality methods are provided.")
-        collision = _set_new_functions(
-            _cls,
-            PrewrittenMethods.__lt__,
-            PrewrittenMethods.__le__,
-            PrewrittenMethods.__gt__,
-            PrewrittenMethods.__ge__
-            )
-        if collision:
-            raise TypeError(
-                'Cannot overwrite attribute {collision} in class '
-                '{name}. Consider using functools.total_ordering'.format(
-                    collision=collision, name=_cls.__name__))
+    _add_order(_cls, order, equality_methods_were_set)
 
     return _cls
 
