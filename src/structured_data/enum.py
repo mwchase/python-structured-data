@@ -148,6 +148,13 @@ def _add_eq(cls, set_eq):
     return equality_methods_were_set
 
 
+def _custom_new(cls, subclasses):
+    basic_new = _make_nested_new(cls, subclasses, _enum_super(cls))
+    if _set_new_functions(cls, basic_new):
+        augmented_new = _make_nested_new(cls, subclasses, cls.__new__)
+        cls.__new__ = augmented_new
+
+
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
@@ -167,8 +174,7 @@ def _process_class(_cls, _repr, eq, order):
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
-    if _set_new_functions(_cls, _make_nested_new(_cls, subclasses, _enum_super(_cls))):
-        _cls.__new__ = _make_nested_new(_cls, subclasses, _cls.__new__)
+    _custom_new(_cls, subclasses)
 
     _set_new_functions(
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__)
