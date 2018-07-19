@@ -147,8 +147,8 @@ def _process_class(_cls, _repr, eq, order):
             _nillable_write(
                 args, key, _args(value, vars(sys.modules[cls.__module__])))
 
-    for name, args in args.items():
-        make_constructor(_cls, name, args, subclasses, subclass_order)
+    for name, args_ in args.items():
+        make_constructor(_cls, name, args_, subclasses, subclass_order)
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
