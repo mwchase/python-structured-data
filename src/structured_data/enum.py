@@ -3,7 +3,8 @@
 import sys
 import typing
 
-from ._ctor import Ctor, get_args
+from ._ctor import Ctor
+from ._ctor import get_args
 from ._enum_constructor import make_constructor
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
