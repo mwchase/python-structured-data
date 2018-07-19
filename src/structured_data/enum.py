@@ -128,23 +128,26 @@ def _make_nested_new(_cls, subclasses, base__new__):
     return __new__
 
 
+def _nillable_write(dct, key, value):
+    if value is None:
+        dct.pop(key, None)
+    else:
+        dct[key] = value
+
+
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
 
-    argses = {}
+    args = {}
     subclasses = set()
     subclass_order = []
     for cls in reversed(_cls.__mro__):
         for key, value in getattr(cls, '__annotations__', {}).items():
-            args = _args(value, vars(sys.modules[cls.__module__]))
-            # Shadow redone annotations.
-            if args is None:
-                argses.pop(key, None)
-            else:
-                argses[key] = args
+            _nillable_write(
+                args, key, _args(value, vars(sys.modules[cls.__module__])))
 
-    for name, args in argses.items():
+    for name, args in args.items():
         make_constructor(_cls, name, args, subclasses, subclass_order)
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
