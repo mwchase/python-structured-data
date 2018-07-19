@@ -31,6 +31,7 @@ def test_matching(enum, match):
     assert matcher.matches[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
     assert list(matcher.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
     assert match.names(structure) == ['tup', 'a', 'b', 'c']
+    assert matcher.matches[dict(hello=match.pat.a, world=match.pat.b)] == dict(hello=2, world='a')
 
 
 def test_as(match):

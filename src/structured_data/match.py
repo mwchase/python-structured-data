@@ -161,6 +161,8 @@ class MatchDict(collections.abc.MutableMapping):
             return self.data[key]
         if isinstance(key, tuple):
             return tuple(self[sub_key] for sub_key in key)
+        if isinstance(key, dict):
+            return {name: self[value] for (name, value) in key.items()}
         raise KeyError(key)
 
     def __setitem__(self, key, value):
