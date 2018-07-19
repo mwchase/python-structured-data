@@ -148,6 +148,11 @@ def _add_eq(cls, set_eq):
     return equality_methods_were_set
 
 
+def _set_hash(cls, set_hash):
+    if set_hash:
+        cls.__hash__ = PrewrittenMethods.__hash__
+
+
 def _custom_new(cls, subclasses):
     basic_new = _make_nested_new(cls, subclasses, _enum_super(cls))
     if _set_new_functions(cls, basic_new):
@@ -184,8 +189,7 @@ def _process_class(_cls, _repr, eq, order):
 
     equality_methods_were_set = _add_eq(_cls, eq)
 
-    if equality_methods_were_set:
-        _cls.__hash__ = PrewrittenMethods.__hash__
+    _set_hash(_cls, equality_methods_were_set)
 
     if order:
         if not equality_methods_were_set:
