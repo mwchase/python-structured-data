@@ -179,17 +179,22 @@ def _custom_new(cls, subclasses):
         cls.__new__ = augmented_new
 
 
+def _args_from_annotations(cls):
+    args = {}
+    for superclass in reversed(cls.__mro__):
+        for key, value in getattr(superclass, '__annotations__', {}).items():
+            _nillable_write(
+                args, key, _args(value, vars(sys.modules[superclass.__module__])))
+    return args
+
+
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
 
-    args = {}
     subclasses = set()
     subclass_order = []
-    for cls in reversed(_cls.__mro__):
-        for key, value in getattr(cls, '__annotations__', {}).items():
-            _nillable_write(
-                args, key, _args(value, vars(sys.modules[cls.__module__])))
+    args = _args_from_annotations(_cls)
 
     for name, args_ in args.items():
         make_constructor(_cls, name, args_, subclasses, subclass_order)
