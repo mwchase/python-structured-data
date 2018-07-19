@@ -135,17 +135,11 @@ def _nillable_write(dct, key, value):
         dct[key] = value
 
 
-def _add_repr(cls, set_repr):
-    if set_repr:
-        _set_new_functions(cls, PrewrittenMethods.__repr__)
-
-
-def _add_eq(cls, set_eq):
-    equality_methods_were_set = False
-    if set_eq:
-        equality_methods_were_set = not _set_new_functions(
-            cls, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__)
-    return equality_methods_were_set
+def _add_methods(cls, do_set, *methods):
+    methods_were_set = False
+    if do_set:
+        methods_were_set = not _set_new_functions(cls, *methods)
+    return methods_were_set
 
 
 def _set_hash(cls, set_hash):
@@ -209,9 +203,10 @@ def _process_class(_cls, _repr, eq, order):
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__)
     _set_new_functions(_cls, PrewrittenMethods.__bool__)
 
-    _add_repr(_cls, _repr)
+    _add_methods(_cls, _repr, PrewrittenMethods.__repr__)
 
-    equality_methods_were_set = _add_eq(_cls, eq)
+    equality_methods_were_set = _add_methods(
+        _cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__)
 
     _set_hash(_cls, equality_methods_were_set)
 
