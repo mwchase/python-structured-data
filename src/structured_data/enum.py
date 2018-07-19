@@ -43,52 +43,55 @@ class Ctor:
 ARGS[Ctor] = ()
 
 
-def _args(constructor, global_ns):
-    # Handle forward declarations. Needed for 3.7 compatinility.
-    if isinstance(constructor, str):
-        # Leverage Python's parser instead of trying to parse by hand.
-        ctor_ast = ast.parse(constructor, mode='eval')
-        # The top-level operation must be a subscript, with normal indexing.
-        if (
-                isinstance(ctor_ast.body, ast.Subscript)
-                and isinstance(ctor_ast.body.slice, ast.Index)):
-            # Pull out the index argument
-            index = ctor_ast.body.slice.value
-            # This basically gets rid of the brackets and index.
-            # Next, try to evaluate the result.
-            # This relies on Ctor being globally visible at definition time,
-            # which seems like a reasonable requirement.
-            ctor_ast.body = ctor_ast.body.value
-            try:
-                value = eval(
-                    compile(ctor_ast, '<annotation>', 'eval'), global_ns)
-            except Exception:
-                # We couldn't tell what it was, so it's probably not Ctor.
-                return None
-            if value is Ctor:
-                # Pull the information directly off a Tuple node.
-                if isinstance(index, ast.Tuple):
-                    return tuple(astor.to_source(elt) for elt in index.elts)
-                # Otherwise, assume it's a sequence of length 1.
-                # It's possible for this heuristic to return false answers, BUT
-                # it seems like everywhere that AST inspection and evaluation
-                # disagree, it needs syntax that breaks mypy, so it's sort of
-                # like it doesn't matter.
-                return (astor.to_source(index),)
-        try:
-            # If the above conditions didn't hold, maybe it's an alias.
-            # We could try to validate the AST, but we need to know the value
-            # anyway if it's valid.
-            constructor = eval(constructor, global_ns)
-        except Exception:
-            # This return is a little concerning. It's basically for "We tried
-            # to evaluate a forward reference of some kind, and failed."
-            # This might reject input at runtime that mypy would accept.
-            # The basic solution is to document that you can have forward
-            # references FROM a Ctor, but not within a decorated class.
+def _interpret_args_from_non_string(constructor):
+    try:
+        return ARGS.get(constructor)
+    except TypeError:
+        return None
+
+
+def _parse_constructor(constructor):
+    try:
+        return ast.parse(constructor, mode='eval')
+    except Exception as err:
+        raise ValueError('parsing annotation failed')
+
+
+def _get_args_from_index(index):
+    if isinstance(index, ast.Tuple):
+        return tuple(astor.to_source(elt) for elt in index.elts)
+    return (astor.to_source(index),)
+
+
+def _checked_eval(source, global_ns):
+    try:
+        return eval(source, global_ns)
+    except Exception:
+        return None
+
+
+def _extract_tuple_ast(constructor, global_ns):
+    ctor_ast = _parse_constructor(constructor)
+    if (
+            isinstance(ctor_ast.body, ast.Subscript)
+            and isinstance(ctor_ast.body.slice, ast.Index)):
+        index = ctor_ast.body.slice.value
+        ctor_ast.body = ctor_ast.body.value
+        value = _checked_eval(compile(ctor_ast, '<annotation>', 'eval'), global_ns)
+        if value is Ctor:
+            return _get_args_from_index(index)
+        if value is None:
             return None
-    # Try to interpret the current value as a Ctor
-    return ARGS.get(constructor)
+    return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
+
+
+def _args(constructor, global_ns):
+    if isinstance(constructor, str):
+        try:
+            return _extract_tuple_ast(constructor, global_ns)
+        except ValueError:
+            return None
+    return _interpret_args_from_non_string(constructor)
 
 
 def _name(cls, function) -> str:

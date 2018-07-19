@@ -127,3 +127,9 @@ def test_cant_overwrite_order(enum):
             __le__ = True
         with pytest.raises(TypeError):
             enum.enum(repr=repr_on, eq=True, order=True)(CantMake)
+
+
+def test_ignore_gibberish(enum):
+    class CanMake:
+        Constructor: '7[55{.red$'
+    assert enum.enum(CanMake)
