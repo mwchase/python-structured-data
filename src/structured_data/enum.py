@@ -150,6 +150,8 @@ def _process_class(_cls, _repr, eq, order):
     for name, args_ in args.items():
         make_constructor(_cls, name, args_, subclasses, subclass_order)
 
+    SUBCLASS_ORDER[_cls] = tuple(subclass_order)
+
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
     if _set_new_functions(_cls, _make_nested_new(_cls, subclasses, _enum_super(_cls))):
@@ -187,8 +189,6 @@ def _process_class(_cls, _repr, eq, order):
                 'Cannot overwrite attribute {collision} in class '
                 '{name}. Consider using functools.total_ordering'.format(
                     collision=collision, name=_cls.__name__))
-
-    SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
     return _cls
 
