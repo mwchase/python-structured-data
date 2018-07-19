@@ -53,7 +53,7 @@ def _interpret_args_from_non_string(constructor):
 def _parse_constructor(constructor):
     try:
         return ast.parse(constructor, mode='eval')
-    except Exception as err:
+    except Exception:
         raise ValueError('parsing annotation failed')
 
 
