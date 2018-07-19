@@ -85,7 +85,7 @@ def _extract_tuple_ast(constructor, global_ns):
     return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
 
 
-def _args(constructor, global_ns):
+def _get_args(constructor, global_ns):
     if isinstance(constructor, str):
         try:
             return _extract_tuple_ast(constructor, global_ns)
@@ -178,7 +178,7 @@ def _args_from_annotations(cls):
     for superclass in reversed(cls.__mro__):
         for key, value in getattr(superclass, '__annotations__', {}).items():
             _nillable_write(
-                args, key, _args(value, vars(sys.modules[superclass.__module__])))
+                args, key, _get_args(value, vars(sys.modules[superclass.__module__])))
     return args
 
 
@@ -188,10 +188,9 @@ def _process_class(_cls, _repr, eq, order):
 
     subclasses = set()
     subclass_order = []
-    args = _args_from_annotations(_cls)
 
-    for name, args_ in args.items():
-        make_constructor(_cls, name, args_, subclasses, subclass_order)
+    for name, args in _args_from_annotations(_cls).items():
+        make_constructor(_cls, name, args, subclasses, subclass_order)
 
     SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
