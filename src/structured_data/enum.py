@@ -135,6 +135,19 @@ def _nillable_write(dct, key, value):
         dct[key] = value
 
 
+def _add_repr(cls, set_repr):
+    if set_repr:
+        _set_new_functions(cls, PrewrittenMethods.__repr__)
+
+
+def _add_eq(cls, set_eq):
+    equality_methods_were_set = False
+    if set_eq:
+        equality_methods_were_set = not _set_new_functions(
+            cls, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__)
+    return equality_methods_were_set
+
+
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError('eq must be true if order is true')
@@ -161,14 +174,9 @@ def _process_class(_cls, _repr, eq, order):
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__)
     _set_new_functions(_cls, PrewrittenMethods.__bool__)
 
-    if _repr:
-        _set_new_functions(_cls, PrewrittenMethods.__repr__)
+    _add_repr(_cls, _repr)
 
-    equality_methods_were_set = False
-
-    if eq:
-        equality_methods_were_set = not _set_new_functions(
-            _cls, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__)
+    equality_methods_were_set = _add_eq(_cls, eq)
 
     if equality_methods_were_set:
         _cls.__hash__ = PrewrittenMethods.__hash__
