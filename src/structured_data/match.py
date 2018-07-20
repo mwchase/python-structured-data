@@ -132,14 +132,19 @@ def names(target):
     return name_list
 
 
+def _as_name(key):
+    if isinstance(key, Pattern):
+        return key.name
+    return key
+
+
 class MatchDict(collections.abc.MutableMapping):
 
     def __init__(self):
         self.data = {}
 
     def __getitem__(self, key):
-        if isinstance(key, Pattern):
-            key = key.name
+        key = _as_name(key)
         if isinstance(key, str):
             return self.data[key]
         if isinstance(key, tuple):
@@ -149,16 +154,13 @@ class MatchDict(collections.abc.MutableMapping):
         raise KeyError(key)
 
     def __setitem__(self, key, value):
-        if isinstance(key, Pattern):
-            key = key.name
+        key = _as_name(key)
         if not isinstance(key, str):
             raise TypeError
         self.data[key] = value
 
     def __delitem__(self, key):
-        if isinstance(key, Pattern):
-            key = key.name
-        del self.data[key]
+        del self.data[_as_name(key)]
 
     def __iter__(self):
         yield from self.data
