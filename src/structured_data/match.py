@@ -64,12 +64,6 @@ class AsPattern(tuple):
         return self[1]
 
 
-def isinstance_predicate(typ):
-    def predicate(target):
-        return isinstance(target, typ)
-    return predicate
-
-
 def as_pattern_processor(target):
     def processor(value):
         if target is value:
@@ -96,18 +90,23 @@ def tuple_processor(target):
     return processor
 
 
-PROCESSORS = (
-    (isinstance_predicate(AsPattern), as_pattern_processor),
-    (isinstance_predicate(EnumConstructor), enum_processor),
-    (isinstance_predicate(tuple), tuple_processor),
-)
+class ProcessorList:
+
+    def __init__(self, processors=()):
+        self.processors = list(processors)
+
+    def get_processor(self, item):
+        for typ, meta_processor in self.processors:
+            if isinstance(item, typ):
+                return meta_processor(item)
+        return None
 
 
-def get_processor(processor_pairs, item):
-    for predicate, meta in processor_pairs:
-        if predicate(item):
-            return meta(item)
-    return None
+PROCESSORS = ProcessorList((
+    (AsPattern, as_pattern_processor),
+    (EnumConstructor, enum_processor),
+    (tuple, tuple_processor),
+))
 
 
 def not_in(container, name):
@@ -127,7 +126,7 @@ def names(target):
             names_seen.add(item.name)
             name_list.append(item.name)
         else:
-            processor = get_processor(PROCESSORS, item)
+            processor = PROCESSORS.get_processor(item)
             if processor:
                 to_process.extend(processor(item))
     return name_list
@@ -179,7 +178,7 @@ def _match(target, value):
             not_in(match_dict, target.name)
             match_dict[target.name] = value
             continue
-        processor = get_processor(PROCESSORS, target)
+        processor = PROCESSORS.get_processor(target)
         if processor:
             to_process.extend(zip(processor(target), processor(value)))
         elif target != value:
