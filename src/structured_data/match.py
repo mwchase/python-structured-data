@@ -6,7 +6,6 @@ from ._enum_constructor import EnumConstructor
 from ._match_failure import MatchFailure
 from ._unpack import unpack
 
-
 DISCARD = object()
 
 
