@@ -7,11 +7,8 @@ from ._unpack import unpack
 def as_pattern_processor(target):
     def processor(value):
         if target is value:
-            yield target.match
-            yield target.matcher
-        else:
-            yield value
-            yield value
+            return reversed(target)
+        return (value, value)
     return processor
 
 
