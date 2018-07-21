@@ -3,18 +3,8 @@ import keyword
 
 from ._attribute_constructor import AttributeConstructor
 from ._enum_constructor import EnumConstructor
+from ._match_failure import MatchFailure
 from ._unpack import unpack
-
-
-class MatchFailure(BaseException):
-    """An exception that signals a failure in ADT matching."""
-
-
-def desugar(constructor: type, instance: tuple) -> tuple:
-    """Return the inside of an ADT instance, given its constructor."""
-    if instance.__class__ is not constructor:
-        raise MatchFailure
-    return unpack(instance)
 
 
 DISCARD = object()
@@ -77,7 +67,9 @@ def as_pattern_processor(target):
 
 def enum_processor(target):
     def processor(value):
-        yield from reversed(desugar(type(target), value))
+        if value.__class__ is not target.__class__:
+            raise MatchFailure
+        yield from reversed(unpack(value))
     return processor
 
 
