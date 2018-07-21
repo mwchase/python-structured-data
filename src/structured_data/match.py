@@ -207,4 +207,4 @@ class ValueMatcher:
 pat = AttributeConstructor(Pattern)
 
 
-__all__ = ['Pattern', 'ValueMatcher', 'desugar', 'names', 'pat']
+__all__ = ['Pattern', 'ValueMatcher', 'names', 'pat']
