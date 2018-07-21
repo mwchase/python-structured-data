@@ -160,22 +160,25 @@ class MatchDict(collections.abc.MutableMapping):
         return len(self.data)
 
 
+def _match_iteration(match_dict, target, value):
+    if target is DISCARD:
+        return
+    if isinstance(target, Pattern):
+        not_in(match_dict, target.name)
+        match_dict[target.name] = value
+        return
+    processor = PROCESSORS.get_processor(target)
+    if processor:
+        yield from zip(processor(target), processor(value))
+    elif target != value:
+        raise MatchFailure
+
+
 def _match(target, value):
     match_dict = MatchDict()
     to_process = [(target, value)]
     while to_process:
-        target, value = to_process.pop()
-        if target is DISCARD:
-            continue
-        if isinstance(target, Pattern):
-            not_in(match_dict, target.name)
-            match_dict[target.name] = value
-            continue
-        processor = PROCESSORS.get_processor(target)
-        if processor:
-            to_process.extend(zip(processor(target), processor(value)))
-        elif target != value:
-            raise MatchFailure
+        to_process.extend(_match_iteration(match_dict, *to_process.pop()))
     return match_dict
 
 
