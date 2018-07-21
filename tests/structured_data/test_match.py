@@ -1,16 +1,6 @@
 import pytest
 
 
-def test_cant_use_keyword(match):
-    with pytest.raises(ValueError):
-        assert not match.Pattern('def')
-
-
-def test_must_be_identifier(match):
-    with pytest.raises(ValueError):
-        assert not match.Pattern('1')
-
-
 def test_matching(enum, match):
 
     @enum.enum
@@ -32,11 +22,6 @@ def test_matching(enum, match):
     assert list(matcher.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
     assert match.names(structure) == ['tup', 'a', 'b', 'c']
     assert matcher.matches[dict(hello=match.pat.a, world=match.pat.b)] == dict(hello=2, world='a')
-
-
-def test_as(match):
-    pat = match.pat.hello
-    assert pat @ match.pat._ is pat
 
 
 def test_map_interface(match):
