@@ -85,6 +85,14 @@ def _as_name(key):
     return key
 
 
+def _multi_index(dct, key):
+    if isinstance(key, tuple):
+        return tuple(dct[sub_key] for sub_key in key)
+    if isinstance(key, dict):
+        return {name: dct[value] for (name, value) in key.items()}
+    raise KeyError(key)
+
+
 class MatchDict(collections.abc.MutableMapping):
 
     def __init__(self):
@@ -94,11 +102,7 @@ class MatchDict(collections.abc.MutableMapping):
         key = _as_name(key)
         if isinstance(key, str):
             return self.data[key]
-        if isinstance(key, tuple):
-            return tuple(self[sub_key] for sub_key in key)
-        if isinstance(key, dict):
-            return {name: self[value] for (name, value) in key.items()}
-        raise KeyError(key)
+        return _multi_index(self, key)
 
     def __setitem__(self, key, value):
         key = _as_name(key)
