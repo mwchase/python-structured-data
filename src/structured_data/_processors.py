@@ -19,16 +19,15 @@ def enum_processor(target):
     def processor(value):
         if value.__class__ is not target.__class__:
             raise MatchFailure
-        yield from reversed(unpack(value))
+        return reversed(unpack(value))
     return processor
 
 
 def tuple_processor(target):
     def processor(value):
         if isinstance(value, target.__class__) and len(target) == len(value):
-            yield from reversed(value)
-        else:
-            raise MatchFailure
+            return reversed(value)
+        raise MatchFailure
     return processor
 
 

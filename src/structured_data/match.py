@@ -1,5 +1,4 @@
 import collections
-import itertools
 
 from ._attribute_constructor import AttributeConstructor
 from ._match_failure import MatchFailure
@@ -81,7 +80,7 @@ def _match_iteration(match_dict, target, value):
         return
     processor = PROCESSORS.get_processor(target)
     if processor:
-        yield from itertools.zip_longest(processor(target), processor(value))
+        yield from zip(processor(target), processor(value))
     elif target != value:
         raise MatchFailure
 
