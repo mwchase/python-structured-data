@@ -5,6 +5,8 @@ def test_tuple(match):
     assert matcher.matches is None
     structure = (1, match.pat.a)
     assert matcher.match(structure)
+    assert not matcher.match(())
+    assert matcher.matches is None
 
 
 def test_enum(enum, match):

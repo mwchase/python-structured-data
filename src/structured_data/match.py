@@ -80,7 +80,7 @@ def _match_iteration(match_dict, target, value):
         return
     processor = PROCESSORS.get_processor(target)
     if processor:
-        yield from zip(processor(target), processor(value))
+        yield from zip(list(processor(target)), list(processor(value)))
     elif target != value:
         raise MatchFailure
 
