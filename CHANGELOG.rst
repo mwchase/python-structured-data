@@ -9,6 +9,17 @@ Added
 ~~~~~
 
 - Mapping class especially for match values. It's capable of quickly and concisely pulling out groups of variables, but it also properly supports extracting just a single value.
+- Mapping class can now index from a ``dict`` to a ``dict``, in order to support ``**kwargs`` unpacking.
+
+Fixed
+~~~~~
+
+- A bug (not present in any released version) that caused the empty tuple target to accept any tuple value. This is included partly because this was just such a weird bug.
+
+Removed
+~~~~~~~
+
+- Unpublished the ``MatchFailure`` exception type, and the ``desugar`` function.
 
 0.3.0 (2018-07-15)
 ------------------
