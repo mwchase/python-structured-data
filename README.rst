@@ -77,7 +77,7 @@ Structured Data provides three public modules: ``structured_data.adt``, ``struct
 
 The ``adt`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
 
-The ``match`` module provides a ``Pattern`` class that can be used to build match structures, and a ``ValueMatcher`` class that wraps a value, and attempts to apply match structures to it.
+The ``match`` module provides a ``Pattern`` class that can be used to build match structures, and a ``Matchable`` class that wraps a value, and attempts to apply match structures to it.
 If the match succeeds, the bindings can be extracted and used.
 It includes some special support for ``adt`` subclasses.
 
@@ -87,16 +87,16 @@ The match architecture allows you tell pull values out of a nested structure:
 
     structure = (match.pat.a, match.pat.b @ (match.pat.c, match.pat.d), 5)
     my_value = (('abc', 'xyz'), ('def', 'ghi'), 5)
-    value_matcher = match.ValueMatcher(my_value)
-    if value_matcher.match(structure):
+    matchable = match.Matchable(my_value)
+    if matchable(structure):
         # The format of the matches is not final.
-        print(value_matcher.matches['a'])  # ('abc', 'xyz')
-        print(value_matcher.matches['b'])  # ('def', 'ghi')
-        print(value_matcher.matches['c'])  # 'def'
-        print(value_matcher.matches['d'])  # 'ghi'
+        print(matchable['a'])  # ('abc', 'xyz')
+        print(matchable['b'])  # ('def', 'ghi')
+        print(matchable['c'])  # 'def'
+        print(matchable['d'])  # 'ghi'
 
 The ``@`` operator allows binding both the outside and the inside of a structure.
-The contents of the ``matches`` attribute will change once there's been some real-world usage.
+Indexing is forwarded to a ``matches`` attribute, which is ``None`` if the last match was not successful, and otherwise contains an instance of a custom mapping type, which allows building the matched values back up into simple structures.
 
 The ``adt`` decorator exists to create classes that do not necessarily have a single fixed format, but do have a fixed set of possible formats.
 This lowers the maintenance burden of writing functions that operate on values of an ``adt`` class, because the full list of cases to handle is directly in the class definition.

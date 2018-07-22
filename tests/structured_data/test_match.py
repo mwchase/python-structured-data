@@ -6,39 +6,41 @@ def test_matching(adt, match):
     @adt.adt
     class TestClass:
         StrPair: adt.Ctor[str, str]
-    matcher = match.ValueMatcher(
+    matchable = match.Matchable(
         ((1, 2), TestClass.StrPair('a', 'b')))
-    assert not matcher.match((
+    assert not matchable((
         (match.pat._, 4),
         match.pat._))
-    assert matcher.matches is None
+    assert matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not matchable[None]
     structure = (
         match.pat.tup @ (1, match.pat.a),
         TestClass.StrPair(
             match.pat.b, match.pat.c))
-    assert matcher.match(structure)
-    assert matcher.matches == dict(tup=(1, 2), a=2, b='a', c='b')
-    assert matcher.matches[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
-    assert list(matcher.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
+    assert matchable(structure)
+    assert matchable.matches == dict(tup=(1, 2), a=2, b='a', c='b')
+    assert matchable[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (2, 'a', 'b', (1, 2))
+    assert list(matchable.matches) == ['tup', 'a', 'b', 'c']  # Should preserve ordering.
     assert match.names(structure) == ['tup', 'a', 'b', 'c']
-    assert matcher.matches[dict(hello=match.pat.a, world=match.pat.b)] == dict(hello=2, world='a')
+    assert matchable[dict(hello=match.pat.a, world=match.pat.b)] == dict(hello=2, world='a')
 
 
 def test_map_interface(match):
-    matcher = match.ValueMatcher((1, 2, 3, 4))
-    matcher.match((match.pat.a, match.pat._, match.pat._, match.pat.b))
-    assert len(matcher.matches) == 2
+    matchable = match.Matchable((1, 2, 3, 4))
+    matchable((match.pat.a, match.pat._, match.pat._, match.pat.b))
+    assert len(matchable.matches) == 2
     with pytest.raises(KeyError):
-        assert not matcher.matches[None]
+        assert not matchable[None]
 
-    matcher.matches[match.pat.c] = 7
-    del matcher.matches[match.pat.c]
+    matchable.matches[match.pat.c] = 7
+    del matchable.matches[match.pat.c]
 
     with pytest.raises(TypeError):
-        matcher.matches[None] = None
+        matchable.matches[None] = None
 
     with pytest.raises(KeyError):
-        del matcher.matches[None]
+        del matchable.matches[None]
 
 
 def test_duplicated_binding(match):
@@ -48,7 +50,7 @@ def test_duplicated_binding(match):
 
 
 def test_different_length_tuples(match):
-    assert not match.ValueMatcher((1,)).match((1, 1))
+    assert not match.Matchable((1,))((1, 1))
 
 
 def test_different_constructors(adt, match):
@@ -56,5 +58,5 @@ def test_different_constructors(adt, match):
     class TestClass:
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
-    matcher = match.ValueMatcher(TestClass.Left(5))
-    assert not matcher.match(TestClass.Right('abc'))
+    matchable = match.Matchable(TestClass.Left(5))
+    assert not matchable(TestClass.Right('abc'))

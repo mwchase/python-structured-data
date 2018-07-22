@@ -93,7 +93,7 @@ def _match(target, value):
     return match_dict
 
 
-class ValueMatcher:
+class Matchable:
     """Given a value, attempt to match against a target."""
 
     def __init__(self, value):
@@ -106,10 +106,21 @@ class ValueMatcher:
             self.matches = _match(target, self.value)
         except MatchFailure:
             self.matches = None
+        return self
+
+    def __call__(self, target):
+        return self.match(target)
+
+    def __getitem__(self, key):
+        if self.matches is None:
+            raise ValueError
+        return self.matches[key]
+
+    def __bool__(self):
         return self.matches is not None
 
 
 pat = AttributeConstructor(Pattern)
 
 
-__all__ = ['Pattern', 'ValueMatcher', 'names', 'pat']
+__all__ = ['Pattern', 'Matchable', 'names', 'pat']

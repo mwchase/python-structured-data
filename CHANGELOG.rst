@@ -5,10 +5,18 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- ``Matchable`` class is now callable and indexable. Calling is forwarded to the ``match`` method, and indexing forwards to the ``matches`` attribute, if it exists, and raises an error otherwise.
+- ``Matchable`` class now has custom coercion to bool: ``False`` if the last match attempt failed, ``True`` otherwise.
+
 Changed
 ~~~~~~~
 
 - Renamed ``enum`` to ``adt`` to avoid confusion.
+- Renamed ``ValueMatcher`` to ``Matchable``.
+- ``Matchable.match`` now returns the ``Matchable`` instance, which can then be coerced to ``bool``, or indexed directly.
 
 0.4.0 (2018-07-21)
 ------------------
