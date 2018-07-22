@@ -12,7 +12,7 @@ Overview
     * - tests
       - | |travis| |appveyor| |requires|
         | |codecov|
-        | |codacy| |codebeat| |scrutinizer|
+        | |codacy| |codebeat| |codeclimate| |scrutinizer|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -44,6 +44,10 @@ Overview
 .. |codebeat| image:: https://codebeat.co/badges/de1fa625-e4d4-4e11-bf94-ee9b4a0acf91
     :target: https://codebeat.co/projects/github-com-mwchase-python-structured-data-master
     :alt: Codebeat Code Quality Status
+
+.. |codeclimate| image:: https://api.codeclimate.com/v1/badges/535f66af50b72ee28e62/maintainability
+    :target: https://codeclimate.com/github/mwchase/python-structured-data/maintainability
+    :alt: Code Climate Maintainability Score
 
 .. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
     :target: https://scrutinizer-ci.com/g/mwchase/python-structured-data/?branch=master
