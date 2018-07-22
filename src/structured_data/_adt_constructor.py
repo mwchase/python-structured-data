@@ -2,7 +2,7 @@ import inspect
 import weakref
 
 
-class EnumConstructor:
+class ADTConstructor:
     """Base class for ADT Constructor classes."""
 
     __slots__ = ()
@@ -18,7 +18,7 @@ class EnumConstructor:
             static_attribute = inspect.getattr_static(self, attribute)
             if attribute in SHADOWED_ATTRIBUTES and static_attribute is None:
                 continue
-            if isinstance(static_attribute, EnumMember):
+            if isinstance(static_attribute, ADTMember):
                 continue
             my_dir.append(attribute)
         return my_dir
@@ -46,10 +46,10 @@ SHADOWED_ATTRIBUTES = {
 
 
 for _attribute in SHADOWED_ATTRIBUTES:
-    setattr(EnumConstructor, _attribute, None)
+    setattr(ADTConstructor, _attribute, None)
 
 
-class EnumMember:
+class ADTMember:
 
     def __init__(self, subcls):
         self.subcls = subcls
@@ -57,7 +57,7 @@ class EnumMember:
     def __get__(self, obj, cls):
         if cls is ENUM_BASES[self.subcls] and obj is None:
             return self.subcls
-        raise AttributeError('Can only access enum members through base class.')
+        raise AttributeError('Can only access adt members through base class.')
 
 
 ENUM_BASES = weakref.WeakKeyDictionary()
@@ -66,7 +66,7 @@ ENUM_BASES = weakref.WeakKeyDictionary()
 def make_constructor(_cls, name, args, subclasses, subclass_order):
     length = len(args)
 
-    class Constructor(_cls, EnumConstructor, tuple):
+    class Constructor(_cls, ADTConstructor, tuple):
         """Auto-generated subclass of an ADT."""
         __slots__ = ()
 
@@ -82,7 +82,7 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
         qualname=_cls.__qualname__, name=name)
 
     subclasses.add(Constructor)
-    setattr(_cls, name, EnumMember(Constructor))
+    setattr(_cls, name, ADTMember(Constructor))
     subclass_order.append(Constructor)
 
     annotations = {f'_{index}': arg for (index, arg) in enumerate(args)}
@@ -97,4 +97,4 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
     Constructor.__new__.__annotations__ = annotations
 
 
-__all__ = ['EnumConstructor', 'make_constructor']
+__all__ = ['ADTConstructor', 'make_constructor']

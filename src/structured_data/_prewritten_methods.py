@@ -1,11 +1,11 @@
 import inspect
 import weakref
 
-from ._enum_constructor import ENUM_BASES
+from ._adt_constructor import ENUM_BASES
 from ._unpack import unpack
 
 
-def enum_base(obj):
+def adt_base(obj):
     return ENUM_BASES.get(obj.__class__)
 
 
@@ -27,7 +27,7 @@ def cant_modify(self, name):
 
 
 class PrewrittenMethods:
-    """Methods for classes decorated with ``structured_data.enum``."""
+    """Methods for classes decorated with ``structured_data.adt.adt``."""
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError
@@ -50,8 +50,8 @@ class PrewrittenMethods:
     def __lt__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) < unpack(other)
-        if enum_base(other) is enum_base(self):
-            order = SUBCLASS_ORDER.get(enum_base(self))
+        if adt_base(other) is adt_base(self):
+            order = SUBCLASS_ORDER.get(adt_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index < other_index
@@ -60,8 +60,8 @@ class PrewrittenMethods:
     def __le__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) <= unpack(other)
-        if enum_base(other) is enum_base(self):
-            order = SUBCLASS_ORDER.get(enum_base(self))
+        if adt_base(other) is adt_base(self):
+            order = SUBCLASS_ORDER.get(adt_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index <= other_index
@@ -70,8 +70,8 @@ class PrewrittenMethods:
     def __gt__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) > unpack(other)
-        if enum_base(other) is enum_base(self):
-            order = SUBCLASS_ORDER.get(enum_base(self))
+        if adt_base(other) is adt_base(self):
+            order = SUBCLASS_ORDER.get(adt_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index > other_index
@@ -80,8 +80,8 @@ class PrewrittenMethods:
     def __ge__(self, other):
         if other.__class__ is self.__class__:
             return unpack(self) >= unpack(other)
-        if enum_base(other) is enum_base(self):
-            order = SUBCLASS_ORDER.get(enum_base(self))
+        if adt_base(other) is adt_base(self):
+            order = SUBCLASS_ORDER.get(adt_base(self))
             self_index = order.index(self.__class__)
             other_index = order.index(other.__class__)
             return self_index >= other_index

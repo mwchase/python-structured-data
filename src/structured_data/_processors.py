@@ -1,4 +1,4 @@
-from ._enum_constructor import EnumConstructor
+from ._adt_constructor import ADTConstructor
 from ._match_failure import MatchFailure
 from ._patterns import AsPattern
 from ._unpack import unpack
@@ -12,7 +12,7 @@ def as_pattern_processor(target):
     return processor
 
 
-def enum_processor(target):
+def adt_processor(target):
     def processor(value):
         if value.__class__ is not target.__class__:
             raise MatchFailure
@@ -42,6 +42,6 @@ class ProcessorList:
 
 PROCESSORS = ProcessorList((
     (AsPattern, as_pattern_processor),
-    (EnumConstructor, enum_processor),
+    (ADTConstructor, adt_processor),
     (tuple, tuple_processor),
 ))

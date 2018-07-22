@@ -1,12 +1,12 @@
 import pytest
 
-from . import enum_options
+from . import adt_options
 
 
 @pytest.fixture(scope='session')
-def enum():
-    from structured_data import enum
-    return enum
+def adt():
+    from structured_data import adt
+    return adt
 
 
 @pytest.fixture(scope='session')
@@ -22,9 +22,9 @@ def _prewritten_methods():
 
 
 @pytest.fixture(scope='session')
-def _enum_constructor():
-    from structured_data import _enum_constructor
-    return _enum_constructor
+def _adt_constructor():
+    from structured_data import _adt_constructor
+    return _adt_constructor
 
 
 @pytest.fixture(scope='session')
@@ -33,6 +33,6 @@ def data():
     return data
 
 
-@pytest.fixture(scope='session', params=enum_options.TEST_CLASSES)
+@pytest.fixture(scope='session', params=adt_options.TEST_CLASSES)
 def option_class(request):
     return request.param

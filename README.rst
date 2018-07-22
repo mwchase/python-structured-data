@@ -73,13 +73,13 @@ Overview
 .. end-badges
 
 Code generators for immutable structured data, including algebraic data types, and functions to destructure them.
-Structured Data provides three public modules: ``structured_data.enum``, ``structured_data.match``, and ``structured_data.data``.
+Structured Data provides three public modules: ``structured_data.adt``, ``structured_data.match``, and ``structured_data.data``.
 
-The ``enum`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
+The ``adt`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
 
 The ``match`` module provides a ``Pattern`` class that can be used to build match structures, and a ``ValueMatcher`` class that wraps a value, and attempts to apply match structures to it.
 If the match succeeds, the bindings can be extracted and used.
-It includes some special support for ``enum`` subclasses.
+It includes some special support for ``adt`` subclasses.
 
 The match architecture allows you tell pull values out of a nested structure:
 
@@ -98,24 +98,24 @@ The match architecture allows you tell pull values out of a nested structure:
 The ``@`` operator allows binding both the outside and the inside of a structure.
 The contents of the ``matches`` attribute will change once there's been some real-world usage.
 
-The ``enum`` decorator exists to create classes that do not necessarily have a single fixed format, but do have a fixed set of possible formats.
-This lowers the maintenance burden of writing functions that operate on values of an ``enum`` class, because the full list of cases to handle is directly in the class definition.
+The ``adt`` decorator exists to create classes that do not necessarily have a single fixed format, but do have a fixed set of possible formats.
+This lowers the maintenance burden of writing functions that operate on values of an ``adt`` class, because the full list of cases to handle is directly in the class definition.
 
 Here are implementations of common algebraic data types in other languages:
 
 .. code-block:: python3
 
-    @enum.enum
+    @adt.adt
     class Maybe(typing.Generic[T]):
 
-        Just: enum.Ctor[T]
-        Nothing: enum.Ctor
+        Just: adt.Ctor[T]
+        Nothing: adt.Ctor
 
-    @enum.enum
+    @adt.adt
     class Either(typing.Generic[E, R]):
 
-        Left: enum.Ctor[E]
-        Right: enum.Ctor[R]
+        Left: adt.Ctor[E]
+        Right: adt.Ctor[R]
 
 The ``data`` module provides classes based on these examples.
 
@@ -131,7 +131,7 @@ There are several alternatives in the standard library that may be better suited
 - The ``namedtuple`` factory creates tuple classes with a single structure; the ``typing.NamedTuple`` class offers the ability to include type information. The interface is slightly awkward, and the values expose their tuple-nature easily.
 - The ``enum`` module provides base classes to create finite enumerations. Unlike NamedTuple, the ability to convert values into an underlying type must be opted into in the class definition.
 - The ``dataclasses`` module provides a class decorator that converts a class into one with a single structure, similar to a namedtuple, but with more customization: instances are mutable by default, and it's possible to generate implementations of common protocols.
-- The Structured Data ``enum`` decorator is inspired by the design of ``dataclasses``. (A previous attempt used metaclasses inspired by the ``enum`` module, and was a nightmare.) Unlike ``enum``, it doesn't require all instances to be defined up front; instead each class defines constructors using a sequence of types, which ultimately determines the number of arguments the constructor takes. Unlike ``namedtuple`` and ``dataclasses``, it allows instances to have multiple shapes with their own type signatures. Unlike using regular classes, the set of shapes is specified up front.
+- The Structured Data ``adt`` decorator is inspired by the design of ``dataclasses``. (A previous attempt used metaclasses inspired by the ``enum`` module, and was a nightmare.) Unlike ``enum``, it doesn't require all instances to be defined up front; instead each class defines constructors using a sequence of types, which ultimately determines the number of arguments the constructor takes. Unlike ``namedtuple`` and ``dataclasses``, it allows instances to have multiple shapes with their own type signatures. Unlike using regular classes, the set of shapes is specified up front.
 - If you want multiple shapes, and don't want to specify them ahead of time, your best bet is probably a normal tree of classes, where the leaf classes are ``dataclasses``.
 
 Installation

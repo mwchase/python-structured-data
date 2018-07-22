@@ -1,11 +1,11 @@
 import pytest
 
 
-def test_matching(enum, match):
+def test_matching(adt, match):
 
-    @enum.enum
+    @adt.adt
     class TestClass:
-        StrPair: enum.Ctor[str, str]
+        StrPair: adt.Ctor[str, str]
     matcher = match.ValueMatcher(
         ((1, 2), TestClass.StrPair('a', 'b')))
     assert not matcher.match((
@@ -51,10 +51,10 @@ def test_different_length_tuples(match):
     assert not match.ValueMatcher((1,)).match((1, 1))
 
 
-def test_different_constructors(enum, match):
-    @enum.enum
+def test_different_constructors(adt, match):
+    @adt.adt
     class TestClass:
-        Left: enum.Ctor[int]
-        Right: enum.Ctor[str]
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
     matcher = match.ValueMatcher(TestClass.Left(5))
     assert not matcher.match(TestClass.Right('abc'))

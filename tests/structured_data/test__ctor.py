@@ -1,26 +1,26 @@
 import pytest
 
 
-def test_ctor_usable_as_empty(enum):
-    assert enum.Ctor is enum.Ctor[()]
+def test_ctor_usable_as_empty(adt):
+    assert adt.Ctor is adt.Ctor[()]
 
 
-def test_ctor_converts_to_tuple(enum):
-    assert enum.Ctor[(list,)] is enum.Ctor[list]
+def test_ctor_converts_to_tuple(adt):
+    assert adt.Ctor[(list,)] is adt.Ctor[list]
 
 
-def test_ctor_controls_subclass_creation(enum):
+def test_ctor_controls_subclass_creation(adt):
     with pytest.raises(TypeError):
-        class CantMake(enum.Ctor):
+        class CantMake(adt.Ctor):
             pass
 
 
-def test_ctor_cant_index_twice(enum):
+def test_ctor_cant_index_twice(adt):
     with pytest.raises(TypeError):
-        assert not enum.Ctor[list][list]
+        assert not adt.Ctor[list][list]
 
 
-def test_ignore_gibberish(enum):
+def test_ignore_gibberish(adt):
     class CanMake:
         Constructor: '7[55{.red$'
-    assert enum.enum(CanMake)
+    assert adt.adt(CanMake)

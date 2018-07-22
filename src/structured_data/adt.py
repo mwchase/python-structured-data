@@ -3,9 +3,9 @@
 import sys
 import typing
 
+from ._adt_constructor import make_constructor
 from ._ctor import Ctor
 from ._ctor import get_args
-from ._enum_constructor import make_constructor
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
 
@@ -29,7 +29,7 @@ def _set_new_functions(cls, *functions) -> typing.Optional[str]:
     return None
 
 
-def _enum_super(_cls):
+def _adt_super(_cls):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
     return base
@@ -83,7 +83,7 @@ def _add_order(cls, set_order, equality_methods_were_set):
 
 
 def _custom_new(cls, subclasses):
-    basic_new = _make_nested_new(cls, subclasses, _enum_super(cls))
+    basic_new = _make_nested_new(cls, subclasses, _adt_super(cls))
     if _set_new_functions(cls, basic_new):
         augmented_new = _make_nested_new(cls, subclasses, cls.__new__)
         cls.__new__ = augmented_new
@@ -130,7 +130,7 @@ def _process_class(_cls, _repr, eq, order):
     return _cls
 
 
-def enum(_cls=None, *, repr=True, eq=True, order=False):
+def adt(_cls=None, *, repr=True, eq=True, order=False):
     """Decorate a class to be an algebraic data type."""
 
     def wrap(cls):
@@ -143,4 +143,4 @@ def enum(_cls=None, *, repr=True, eq=True, order=False):
     return wrap(_cls)
 
 
-__all__ = ['Ctor', 'enum']
+__all__ = ['Ctor', 'adt']

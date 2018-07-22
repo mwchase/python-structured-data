@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from structured_data import enum
+from structured_data import adt
 
 
-@enum.enum
+@adt.adt
 class Basic:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     left_type = (int,)
     right_type = (str,)
 
 
-@enum.enum
+@adt.adt
 class Tupled:
 
-    Left: enum.Ctor[int, int]
-    Right: enum.Ctor[str, str]
+    Left: adt.Ctor[int, int]
+    Right: adt.Ctor[str, str]
 
     left_type = (int, int)
     right_type = (str, str)

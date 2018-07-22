@@ -1,89 +1,89 @@
 import typing
 
-from structured_data import enum
+from structured_data import adt
 
 
-@enum.enum(repr=False, eq=False, order=False)
+@adt.adt(repr=False, eq=False, order=False)
 class AllFalse:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = False
     eq = False
     order = False
 
 
-@enum.enum(repr=False, eq=True, order=False)
+@adt.adt(repr=False, eq=True, order=False)
 class EqOnly:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = False
     eq = True
     order = False
 
 
-@enum.enum(repr=False, eq=True, order=True)
+@adt.adt(repr=False, eq=True, order=True)
 class MinimalOrder:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = False
     eq = True
     order = True
 
 
-@enum.enum(repr=True, eq=False, order=False)
+@adt.adt(repr=True, eq=False, order=False)
 class ReprOnly:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = True
     eq = False
     order = False
 
 
-@enum.enum(repr=True, eq=True, order=False)
+@adt.adt(repr=True, eq=True, order=False)
 class ReprAndEq:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = True
     eq = True
     order = False
 
 
-@enum.enum(repr=True, eq=True, order=True)
+@adt.adt(repr=True, eq=True, order=True)
 class ReprAndOrder:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     repr = True
     eq = True
     order = True
 
 
-@enum.enum
+@adt.adt
 class CustomEq:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     def __eq__(self, other):
         return self is other
 
 
-@enum.enum
+@adt.adt
 class CustomInitSubclass:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     subclasses: 'typing.List[typing.Type[CustomInitSubclass]]' = []
     dummy_variable: 'MyList[CustomInitSubclass]'
@@ -96,11 +96,11 @@ class CustomInitSubclass:
 MyList = typing.List
 
 
-@enum.enum
+@adt.adt
 class CustomNew:
 
-    Left: enum.Ctor[int]
-    Right: enum.Ctor[str]
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
 
     instances: 'int' = 0
 

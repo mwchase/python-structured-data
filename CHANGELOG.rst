@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Changed
+~~~~~~~
+
+- Renamed ``enum`` to ``adt`` to avoid confusion.
+
 0.4.0 (2018-07-21)
 ------------------
 

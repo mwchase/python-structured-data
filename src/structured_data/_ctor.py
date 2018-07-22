@@ -10,10 +10,10 @@ ARGS = weakref.WeakKeyDictionary()
 
 
 class Ctor:
-    """Marker class for enum constructors.
+    """Marker class for adt constructors.
 
     To use, index with a sequence of types, and annotate a variable in an
-    enum-decorated class with it.
+    adt-decorated class with it.
     """
 
     def __new__(cls, args):

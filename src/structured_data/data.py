@@ -1,21 +1,21 @@
 import typing
 
-from . import enum
+from . import adt
 
 T = typing.TypeVar('T')
 R = typing.TypeVar('R')
 E = typing.TypeVar('E')
 
 
-@enum.enum
+@adt.adt
 class Maybe(typing.Generic[T]):
 
-    Just: enum.Ctor[T]
-    Nothing: enum.Ctor
+    Just: adt.Ctor[T]
+    Nothing: adt.Ctor
 
 
-@enum.enum
+@adt.adt
 class Either(typing.Generic[E, R]):
 
-    Left: enum.Ctor[E]
-    Right: enum.Ctor[R]
+    Left: adt.Ctor[E]
+    Right: adt.Ctor[R]

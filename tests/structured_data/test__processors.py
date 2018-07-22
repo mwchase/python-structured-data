@@ -9,12 +9,12 @@ def test_tuple(match):
     assert matcher.matches is None
 
 
-def test_enum(enum, match):
+def test_adt(adt, match):
 
-    @enum.enum
+    @adt.adt
     class TestClass:
-        StrPair: enum.Ctor[str, str]
-        Str: enum.Ctor[str]
+        StrPair: adt.Ctor[str, str]
+        Str: adt.Ctor[str]
     matcher = match.ValueMatcher(TestClass.StrPair('a', 'b'))
     assert not matcher.match(TestClass.Str('c'))
     assert matcher.matches is None
