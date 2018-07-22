@@ -1,7 +1,5 @@
 import pytest
 
-from . import adt_options
-
 
 @pytest.fixture(scope='session')
 def adt():
@@ -33,6 +31,19 @@ def data():
     return data
 
 
-@pytest.fixture(scope='session', params=adt_options.TEST_CLASSES)
-def option_class(request):
-    return request.param
+@pytest.fixture(scope='session')
+def adt_options():
+    import test_resources.adt_options
+    return test_resources.adt_options
+
+
+@pytest.fixture(scope='session', params=[
+    'AllFalse',
+    'EqOnly',
+    'MinimalOrder',
+    'ReprOnly',
+    'ReprAndEq',
+    'ReprAndOrder',
+])
+def option_class(adt_options, request):
+    return getattr(adt_options, request.param)

@@ -3,15 +3,13 @@ import typing
 
 import pytest
 
-from . import adt_options
-
 T = typing.TypeVar('T')
 
 
 @pytest.fixture(scope='session', params=['current', 'future'])
 def adt_module(request):
     return importlib.import_module(
-        f'.adt_with_{request.param}', __name__.rpartition('.')[0])
+        f'test_resources.adt_with_{request.param}')
 
 
 def test_generic_subclass_succeeds(adt):
@@ -59,7 +57,7 @@ def test_valid_eq(option_class):
         assert option_class.Left(1) != option_class.Left(1)
 
 
-def test_cant_hash():
+def test_cant_hash(adt_options):
     with pytest.raises(TypeError):
         assert not hash(adt_options.CustomEq.Left(1))
     assert (
@@ -75,13 +73,13 @@ def test_cant_init_superclass(option_class):
         assert not option_class(())
 
 
-def test_customize_constructors():
+def test_customize_constructors(adt_options):
     assert adt_options.CustomInitSubclass.subclasses == [
         adt_options.CustomInitSubclass.Left,
         adt_options.CustomInitSubclass.Right]
 
 
-def test_custom_new():
+def test_custom_new(adt_options):
     assert adt_options.CustomNew.Left(1) in adt_options.CUSTOM_NEW_INSTANCES
     assert adt_options.CustomNew.instances == 1
 
