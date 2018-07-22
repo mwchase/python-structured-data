@@ -62,18 +62,22 @@ def _checked_eval(source, global_ns):
         return None
 
 
+NO_VALUE = object()
+
+
 def _extract_tuple_ast(constructor, global_ns):
     ctor_ast = _parse_constructor(constructor)
+    value = index = NO_VALUE
     if (
             isinstance(ctor_ast.body, ast.Subscript)
             and isinstance(ctor_ast.body.slice, ast.Index)):
         index = ctor_ast.body.slice.value
         ctor_ast.body = ctor_ast.body.value
         value = _checked_eval(compile(ctor_ast, '<annotation>', 'eval'), global_ns)
-        if value is Ctor:
-            return _get_args_from_index(index)
-        if value is None:
-            return None
+    if value is Ctor:
+        return _get_args_from_index(index)
+    if value is None:
+        return None
     return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
 
 
