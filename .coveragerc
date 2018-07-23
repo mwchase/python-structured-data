@@ -6,7 +6,6 @@ branch = true
 source =
     src
     tests
-    test_resources
 parallel = true
 
 [report]
