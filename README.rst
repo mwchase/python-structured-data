@@ -79,7 +79,7 @@ Overview
 Code generators for immutable structured data, including algebraic data types, and functions to destructure them.
 Structured Data provides three public modules: ``structured_data.adt``, ``structured_data.match``, and ``structured_data.data``.
 
-The ``adt`` module provides a class decorator and annotation type for converting a class into an algebraic data type; the name is taken from its use in Rust.
+The ``adt`` module provides a class decorator and annotation type for converting a class into an algebraic data type.
 
 The ``match`` module provides a ``Pattern`` class that can be used to build match structures, and a ``Matchable`` class that wraps a value, and attempts to apply match structures to it.
 If the match succeeds, the bindings can be extracted and used.
