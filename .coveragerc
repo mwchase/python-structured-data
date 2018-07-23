@@ -1,7 +1,6 @@
 [paths]
 source =
     src/structured_data
-    .tox/*/lib/python*/site-packages/structured_data
 
 [run]
 branch = true
