@@ -43,12 +43,6 @@ def test_map_interface(match):
         del matchable.matches[None]
 
 
-def test_duplicated_binding(match):
-    structure = (match.pat.a, match.pat.a)
-    with pytest.raises(ValueError):
-        assert not match.names(structure)
-
-
 def test_different_length_tuples(match):
     assert not match.Matchable((1,))((1, 1))
 

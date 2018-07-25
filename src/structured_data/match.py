@@ -2,32 +2,15 @@ import collections
 
 from ._attribute_constructor import AttributeConstructor
 from ._match_failure import MatchFailure
+from ._not_in import not_in
 from ._patterns import DISCARD
 from ._patterns import Pattern
 from ._processors import PROCESSORS
 
 
-def not_in(container, name):
-    if name in container:
-        raise ValueError
-
-
 def names(target):
     """Return every name bound by a target."""
-    name_list = []
-    names_seen = set()
-    to_process = [target]
-    while to_process:
-        item = to_process.pop()
-        if isinstance(item, Pattern):
-            not_in(names_seen, item.name)
-            names_seen.add(item.name)
-            name_list.append(item.name)
-        else:
-            processor = PROCESSORS.get_processor(item)
-            if processor:
-                to_process.extend(processor(item))
-    return name_list
+    return PROCESSORS.names(target)
 
 
 def _as_name(key):

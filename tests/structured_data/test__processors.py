@@ -40,3 +40,15 @@ def test_cant_use_base_processor():
 
     with pytest.raises(NotImplementedError):
         assert not (_processors.Processor(None)(None),)
+
+
+def test_names(adt, match):
+
+    @adt.adt
+    class TestClass:
+        StrPair: adt.Ctor[str, str]
+    structure = (
+        match.pat.tup @ (1, match.pat.a),
+        TestClass.StrPair(
+            match.pat.b, match.pat.c))
+    assert match.names(structure) == ['tup', 'a', 'b', 'c']
