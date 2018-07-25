@@ -4,44 +4,61 @@ from ._patterns import AsPattern
 from ._unpack import unpack
 
 
-def as_pattern_processor(target):
-    def processor(value):
-        if target is value:
-            return reversed(target)
+class Processor:
+
+    def __init__(self, target):
+        self.target = target
+
+    def __call__(self, value):
+        raise NotImplementedError
+
+    type = None
+
+
+class AsPatternProcessor(Processor):
+
+    def __call__(self, value):
+        if self.target is value:
+            return reversed(self.target)
         return (value, value)
-    return processor
+
+    type = AsPattern
 
 
-def adt_processor(target):
-    def processor(value):
-        if value.__class__ is not target.__class__:
+class ADTProcessor(Processor):
+
+    def __call__(self, value):
+        if value.__class__ is not self.target.__class__:
             raise MatchFailure
         return reversed(unpack(value))
-    return processor
+
+    type = ADTConstructor
 
 
-def tuple_processor(target):
-    def processor(value):
-        if isinstance(value, target.__class__) and len(target) == len(value):
+class TupleProcessor(Processor):
+
+    def __call__(self, value):
+        if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
         raise MatchFailure
-    return processor
+
+    type = tuple
 
 
 class ProcessorList:
 
     def __init__(self, processors=()):
-        self.processors = list(processors)
+        self.processors = tuple(processors)
 
     def get_processor(self, item):
-        for typ, meta_processor in self.processors:
-            if isinstance(item, typ):
-                return meta_processor(item)
+        for processor in self.processors:
+            if isinstance(item, processor.type):
+                return processor(item)
         return None
 
 
 PROCESSORS = ProcessorList((
-    (AsPattern, as_pattern_processor),
-    (ADTConstructor, adt_processor),
-    (tuple, tuple_processor),
+    AsPatternProcessor,
+    ADTProcessor,
+    TupleProcessor,
 ))

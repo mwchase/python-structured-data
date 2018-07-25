@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_tuple(match):
 
     matchable = match.Matchable((1, 2))
@@ -30,3 +33,10 @@ def test_as(match):
     assert matchable.matches is None
     structure = match.pat.tup @ (1, match.pat.a)
     assert matchable(structure)
+
+
+def test_cant_use_base_processor():
+    from structured_data import _processors
+
+    with pytest.raises(NotImplementedError):
+        assert not (_processors.Processor(None)(None),)
