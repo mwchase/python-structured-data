@@ -56,9 +56,9 @@ class ProcessorList:
                 return processor(item)
         return None
 
+    @classmethod
+    def custom(cls, *processors):
+        return cls(AsPatternProcessor, ADTProcessor, *processors, TupleProcessor)
 
-PROCESSORS = ProcessorList(
-    AsPatternProcessor,
-    ADTProcessor,
-    TupleProcessor,
-)
+
+PROCESSORS = ProcessorList.custom()
