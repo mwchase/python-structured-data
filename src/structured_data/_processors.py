@@ -47,7 +47,7 @@ class TupleProcessor(Processor):
 
 class ProcessorList:
 
-    def __init__(self, processors=()):
+    def __init__(self, *processors):
         self.processors = tuple(processors)
 
     def get_processor(self, item):
@@ -57,8 +57,8 @@ class ProcessorList:
         return None
 
 
-PROCESSORS = ProcessorList((
+PROCESSORS = ProcessorList(
     AsPatternProcessor,
     ADTProcessor,
     TupleProcessor,
-))
+)
