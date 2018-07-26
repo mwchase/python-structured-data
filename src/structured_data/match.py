@@ -54,39 +54,40 @@ class MatchDict(collections.abc.MutableMapping):
         return len(self.data)
 
 
-def _match_iteration(match_dict, target, value):
+def _match_iteration(destructurers, match_dict, target, value):
     if target is DISCARD:
         return
     if isinstance(target, Pattern):
         not_in(match_dict, target.name)
         match_dict[target.name] = value
         return
-    destructurer = DESTRUCTURERS.get_destructurer(target)
+    destructurer = destructurers.get_destructurer(target)
     if destructurer:
         yield from zip(destructurer(target), destructurer(value))
     elif target != value:
         raise MatchFailure
 
 
-def _match(target, value):
+def _match(target, value, destructurers):
     match_dict = MatchDict()
     to_process = [(target, value)]
     while to_process:
-        to_process.extend(_match_iteration(match_dict, *to_process.pop()))
+        to_process.extend(_match_iteration(destructurers, match_dict, *to_process.pop()))
     return match_dict
 
 
 class Matchable:
     """Given a value, attempt to match against a target."""
 
-    def __init__(self, value):
+    def __init__(self, value, destructurers=DESTRUCTURERS):
         self.value = value
         self.matches = None
+        self.destructurers = destructurers
 
     def match(self, target):
         """Match against target, generating a set of bindings."""
         try:
-            self.matches = _match(target, self.value)
+            self.matches = _match(target, self.value, self.destructurers)
         except MatchFailure:
             self.matches = None
         return self
