@@ -50,13 +50,15 @@ class TupleDestructurer(Destructurer):
     type = tuple
 
 
-class DestructurerList:
+class DestructurerList(tuple):
 
-    def __init__(self, *destructurers):
-        self.destructurers = tuple(destructurers)
+    __slots__ = ()
+
+    def __new__(cls, *destructurers):
+        return super().__new__(cls, destructurers)
 
     def get_destructurer(self, item):
-        for destructurer in self.destructurers:
+        for destructurer in self:
             if isinstance(item, destructurer.type):
                 return destructurer(item)
         return None
