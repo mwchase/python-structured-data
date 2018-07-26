@@ -1,16 +1,16 @@
 import collections
 
 from ._attribute_constructor import AttributeConstructor
+from ._destructure import DESTRUCTURERS
 from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns import DISCARD
 from ._patterns import Pattern
-from ._processors import PROCESSORS
 
 
 def names(target):
     """Return every name bound by a target."""
-    return PROCESSORS.names(target)
+    return DESTRUCTURERS.names(target)
 
 
 def _as_name(key):
@@ -61,9 +61,9 @@ def _match_iteration(match_dict, target, value):
         not_in(match_dict, target.name)
         match_dict[target.name] = value
         return
-    processor = PROCESSORS.get_processor(target)
-    if processor:
-        yield from zip(processor(target), processor(value))
+    destructurer = DESTRUCTURERS.get_destructurer(target)
+    if destructurer:
+        yield from zip(destructurer(target), destructurer(value))
     elif target != value:
         raise MatchFailure
 

@@ -36,10 +36,10 @@ def test_as(match):
 
 
 def test_cant_use_base_processor():
-    from structured_data import _processors
+    from structured_data import _destructure
 
     with pytest.raises(NotImplementedError):
-        assert not (_processors.Destructurer(None)(None),)
+        assert not (_destructure.Destructurer(None)(None),)
 
 
 def test_names(adt, match):

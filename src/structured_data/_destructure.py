@@ -49,18 +49,18 @@ class TupleDestructurer(Destructurer):
 
 class DestructurerList:
 
-    def __init__(self, *processors):
-        self.processors = tuple(processors)
+    def __init__(self, *destructurers):
+        self.destructurers = tuple(destructurers)
 
-    def get_processor(self, item):
-        for processor in self.processors:
-            if isinstance(item, processor.type):
-                return processor(item)
+    def get_destructurer(self, item):
+        for destructurer in self.destructurers:
+            if isinstance(item, destructurer.type):
+                return destructurer(item)
         return None
 
     @classmethod
-    def custom(cls, *processors):
-        return cls(AsPatternDestructurer, ADTDestructurer, *processors, TupleDestructurer)
+    def custom(cls, *destructurers):
+        return cls(AsPatternDestructurer, ADTDestructurer, *destructurers, TupleDestructurer)
 
     def names(self, target):
         name_list = []
@@ -73,10 +73,10 @@ class DestructurerList:
                 names_seen.add(item.name)
                 name_list.append(item.name)
             else:
-                processor = self.get_processor(item)
-                if processor:
-                    to_process.extend(processor(item))
+                destructurer = self.get_destructurer(item)
+                if destructurer:
+                    to_process.extend(destructurer(item))
         return name_list
 
 
-PROCESSORS = DestructurerList.custom()
+DESTRUCTURERS = DestructurerList.custom()
