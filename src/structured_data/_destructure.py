@@ -23,8 +23,10 @@ class Destructurer:
 class AsPatternDestructurer(Destructurer):
 
     def destructure(self, value):
-        if self.target is value:
-            return reversed(self.target)
+        if isinstance(value, AsPattern):
+            if value is self.target:
+                return reversed(value)
+            return (value.match, value)
         return (value, value)
 
     type = AsPattern
