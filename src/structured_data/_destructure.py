@@ -12,6 +12,9 @@ class Destructurer:
         self.target = target
 
     def __call__(self, value):
+        return self.destructure(value)
+
+    def destructure(self, value):
         raise NotImplementedError
 
     type = None
@@ -19,7 +22,7 @@ class Destructurer:
 
 class AsPatternDestructurer(Destructurer):
 
-    def __call__(self, value):
+    def destructure(self, value):
         if self.target is value:
             return reversed(self.target)
         return (value, value)
@@ -29,7 +32,7 @@ class AsPatternDestructurer(Destructurer):
 
 class ADTDestructurer(Destructurer):
 
-    def __call__(self, value):
+    def destructure(self, value):
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
         return reversed(unpack(value))
@@ -39,7 +42,7 @@ class ADTDestructurer(Destructurer):
 
 class TupleDestructurer(Destructurer):
 
-    def __call__(self, value):
+    def destructure(self, value):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
         raise MatchFailure
