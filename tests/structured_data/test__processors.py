@@ -39,7 +39,7 @@ def test_cant_use_base_processor():
     from structured_data import _processors
 
     with pytest.raises(NotImplementedError):
-        assert not (_processors.Processor(None)(None),)
+        assert not (_processors.Destructurer(None)(None),)
 
 
 def test_names(adt, match):

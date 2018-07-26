@@ -6,7 +6,7 @@ from ._patterns import Pattern
 from ._unpack import unpack
 
 
-class Processor:
+class Destructurer:
 
     def __init__(self, target):
         self.target = target
@@ -17,7 +17,7 @@ class Processor:
     type = None
 
 
-class AsPatternProcessor(Processor):
+class AsPatternDestructurer(Destructurer):
 
     def __call__(self, value):
         if self.target is value:
@@ -27,7 +27,7 @@ class AsPatternProcessor(Processor):
     type = AsPattern
 
 
-class ADTProcessor(Processor):
+class ADTDestructurer(Destructurer):
 
     def __call__(self, value):
         if value.__class__ is not self.target.__class__:
@@ -37,7 +37,7 @@ class ADTProcessor(Processor):
     type = ADTConstructor
 
 
-class TupleProcessor(Processor):
+class TupleDestructurer(Destructurer):
 
     def __call__(self, value):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
@@ -47,7 +47,7 @@ class TupleProcessor(Processor):
     type = tuple
 
 
-class ProcessorList:
+class DestructurerList:
 
     def __init__(self, *processors):
         self.processors = tuple(processors)
@@ -60,7 +60,7 @@ class ProcessorList:
 
     @classmethod
     def custom(cls, *processors):
-        return cls(AsPatternProcessor, ADTProcessor, *processors, TupleProcessor)
+        return cls(AsPatternDestructurer, ADTDestructurer, *processors, TupleDestructurer)
 
     def names(self, target):
         name_list = []
@@ -79,4 +79,4 @@ class ProcessorList:
         return name_list
 
 
-PROCESSORS = ProcessorList.custom()
+PROCESSORS = DestructurerList.custom()
