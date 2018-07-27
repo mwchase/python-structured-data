@@ -129,7 +129,7 @@ class DestructurerList(tuple):
     @classmethod
     def custom(cls, *destructurers):
         return cls(
-            AsPatternDestructurer, ADTDestructurer, AttrPatternDestructurer, DictPatternDestructurer, *destructurers, TupleDestructurer)
+            *destructurers, AsPatternDestructurer, ADTDestructurer, AttrPatternDestructurer, DictPatternDestructurer, TupleDestructurer)
 
     def names(self, target):
         name_list = []
