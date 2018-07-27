@@ -5,6 +5,16 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- ``AttrPattern`` and ``DictPattern`` classes that take a ``dict`` argument and perform destructuring match against arbitrary objects, and mappings, respectively.
+
+Changed
+~~~~~~~
+
+- Added special handling for matching AsPatterns against different AsPatterns. This is subject to change, as it's definitely an edge case.
+
 0.5.0 (2018-07-22)
 ------------------
 
