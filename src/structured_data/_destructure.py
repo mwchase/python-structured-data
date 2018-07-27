@@ -51,6 +51,10 @@ def guarded_getattr(value, target_key):
         raise MatchFailure
 
 
+def key_destructure(value, match_dict, getter):
+    return [getter(value, target_key) for (target_key, _) in reversed(match_dict)]
+
+
 class AttrPatternDestructurer(Destructurer):
 
     def destructure(self, value):
@@ -63,7 +67,7 @@ class AttrPatternDestructurer(Destructurer):
                     raise MatchFailure
                 results.append(value_value)
             return reversed(results)
-        return [guarded_getattr(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
+        return key_destructure(value, self.target.match_dict, guarded_getattr)
 
     type = AttrPattern
 
@@ -91,7 +95,7 @@ class DictPatternDestructurer(Destructurer):
             return reversed(results)
         if self.target.exhaustive and len(value) != len(self.target.match_dict):
             raise MatchFailure
-        return [guarded_getitem(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
+        return key_destructure(value, self.target.match_dict, guarded_getitem)
 
     type = DictPattern
 
