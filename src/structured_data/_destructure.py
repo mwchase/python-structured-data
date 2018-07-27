@@ -44,6 +44,13 @@ class ADTDestructurer(Destructurer):
     type = ADTConstructor
 
 
+def guarded_getattr(value, target_key):
+    try:
+        return getattr(value, target_key)
+    except AttributeError:
+        raise MatchFailure
+
+
 class AttrPatternDestructurer(Destructurer):
 
     def destructure(self, value):
@@ -56,12 +63,16 @@ class AttrPatternDestructurer(Destructurer):
                     raise MatchFailure
                 results.append(value_value)
             return reversed(results)
-        try:
-            return [getattr(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
-        except AttributeError:
-            raise MatchFailure
+        return [guarded_getattr(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
 
     type = AttrPattern
+
+
+def guarded_getitem(value, target_key):
+    try:
+        return value[target_key]
+    except KeyError:
+        raise MatchFailure
 
 
 class DictPatternDestructurer(Destructurer):
@@ -80,10 +91,7 @@ class DictPatternDestructurer(Destructurer):
             return reversed(results)
         if self.target.exhaustive and len(value) != len(self.target.match_dict):
             raise MatchFailure
-        try:
-            return [value[target_key] for (target_key, _) in reversed(self.target.match_dict)]
-        except KeyError:
-            raise MatchFailure
+        return [guarded_getitem(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
 
     type = DictPattern
 
