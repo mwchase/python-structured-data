@@ -6,4 +6,4 @@ def unpack(instance: tuple) -> tuple:
     return tuple.__getitem__(instance, slice(None))
 
 
-__all__ = ['unpack']
+__all__ = ["unpack"]

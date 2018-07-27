@@ -9,7 +9,6 @@ from ._unpack import unpack
 
 
 class Destructurer:
-
     def __init__(self, target):
         self.target = target
 
@@ -23,7 +22,6 @@ class Destructurer:
 
 
 class AsPatternDestructurer(Destructurer):
-
     def destructure(self, value):
         if isinstance(value, AsPattern):
             if value is self.target:
@@ -35,7 +33,6 @@ class AsPatternDestructurer(Destructurer):
 
 
 class ADTDestructurer(Destructurer):
-
     def destructure(self, value):
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
@@ -61,18 +58,21 @@ def key_destructure(value, match_dict, getter):
 
 
 def same_type_destructure(target_match_dict, value_match_dict):
-    for (target_key, _), (value_key, value_value) in zip(target_match_dict, value_match_dict):
+    for (target_key, _), (value_key, value_value) in zip(
+        target_match_dict, value_match_dict
+    ):
         if target_key != value_key:
             raise MatchFailure
         yield value_value
 
 
 class AttrPatternDestructurer(Destructurer):
-
     def destructure(self, value):
         if isinstance(value, AttrPattern):
             value_cant_be_smaller(self.target.match_dict, value.match_dict)
-            return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
+            return reversed(
+                list(same_type_destructure(self.target.match_dict, value.match_dict))
+            )
         return key_destructure(value, self.target.match_dict, guarded_getattr)
 
     type = AttrPattern
@@ -91,12 +91,13 @@ def exhaustive_length_must_match(target, value_match_dict):
 
 
 class DictPatternDestructurer(Destructurer):
-
     def destructure(self, value):
         if isinstance(value, DictPattern):
             value_cant_be_smaller(self.target.match_dict, value.match_dict)
             exhaustive_length_must_match(self.target, value.match_dict)
-            return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
+            return reversed(
+                list(same_type_destructure(self.target.match_dict, value.match_dict))
+            )
         exhaustive_length_must_match(self.target, value)
         return key_destructure(value, self.target.match_dict, guarded_getitem)
 
@@ -104,7 +105,6 @@ class DictPatternDestructurer(Destructurer):
 
 
 class TupleDestructurer(Destructurer):
-
     def destructure(self, value):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
@@ -129,7 +129,13 @@ class DestructurerList(tuple):
     @classmethod
     def custom(cls, *destructurers):
         return cls(
-            *destructurers, AsPatternDestructurer, ADTDestructurer, AttrPatternDestructurer, DictPatternDestructurer, TupleDestructurer)
+            *destructurers,
+            AsPatternDestructurer,
+            ADTDestructurer,
+            AttrPatternDestructurer,
+            DictPatternDestructurer,
+            TupleDestructurer
+        )
 
     def names(self, target):
         name_list = []

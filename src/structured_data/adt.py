@@ -32,6 +32,7 @@ def _set_new_functions(cls, *functions) -> typing.Optional[str]:
 def _adt_super(_cls):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
+
     return base
 
 
@@ -41,6 +42,7 @@ def _make_nested_new(_cls, subclasses, base__new__):
         if cls not in subclasses:
             raise TypeError
         return base__new__(cls, args)
+
     return __new__
 
 
@@ -67,19 +69,22 @@ def _add_order(cls, set_order, equality_methods_were_set):
     if set_order:
         if not equality_methods_were_set:
             raise ValueError(
-                "Can't add ordering methods if equality methods are provided.")
+                "Can't add ordering methods if equality methods are provided."
+            )
         collision = _set_new_functions(
             cls,
             PrewrittenMethods.__lt__,
             PrewrittenMethods.__le__,
             PrewrittenMethods.__gt__,
-            PrewrittenMethods.__ge__
-            )
+            PrewrittenMethods.__ge__,
+        )
         if collision:
             raise TypeError(
-                'Cannot overwrite attribute {collision} in class '
-                '{name}. Consider using functools.total_ordering'.format(
-                    collision=collision, name=cls.__name__))
+                "Cannot overwrite attribute {collision} in class "
+                "{name}. Consider using functools.total_ordering".format(
+                    collision=collision, name=cls.__name__
+                )
+            )
 
 
 def _custom_new(cls, subclasses):
@@ -92,15 +97,16 @@ def _custom_new(cls, subclasses):
 def _args_from_annotations(cls):
     args = {}
     for superclass in reversed(cls.__mro__):
-        for key, value in getattr(superclass, '__annotations__', {}).items():
+        for key, value in getattr(superclass, "__annotations__", {}).items():
             _nillable_write(
-                args, key, get_args(value, vars(sys.modules[superclass.__module__])))
+                args, key, get_args(value, vars(sys.modules[superclass.__module__]))
+            )
     return args
 
 
 def _process_class(_cls, _repr, eq, order):
     if order and not eq:
-        raise ValueError('eq must be true if order is true')
+        raise ValueError("eq must be true if order is true")
 
     subclasses = set()
     subclass_order = []
@@ -115,13 +121,15 @@ def _process_class(_cls, _repr, eq, order):
     _custom_new(_cls, subclasses)
 
     _set_new_functions(
-        _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__)
+        _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
+    )
     _set_new_functions(_cls, PrewrittenMethods.__bool__)
 
     _add_methods(_cls, _repr, PrewrittenMethods.__repr__)
 
     equality_methods_were_set = _add_methods(
-        _cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__)
+        _cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__
+    )
 
     _set_hash(_cls, equality_methods_were_set)
 
@@ -143,4 +151,4 @@ def adt(_cls=None, *, repr=True, eq=True, order=False):
     return wrap(_cls)
 
 
-__all__ = ['Ctor', 'adt']
+__all__ = ["Ctor", "adt"]

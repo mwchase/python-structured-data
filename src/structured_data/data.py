@@ -2,9 +2,9 @@ import typing
 
 from . import adt
 
-T = typing.TypeVar('T')
-R = typing.TypeVar('R')
-E = typing.TypeVar('E')
+T = typing.TypeVar("T")
+R = typing.TypeVar("R")
+E = typing.TypeVar("E")
 
 
 @adt.adt

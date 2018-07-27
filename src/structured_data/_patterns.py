@@ -9,7 +9,7 @@ class Pattern(tuple):
     __slots__ = ()
 
     def __new__(cls, name: str):
-        if name == '_':
+        if name == "_":
             return DISCARD
         if not name.isidentifier():
             raise ValueError

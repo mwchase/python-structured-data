@@ -44,9 +44,9 @@ def _interpret_args_from_non_string(constructor):
 
 def _parse_constructor(constructor):
     try:
-        return ast.parse(constructor, mode='eval')
+        return ast.parse(constructor, mode="eval")
     except Exception:
-        raise ValueError('parsing annotation failed')
+        raise ValueError("parsing annotation failed")
 
 
 def _get_args_from_index(index):
@@ -68,12 +68,12 @@ NO_VALUE = object()
 def _extract_tuple_ast(constructor, global_ns):
     ctor_ast = _parse_constructor(constructor)
     value = index = NO_VALUE
-    if (
-            isinstance(ctor_ast.body, ast.Subscript)
-            and isinstance(ctor_ast.body.slice, ast.Index)):
+    if isinstance(ctor_ast.body, ast.Subscript) and isinstance(
+        ctor_ast.body.slice, ast.Index
+    ):
         index = ctor_ast.body.slice.value
         ctor_ast.body = ctor_ast.body.value
-        value = _checked_eval(compile(ctor_ast, '<annotation>', 'eval'), global_ns)
+        value = _checked_eval(compile(ctor_ast, "<annotation>", "eval"), global_ns)
     if value is Ctor:
         return _get_args_from_index(index)
     if value is None:

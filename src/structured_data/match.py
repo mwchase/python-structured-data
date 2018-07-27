@@ -30,7 +30,6 @@ def _multi_index(dct, key):
 
 
 class MatchDict(collections.abc.MutableMapping):
-
     def __init__(self):
         self.data = {}
 
@@ -74,7 +73,9 @@ def _match(target, value, destructurers):
     match_dict = MatchDict()
     to_process = [(target, value)]
     while to_process:
-        to_process.extend(_match_iteration(destructurers, match_dict, *to_process.pop()))
+        to_process.extend(
+            _match_iteration(destructurers, match_dict, *to_process.pop())
+        )
     return match_dict
 
 
@@ -109,4 +110,4 @@ class Matchable:
 pat = AttributeConstructor(Pattern)
 
 
-__all__ = ['AttrPattern', 'DictPattern', 'Pattern', 'Matchable', 'names', 'pat']
+__all__ = ["AttrPattern", "DictPattern", "Pattern", "Matchable", "names", "pat"]
