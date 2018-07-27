@@ -45,3 +45,31 @@ class AsPattern(tuple):
     def match(self):
         """Return the right-hand-side of the as-match."""
         return self[1]
+
+
+class AttrPattern(tuple):
+
+    __slots__ = ()
+
+    def __new__(cls, match_dict):
+        return super().__new__(cls, (tuple(match_dict.items()),))
+
+    @property
+    def match_dict(self):
+        return self[0]
+
+
+class DictPattern(tuple):
+
+    __slots__ = ()
+
+    def __new__(cls, match_dict, *, exhaustive=False):
+        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
+
+    @property
+    def match_dict(self):
+        return self[0]
+
+    @property
+    def exhaustive(self):
+        return self[1]

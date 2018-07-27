@@ -5,6 +5,8 @@ from ._destructure import DESTRUCTURERS
 from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns import DISCARD
+from ._patterns import AttrPattern
+from ._patterns import DictPattern
 from ._patterns import Pattern
 
 
@@ -107,4 +109,4 @@ class Matchable:
 pat = AttributeConstructor(Pattern)
 
 
-__all__ = ['Pattern', 'Matchable', 'names', 'pat']
+__all__ = ['AttrPattern', 'DictPattern', 'Pattern', 'Matchable', 'names', 'pat']

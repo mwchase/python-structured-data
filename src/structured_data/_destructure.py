@@ -2,6 +2,8 @@ from ._adt_constructor import ADTConstructor
 from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns import AsPattern
+from ._patterns import AttrPattern
+from ._patterns import DictPattern
 from ._patterns import Pattern
 from ._unpack import unpack
 
@@ -42,6 +44,50 @@ class ADTDestructurer(Destructurer):
     type = ADTConstructor
 
 
+class AttrPatternDestructurer(Destructurer):
+
+    def destructure(self, value):
+        if isinstance(value, AttrPattern):
+            if len(value.match_dict) < len(self.target.match_dict):
+                raise MatchFailure
+            results = []
+            for (target_key, _), (value_key, value_value) in zip(self.target.match_dict, value.match_dict):
+                if target_key != value_key:
+                    raise MatchFailure
+                results.append(value_value)
+            return reversed(results)
+        try:
+            return [getattr(value, target_key) for (target_key, _) in reversed(self.target.match_dict)]
+        except AttributeError:
+            raise MatchFailure
+
+    type = AttrPattern
+
+
+class DictPatternDestructurer(Destructurer):
+
+    def destructure(self, value):
+        if isinstance(value, DictPattern):
+            if len(value.match_dict) < len(self.target.match_dict):
+                raise MatchFailure
+            if self.target.exhaustive and len(value.match_dict) > len(self.target.match_dict):
+                raise MatchFailure
+            results = []
+            for (target_key, _), (value_key, value_value) in zip(self.target.match_dict, value.match_dict):
+                if target_key != value_key:
+                    raise MatchFailure
+                results.append(value_value)
+            return reversed(results)
+        if self.target.exhaustive and len(value) != len(self.target.match_dict):
+            raise MatchFailure
+        try:
+            return [value[target_key] for (target_key, _) in reversed(self.target.match_dict)]
+        except KeyError:
+            raise MatchFailure
+
+    type = DictPattern
+
+
 class TupleDestructurer(Destructurer):
 
     def destructure(self, value):
@@ -67,7 +113,8 @@ class DestructurerList(tuple):
 
     @classmethod
     def custom(cls, *destructurers):
-        return cls(AsPatternDestructurer, ADTDestructurer, *destructurers, TupleDestructurer)
+        return cls(
+            AsPatternDestructurer, ADTDestructurer, AttrPatternDestructurer, DictPatternDestructurer, *destructurers, TupleDestructurer)
 
     def names(self, target):
         name_list = []

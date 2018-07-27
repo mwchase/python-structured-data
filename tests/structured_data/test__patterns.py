@@ -21,3 +21,14 @@ def test_as(match):
 
 def test_name(match):
     assert match.pat.hello.name == 'hello'
+
+
+@pytest.mark.parametrize('cls_name', ['AttrPattern', 'DictPattern'])
+def test_match_dict(match, cls_name):
+    match_dict = dict(a=1, b=2, c=3)
+    assert dict(getattr(match, cls_name)(match_dict).match_dict) == match_dict
+
+
+@pytest.mark.parametrize('exhaustive', [True, False])
+def test_exhaustive(match, exhaustive):
+    assert match.DictPattern({}, exhaustive=exhaustive).exhaustive == exhaustive
