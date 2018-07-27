@@ -85,16 +85,19 @@ def guarded_getitem(value, target_key):
         raise MatchFailure
 
 
+def exhaustive_length_must_match(target, value_match_dict):
+    if target.exhaustive and len(value_match_dict) != len(target.match_dict):
+        raise MatchFailure
+
+
 class DictPatternDestructurer(Destructurer):
 
     def destructure(self, value):
         if isinstance(value, DictPattern):
             value_cant_be_smaller(self.target.match_dict, value.match_dict)
-            if self.target.exhaustive and len(value.match_dict) > len(self.target.match_dict):
-                raise MatchFailure
+            exhaustive_length_must_match(self.target, value.match_dict)
             return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
-        if self.target.exhaustive and len(value) != len(self.target.match_dict):
-            raise MatchFailure
+        exhaustive_length_must_match(self.target, value)
         return key_destructure(value, self.target.match_dict, guarded_getitem)
 
     type = DictPattern
