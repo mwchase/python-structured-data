@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def classes(_adt_constructor, _prewritten_methods):
     class Base(tuple):
 
@@ -40,7 +40,7 @@ def classes(_adt_constructor, _prewritten_methods):
 
 
 def test_repr(classes):
-    assert repr(classes[1]()) == 'classes.<locals>.Derived1()'
+    assert repr(classes[1]()) == "classes.<locals>.Derived1()"
 
 
 def test_eq(classes):
@@ -104,5 +104,6 @@ def test_bool(classes):
 
 def test_cant_subclass(classes):
     with pytest.raises(TypeError):
+
         class Test(classes[0]):
             pass

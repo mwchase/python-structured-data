@@ -5,5 +5,5 @@ def test_maybe(data):
 
 
 def test_result(data):
-    assert data.Either.Left('failed')
+    assert data.Either.Left("failed")
     assert data.Either.Right(5)

@@ -11,6 +11,7 @@ def test_ctor_converts_to_tuple(adt):
 
 def test_ctor_controls_subclass_creation(adt):
     with pytest.raises(TypeError):
+
         class CantMake(adt.Ctor):
             pass
 
@@ -22,5 +23,6 @@ def test_ctor_cant_index_twice(adt):
 
 def test_ignore_gibberish(adt):
     class CanMake:
-        Constructor: '7[55{.red$'
+        Constructor: "7[55{.red$"
+
     assert adt.adt(CanMake)

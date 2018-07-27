@@ -85,8 +85,8 @@ class CustomInitSubclass:
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
 
-    subclasses: 'typing.List[typing.Type[CustomInitSubclass]]' = []
-    dummy_variable: 'MyList[CustomInitSubclass]'
+    subclasses: "typing.List[typing.Type[CustomInitSubclass]]" = []
+    dummy_variable: "MyList[CustomInitSubclass]"
 
     def __init_subclass__(cls, **kwargs):
         cls.subclasses.append(cls)
@@ -102,7 +102,7 @@ class CustomNew:
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
 
-    instances: 'int' = 0
+    instances: "int" = 0
 
     def __new__(cls, args):
         self = super().__new__(cls, args)

@@ -16,13 +16,13 @@ def test_tuple(match):
 
 
 def test_adt(adt, match):
-
     @adt.adt
     class TestClass:
         StrPair: adt.Ctor[str, str]
         Str: adt.Ctor[str]
-    matchable = match.Matchable(TestClass.StrPair('a', 'b'))
-    assert not matchable(TestClass.Str('c'))
+
+    matchable = match.Matchable(TestClass.StrPair("a", "b"))
+    assert not matchable(TestClass.Str("c"))
     assert matchable.matches is None
     structure = TestClass.StrPair(match.pat.a, match.pat.b)
     assert matchable(structure)
@@ -45,15 +45,15 @@ def test_cant_use_base_processor():
 
 
 def test_names(adt, match):
-
     @adt.adt
     class TestClass:
         StrPair: adt.Ctor[str, str]
+
     structure = (
         match.pat.tup @ (1, match.pat.a),
-        TestClass.StrPair(
-            match.pat.b, match.pat.c))
-    assert match.names(structure) == ['tup', 'a', 'b', 'c']
+        TestClass.StrPair(match.pat.b, match.pat.c),
+    )
+    assert match.names(structure) == ["tup", "a", "b", "c"]
 
 
 def test_mismatched_as(match):
@@ -71,8 +71,10 @@ def test_mismatched_as(match):
 
 def test_dict(match):
     matchable = match.Matchable(dict(a=1, b=2, c=3))
-    assert matchable(match.DictPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f)))
-    assert tuple(matchable.matches.items()) == (('d', 3), ('e', 1), ('f', 2))
+    assert matchable(
+        match.DictPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+    )
+    assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
     assert not matchable(match.DictPattern(dict(test=True)))
     assert matchable(match.DictPattern(dict(a=1)))
     assert not matchable(match.DictPattern(dict(a=1), exhaustive=True))
@@ -88,8 +90,10 @@ def test_mismatched_dict(match):
 
 def test_attr(match):
     matchable = match.Matchable(types.SimpleNamespace(a=1, b=2, c=3))
-    assert matchable(match.AttrPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f)))
-    assert tuple(matchable.matches.items()) == (('d', 3), ('e', 1), ('f', 2))
+    assert matchable(
+        match.AttrPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+    )
+    assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
     assert not matchable(match.AttrPattern(dict(test=True)))
     assert matchable(match.AttrPattern(dict(a=1)))
     assert not matchable(match.AttrPattern(dict(a=1, b=2, c=3, test=True)))
