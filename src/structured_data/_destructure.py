@@ -51,6 +51,11 @@ def guarded_getattr(value, target_key):
         raise MatchFailure
 
 
+def value_cant_be_smaller(target_match_dict, value_match_dict):
+    if len(value_match_dict) < len(target_match_dict):
+        raise MatchFailure
+
+
 def key_destructure(value, match_dict, getter):
     return [getter(value, target_key) for (target_key, _) in reversed(match_dict)]
 
@@ -66,8 +71,7 @@ class AttrPatternDestructurer(Destructurer):
 
     def destructure(self, value):
         if isinstance(value, AttrPattern):
-            if len(value.match_dict) < len(self.target.match_dict):
-                raise MatchFailure
+            value_cant_be_smaller(self.target.match_dict, value.match_dict)
             return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
         return key_destructure(value, self.target.match_dict, guarded_getattr)
 
@@ -85,8 +89,7 @@ class DictPatternDestructurer(Destructurer):
 
     def destructure(self, value):
         if isinstance(value, DictPattern):
-            if len(value.match_dict) < len(self.target.match_dict):
-                raise MatchFailure
+            value_cant_be_smaller(self.target.match_dict, value.match_dict)
             if self.target.exhaustive and len(value.match_dict) > len(self.target.match_dict):
                 raise MatchFailure
             return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
