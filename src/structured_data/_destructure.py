@@ -55,18 +55,20 @@ def key_destructure(value, match_dict, getter):
     return [getter(value, target_key) for (target_key, _) in reversed(match_dict)]
 
 
+def same_type_destructure(target_match_dict, value_match_dict):
+    for (target_key, _), (value_key, value_value) in zip(target_match_dict, value_match_dict):
+        if target_key != value_key:
+            raise MatchFailure
+        yield value_value
+
+
 class AttrPatternDestructurer(Destructurer):
 
     def destructure(self, value):
         if isinstance(value, AttrPattern):
             if len(value.match_dict) < len(self.target.match_dict):
                 raise MatchFailure
-            results = []
-            for (target_key, _), (value_key, value_value) in zip(self.target.match_dict, value.match_dict):
-                if target_key != value_key:
-                    raise MatchFailure
-                results.append(value_value)
-            return reversed(results)
+            return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
         return key_destructure(value, self.target.match_dict, guarded_getattr)
 
     type = AttrPattern
@@ -87,12 +89,7 @@ class DictPatternDestructurer(Destructurer):
                 raise MatchFailure
             if self.target.exhaustive and len(value.match_dict) > len(self.target.match_dict):
                 raise MatchFailure
-            results = []
-            for (target_key, _), (value_key, value_value) in zip(self.target.match_dict, value.match_dict):
-                if target_key != value_key:
-                    raise MatchFailure
-                results.append(value_value)
-            return reversed(results)
+            return reversed(list(same_type_destructure(self.target.match_dict, value.match_dict)))
         if self.target.exhaustive and len(value) != len(self.target.match_dict):
             raise MatchFailure
         return key_destructure(value, self.target.match_dict, guarded_getitem)
