@@ -1,5 +1,4 @@
 import keyword
-import typing
 
 DISCARD = object()
 
@@ -48,52 +47,32 @@ class AsPattern(tuple):
         return self[1]
 
 
-class MultiDestructPattern(tuple):
+class AttrPattern(tuple):
 
     __slots__ = ()
 
-    args_class = None
-
     def __new__(*args, **kwargs):
         cls, *args = args
-        args_ = cls.args_class()
         if args:
-            args_, = args
-        if not isinstance(args_, cls.args_class):
-            raise ValueError(args_)
-        return super(MultiDestructPattern, cls).__new__(cls, (tuple(kwargs.items()), args_))
-
-    def alter(self, **kwargs):
-        return type(self)(self[1]._replace(**kwargs), **dict(self[0]))
+            raise ValueError(args)
+        return super(AttrPattern, cls).__new__(cls, (tuple(kwargs.items()),))
 
     @property
     def match_dict(self):
         return self[0]
 
 
-class AttrArgs(typing.NamedTuple):
-
-    pass
-
-
-class AttrPattern(MultiDestructPattern):
+class DictPattern(tuple):
 
     __slots__ = ()
 
-    args_class = AttrArgs
+    def __new__(cls, match_dict, *, exhaustive=False):
+        return super(DictPattern, cls).__new__(cls, (tuple(match_dict.items()), exhaustive))
 
-
-class DictArgs(typing.NamedTuple):
-
-    exhaustive: bool = False
-
-
-class DictPattern(MultiDestructPattern):
-
-    __slots__ = ()
-
-    args_class = DictArgs
+    @property
+    def match_dict(self):
+        return self[0]
 
     @property
     def exhaustive(self):
-        return self[1].exhaustive
+        return self[1]
