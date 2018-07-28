@@ -67,7 +67,9 @@ class DictPattern(tuple):
     __slots__ = ()
 
     def __new__(cls, match_dict, *, exhaustive=False):
-        return super(DictPattern, cls).__new__(cls, (tuple(match_dict.items()), exhaustive))
+        return super(DictPattern, cls).__new__(
+            cls, (tuple(match_dict.items()), exhaustive)
+        )
 
     @property
     def match_dict(self):

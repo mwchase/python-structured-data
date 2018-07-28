@@ -90,9 +90,7 @@ def test_mismatched_dict(match):
 
 def test_attr(match):
     matchable = match.Matchable(types.SimpleNamespace(a=1, b=2, c=3))
-    assert matchable(
-        match.AttrPattern(c=match.pat.d, a=match.pat.e, b=match.pat.f)
-    )
+    assert matchable(match.AttrPattern(c=match.pat.d, a=match.pat.e, b=match.pat.f))
     assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
     assert not matchable(match.AttrPattern(test=True))
     assert matchable(match.AttrPattern(a=1))
