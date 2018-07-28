@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Changed
+~~~~~~~
+
+- AsPatterns are now formed with indexing instead of the ``@`` operator.
+
 0.6.0 (2018-07-27)
 ------------------
 

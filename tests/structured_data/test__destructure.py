@@ -31,9 +31,9 @@ def test_adt(adt, match):
 def test_as(match):
 
     matchable = match.Matchable((1, 2))
-    assert not matchable(match.pat.tup @ (match.pat.a, 3))
+    assert not matchable(match.pat.tup[match.pat.a, 3])
     assert matchable.matches is None
-    structure = match.pat.tup @ (1, match.pat.a)
+    structure = match.pat.tup[1, match.pat.a]
     assert matchable(structure)
 
 
@@ -50,7 +50,7 @@ def test_names(adt, match):
         StrPair: adt.Ctor[str, str]
 
     structure = (
-        match.pat.tup @ (1, match.pat.a),
+        match.pat.tup[1, match.pat.a],
         TestClass.StrPair(match.pat.b, match.pat.c),
     )
     assert match.names(structure) == ["tup", "a", "b", "c"]
@@ -60,9 +60,9 @@ def test_mismatched_as(match):
     """One AsPattern should be able to *partially* destructure another."""
     outer = match.pat.outer
     inner = match.pat.inner
-    target = outer @ inner
+    target = outer[inner]
     structure_inside = match.pat.inside
-    structure = match.pat.outside @ structure_inside
+    structure = match.pat.outside[structure_inside]
     matchable = match.Matchable(structure)
     assert matchable(target)
     assert matchable[outer] is structure

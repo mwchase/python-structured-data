@@ -89,7 +89,7 @@ The match architecture allows you tell pull values out of a nested structure:
 
 .. code-block:: python3
 
-    structure = (match.pat.a, match.pat.b @ (match.pat.c, match.pat.d), 5)
+    structure = (match.pat.a, match.pat.b[match.pat.c, match.pat.d], 5)
     my_value = (('abc', 'xyz'), ('def', 'ghi'), 5)
     matchable = match.Matchable(my_value)
     if matchable(structure):

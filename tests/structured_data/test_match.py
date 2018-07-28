@@ -12,7 +12,7 @@ def test_matching(adt, match):
     with pytest.raises(ValueError):
         assert not matchable[None]
     structure = (
-        match.pat.tup @ (1, match.pat.a),
+        match.pat.tup[1, match.pat.a],
         TestClass.StrPair(match.pat.b, match.pat.c),
     )
     assert matchable(structure)

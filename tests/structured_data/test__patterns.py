@@ -13,8 +13,8 @@ def test_must_be_identifier(match):
 
 def test_as(match):
     pat = match.pat.hello
-    assert pat @ match.pat._ is pat
-    as_pat = pat @ match.pat.world
+    assert pat[match.pat._] is pat
+    as_pat = pat[match.pat.world]
     assert as_pat.matcher is pat
     assert as_pat.match is match.pat.world
 
@@ -36,5 +36,5 @@ def test_exhaustive(match, exhaustive):
 
 def test_nested_as(match):
     matchable = match.Matchable(5)
-    assert matchable(match.pat.a @ match.pat.b @ match.pat.c)
+    assert matchable(match.pat.a[match.pat.b[match.pat.c]])
     assert matchable["a", "b", "c"] == (5, 5, 5)

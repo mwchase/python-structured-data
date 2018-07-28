@@ -20,9 +20,9 @@ class Pattern(tuple):
     @property
     def name(self):
         """Return the name of the matcher."""
-        return self[0]
+        return tuple.__getitem__(self, 0)
 
-    def __matmul__(self, other):
+    def __getitem__(self, other):
         return AsPattern(self, other)
 
 
@@ -45,9 +45,6 @@ class AsPattern(tuple):
     def match(self):
         """Return the right-hand-side of the as-match."""
         return self[1]
-
-    def __matmul__(self, other):
-        return self.matcher @ (self.match @ other)
 
 
 class AttrPattern(tuple):
