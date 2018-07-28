@@ -46,6 +46,9 @@ class AsPattern(tuple):
         """Return the right-hand-side of the as-match."""
         return self[1]
 
+    def __matmul__(self, other):
+        return self.matcher @ (self.match @ other)
+
 
 class AttrPattern(tuple):
 

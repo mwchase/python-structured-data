@@ -32,3 +32,9 @@ def test_match_dict(match, cls_name):
 @pytest.mark.parametrize("exhaustive", [True, False])
 def test_exhaustive(match, exhaustive):
     assert match.DictPattern({}, exhaustive=exhaustive).exhaustive == exhaustive
+
+
+def test_nested_as(match):
+    matchable = match.Matchable(5)
+    assert matchable(match.pat.a @ match.pat.b @ match.pat.c)
+    assert matchable["a", "b", "c"] == (5, 5, 5)
