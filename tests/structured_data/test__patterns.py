@@ -26,12 +26,18 @@ def test_name(match):
 @pytest.mark.parametrize("cls_name", ["AttrPattern", "DictPattern"])
 def test_match_dict(match, cls_name):
     match_dict = dict(a=1, b=2, c=3)
-    assert dict(getattr(match, cls_name)(match_dict).match_dict) == match_dict
+    assert dict(getattr(match, cls_name)(**match_dict).match_dict) == match_dict
+
+
+@pytest.mark.parametrize("cls_name", ["AttrPattern", "DictPattern"])
+def test_fail_fast(match, cls_name):
+    with pytest.raises(ValueError):
+        assert not getattr(match, cls_name)(None)
 
 
 @pytest.mark.parametrize("exhaustive", [True, False])
 def test_exhaustive(match, exhaustive):
-    assert match.DictPattern({}, exhaustive=exhaustive).exhaustive == exhaustive
+    assert match.DictPattern().alter(exhaustive=exhaustive).exhaustive == exhaustive
 
 
 def test_nested_as(match):

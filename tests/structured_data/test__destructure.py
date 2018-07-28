@@ -72,34 +72,34 @@ def test_mismatched_as(match):
 def test_dict(match):
     matchable = match.Matchable(dict(a=1, b=2, c=3))
     assert matchable(
-        match.DictPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+        match.DictPattern(c=match.pat.d, a=match.pat.e, b=match.pat.f)
     )
     assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
-    assert not matchable(match.DictPattern(dict(test=True)))
-    assert matchable(match.DictPattern(dict(a=1)))
-    assert not matchable(match.DictPattern(dict(a=1), exhaustive=True))
-    assert not matchable(match.DictPattern(dict(a=1, b=2, c=3, test=True)))
+    assert not matchable(match.DictPattern(test=True))
+    assert matchable(match.DictPattern(a=1))
+    assert not matchable(match.DictPattern(a=1).alter(exhaustive=True))
+    assert not matchable(match.DictPattern(a=1, b=2, c=3, test=True))
 
 
 def test_mismatched_dict(match):
-    matchable = match.Matchable(match.DictPattern(dict(a=1, b=2, c=3)))
-    assert not matchable(match.DictPattern({}, exhaustive=True))
-    assert not matchable(match.DictPattern(dict(a=1, b=2, c=3, d=4)))
-    assert not matchable(match.DictPattern(dict(b=2, c=3, a=1)))
+    matchable = match.Matchable(match.DictPattern(a=1, b=2, c=3))
+    assert not matchable(match.DictPattern().alter(exhaustive=True))
+    assert not matchable(match.DictPattern(a=1, b=2, c=3, d=4))
+    assert not matchable(match.DictPattern(b=2, c=3, a=1))
 
 
 def test_attr(match):
     matchable = match.Matchable(types.SimpleNamespace(a=1, b=2, c=3))
     assert matchable(
-        match.AttrPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+        match.AttrPattern(c=match.pat.d, a=match.pat.e, b=match.pat.f)
     )
     assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
-    assert not matchable(match.AttrPattern(dict(test=True)))
-    assert matchable(match.AttrPattern(dict(a=1)))
-    assert not matchable(match.AttrPattern(dict(a=1, b=2, c=3, test=True)))
+    assert not matchable(match.AttrPattern(test=True))
+    assert matchable(match.AttrPattern(a=1))
+    assert not matchable(match.AttrPattern(a=1, b=2, c=3, test=True))
 
 
 def test_mismatched_attr(match):
-    matchable = match.Matchable(match.AttrPattern(dict(a=1, b=2, c=3)))
-    assert not matchable(match.AttrPattern(dict(a=1, b=2, c=3, d=4)))
-    assert not matchable(match.AttrPattern(dict(b=2, c=3, a=1)))
+    matchable = match.Matchable(match.AttrPattern(a=1, b=2, c=3))
+    assert not matchable(match.AttrPattern(a=1, b=2, c=3, d=4))
+    assert not matchable(match.AttrPattern(b=2, c=3, a=1))

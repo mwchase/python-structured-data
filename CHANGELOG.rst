@@ -8,7 +8,8 @@ Unreleased
 Changed
 ~~~~~~~
 
-- AsPatterns are now formed with indexing instead of the ``@`` operator.
+- As-patterns are now formed with indexing instead of the ``@`` operator.
+- ``AttrPattern`` and ``DictPattern`` now take keyword arguments instead of a ``dict`` argument, and form new versions of themselves with an ``alter`` method.
 
 0.6.0 (2018-07-27)
 ------------------
