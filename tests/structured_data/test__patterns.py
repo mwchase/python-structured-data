@@ -1,4 +1,12 @@
+import types
+
 import pytest
+
+
+def test_cant_use_base_compound():
+    from structured_data._patterns import CompoundMatch
+    with pytest.raises(NotImplementedError):
+        CompoundMatch().destructure(None)
 
 
 def test_cant_use_keyword(match):
@@ -52,3 +60,55 @@ def test_nested_as(match):
 def test_bind(match):
     bind = match.Bind(match.pat.a, b=2)
     assert match.names(bind) == ["a", "b"]
+
+
+def test_mismatched_as(match):
+    """One AsPattern should be able to *partially* destructure another."""
+    outer = match.pat.outer
+    inner = match.pat.inner
+    target = outer[inner]
+    structure_inside = match.pat.inside
+    structure = match.pat.outside[structure_inside]
+    matchable = match.Matchable(structure)
+    assert matchable(target)
+    assert matchable[outer] is structure
+    assert matchable[inner] is structure_inside
+
+
+def test_dict(match):
+    matchable = match.Matchable(dict(a=1, b=2, c=3))
+    assert matchable(
+        match.DictPattern(dict(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+    )
+    assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
+    assert not matchable(match.DictPattern(dict(test=True)))
+    assert matchable(match.DictPattern(dict(a=1)))
+    assert not matchable(match.DictPattern(dict(a=1), exhaustive=True))
+    assert not matchable(match.DictPattern(dict(a=1, b=2, c=3, test=True)))
+
+
+def test_mismatched_dict(match):
+    matchable = match.Matchable(match.DictPattern(dict(a=1, b=2, c=3)))
+    assert not matchable(match.DictPattern({}, exhaustive=True))
+    assert not matchable(match.DictPattern(dict(a=1, b=2, c=3, d=4)))
+    assert not matchable(match.DictPattern(dict(b=2, c=3, a=1)))
+
+
+def test_attr(match):
+    matchable = match.Matchable(types.SimpleNamespace(a=1, b=2, c=3))
+    assert matchable(match.AttrPattern(c=match.pat.d, a=match.pat.e, b=match.pat.f))
+    assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
+    assert not matchable(match.AttrPattern(test=True))
+    assert matchable(match.AttrPattern(a=1))
+    assert not matchable(match.AttrPattern(a=1, b=2, c=3, test=True))
+
+
+def test_mismatched_attr(match):
+    matchable = match.Matchable(match.AttrPattern(a=1, b=2, c=3))
+    assert not matchable(match.AttrPattern(a=1, b=2, c=3, d=4))
+    assert not matchable(match.AttrPattern(b=2, c=3, a=1))
+
+
+def test_match_nothing_exhaustive(match):
+    matchable = match.Matchable(dict(a=1))
+    assert not matchable(match.DictPattern({}, exhaustive=True))
