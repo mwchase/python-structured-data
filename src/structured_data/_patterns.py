@@ -141,7 +141,7 @@ class DictPattern(CompoundMatch, tuple):
         return ()
 
 
-class Bind(tuple):
+class Bind(CompoundMatch, tuple):
     """A wrapper that adds additional bindings to a successful match."""
 
     __slots__ = ()
@@ -158,3 +158,12 @@ class Bind(tuple):
     @property
     def bindings(self):
         return self[1]
+
+    def destructure(self, value):
+        if value is self:
+            return [Pattern(name) for (name, _) in reversed(self.bindings)] + [
+                self.structure
+            ]
+        return [binding_value for (_, binding_value) in reversed(self.bindings)] + [
+            value
+        ]

@@ -43,7 +43,3 @@ def test_names(adt, match):
         TestClass.StrPair(match.pat.b, match.pat.c),
     )
     assert match.names(structure) == ["tup", "a", "b", "c"]
-
-
-def test_binding(match):
-    assert match.names(match.Bind(match.pat._, b=1, c=2, a=3)) == ["b", "c", "a"]

@@ -1,7 +1,6 @@
 from ._adt_constructor import ADTConstructor
 from ._match_failure import MatchFailure
 from ._not_in import not_in
-from ._patterns import Bind
 from ._patterns import CompoundMatch
 from ._patterns import Pattern
 from ._unpack import unpack
@@ -55,18 +54,10 @@ class DestructurerList(tuple):
 
     @classmethod
     def custom(cls, *destructurers):
-        return cls(
-            *destructurers,
-            ADTDestructurer,
-            TupleDestructurer
-        )
+        return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
     def names(self, target):
         name_list = []
-        extra_names = ()
-        if isinstance(target, Bind):
-            extra_names = target.bindings
-            target = target.structure
         to_process = [target]
         while to_process:
             item = to_process.pop()
@@ -77,9 +68,6 @@ class DestructurerList(tuple):
                 destructurer = self.get_destructurer(item)
                 if destructurer:
                     to_process.extend(destructurer(item))
-        for (name, _) in extra_names:
-            not_in(name_list, name)
-            name_list.append(name)
         return name_list
 
 

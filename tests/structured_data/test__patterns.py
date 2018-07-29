@@ -5,6 +5,7 @@ import pytest
 
 def test_cant_use_base_compound():
     from structured_data._patterns import CompoundMatch
+
     with pytest.raises(NotImplementedError):
         CompoundMatch().destructure(None)
 
@@ -112,3 +113,10 @@ def test_mismatched_attr(match):
 def test_match_nothing_exhaustive(match):
     matchable = match.Matchable(dict(a=1))
     assert not matchable(match.DictPattern({}, exhaustive=True))
+
+
+def test_binding(match):
+    structure = match.Bind(match.pat._, b=1, c=2, a=3)
+    assert match.names(structure) == ["b", "c", "a"]
+    matchable = match.Matchable(5)
+    assert matchable(structure)["b", "c", "a"] == (1, 2, 3)

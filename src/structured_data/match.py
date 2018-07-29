@@ -72,18 +72,11 @@ def _match_iteration(destructurers, match_dict, target, value):
 
 def _match(target, value, destructurers):
     match_dict = MatchDict()
-    extra_bindings = ()
-    if isinstance(target, Bind):
-        extra_bindings = target.bindings
-        target = target.structure
     to_process = [(target, value)]
     while to_process:
         to_process.extend(
             _match_iteration(destructurers, match_dict, *to_process.pop())
         )
-    for (name, bind_value) in extra_bindings:
-        not_in(match_dict, name)
-        match_dict[name] = bind_value
     return match_dict
 
 
