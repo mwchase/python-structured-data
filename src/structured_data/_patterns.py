@@ -50,6 +50,7 @@ class AsPattern(tuple):
 
 
 class AttrPattern(tuple):
+    """A matcher that destructures an object using attribute access."""
 
     __slots__ = ()
 
@@ -65,6 +66,7 @@ class AttrPattern(tuple):
 
 
 class DictPattern(tuple):
+    """A matcher that destructures a dictionary by key."""
 
     __slots__ = ()
 
@@ -83,6 +85,7 @@ class DictPattern(tuple):
 
 
 class Bind(tuple):
+    """A wrapper that adds additional bindings to a successful match."""
 
     __slots__ = ()
 
