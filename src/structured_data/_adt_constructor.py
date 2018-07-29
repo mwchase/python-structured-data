@@ -7,10 +7,6 @@ class ADTConstructor:
 
     __slots__ = ()
 
-    def __new__(cls, *args, **kwargs):
-        """Explicitly forward to base class."""
-        return super().__new__(cls, *args, **kwargs)
-
     def __dir__(self):
         super_dir = super().__dir__()
         my_dir = []
