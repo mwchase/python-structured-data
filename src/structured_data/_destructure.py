@@ -140,7 +140,6 @@ class DestructurerList(tuple):
 
     def names(self, target):
         name_list = []
-        names_seen = set()
         extra_names = ()
         if isinstance(target, Bind):
             extra_names = target.bindings
@@ -149,16 +148,14 @@ class DestructurerList(tuple):
         while to_process:
             item = to_process.pop()
             if isinstance(item, Pattern):
-                not_in(names_seen, item.name)
-                names_seen.add(item.name)
+                not_in(name_list, item.name)
                 name_list.append(item.name)
             else:
                 destructurer = self.get_destructurer(item)
                 if destructurer:
                     to_process.extend(destructurer(item))
         for (name, _) in extra_names:
-            not_in(names_seen, name)
-            names_seen.add(name)
+            not_in(name_list, name)
             name_list.append(name)
         return name_list
 
