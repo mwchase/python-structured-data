@@ -9,6 +9,7 @@ E = typing.TypeVar("E")
 
 @adt.adt
 class Maybe(typing.Generic[T]):
+    """An ADT that wraps a value, or nothing."""
 
     Just: adt.Ctor[T]
     Nothing: adt.Ctor
@@ -16,6 +17,7 @@ class Maybe(typing.Generic[T]):
 
 @adt.adt
 class Either(typing.Generic[E, R]):
+    """An ADT that wraps one type, or the other."""
 
     Left: adt.Ctor[E]
     Right: adt.Ctor[R]
