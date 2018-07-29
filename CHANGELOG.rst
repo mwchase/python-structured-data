@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- ``Bind`` class for attaching extra data to a match structure.
+
 Changed
 ~~~~~~~
 

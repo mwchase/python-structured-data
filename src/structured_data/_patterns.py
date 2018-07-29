@@ -1,5 +1,7 @@
 import keyword
 
+from ._not_in import not_in
+
 DISCARD = object()
 
 
@@ -77,4 +79,22 @@ class DictPattern(tuple):
 
     @property
     def exhaustive(self):
+        return self[1]
+
+
+class Bind(tuple):
+
+    __slots__ = ()
+
+    def __new__(*args, **kwargs):
+        cls, structure = args
+        not_in(kwargs, "_")
+        return super(Bind, cls).__new__(cls, (structure, tuple(kwargs.items())))
+
+    @property
+    def structure(self):
+        return self[0]
+
+    @property
+    def bindings(self):
         return self[1]

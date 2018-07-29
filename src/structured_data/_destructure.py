@@ -3,6 +3,7 @@ from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns import AsPattern
 from ._patterns import AttrPattern
+from ._patterns import Bind
 from ._patterns import DictPattern
 from ._patterns import Pattern
 from ._unpack import unpack
@@ -140,6 +141,10 @@ class DestructurerList(tuple):
     def names(self, target):
         name_list = []
         names_seen = set()
+        extra_names = ()
+        if isinstance(target, Bind):
+            extra_names = target.bindings
+            target = target.structure
         to_process = [target]
         while to_process:
             item = to_process.pop()
@@ -151,6 +156,10 @@ class DestructurerList(tuple):
                 destructurer = self.get_destructurer(item)
                 if destructurer:
                     to_process.extend(destructurer(item))
+        for (name, _) in extra_names:
+            not_in(names_seen, name)
+            names_seen.add(name)
+            name_list.append(name)
         return name_list
 
 

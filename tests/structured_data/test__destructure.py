@@ -101,3 +101,7 @@ def test_mismatched_attr(match):
     matchable = match.Matchable(match.AttrPattern(a=1, b=2, c=3))
     assert not matchable(match.AttrPattern(a=1, b=2, c=3, d=4))
     assert not matchable(match.AttrPattern(b=2, c=3, a=1))
+
+
+def test_binding(match):
+    assert match.names(match.Bind(match.pat._, b=1, c=2, a=3)) == ["b", "c", "a"]

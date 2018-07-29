@@ -47,3 +47,8 @@ def test_nested_as(match):
     matchable = match.Matchable(5)
     assert matchable(match.pat.a[match.pat.b[match.pat.c]])
     assert matchable["a", "b", "c"] == (5, 5, 5)
+
+
+def test_bind(match):
+    bind = match.Bind(match.pat.a, b=2)
+    assert match.names(bind) == ["a", "b"]

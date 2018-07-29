@@ -11,12 +11,12 @@ def test_matching(adt, match):
     assert matchable.matches is None
     with pytest.raises(ValueError):
         assert not matchable[None]
-    structure = (
-        match.pat.tup[1, match.pat.a],
-        TestClass.StrPair(match.pat.b, match.pat.c),
+    structure = match.Bind(
+        (match.pat.tup[1, match.pat.a], TestClass.StrPair(match.pat.b, match.pat.c)),
+        bound=5,
     )
     assert matchable(structure)
-    assert matchable.matches == dict(tup=(1, 2), a=2, b="a", c="b")
+    assert matchable.matches == dict(tup=(1, 2), a=2, b="a", c="b", bound=5)
     assert matchable[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (
         2,
         "a",
@@ -28,8 +28,9 @@ def test_matching(adt, match):
         "a",
         "b",
         "c",
+        "bound",
     ]  # Should preserve ordering.
-    assert match.names(structure) == ["tup", "a", "b", "c"]
+    assert match.names(structure) == ["tup", "a", "b", "c", "bound"]
     assert matchable[dict(hello=match.pat.a, world=match.pat.b)] == dict(
         hello=2, world="a"
     )
