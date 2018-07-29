@@ -62,7 +62,10 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
     length = len(args)
 
     class Constructor(_cls, ADTConstructor, tuple):
-        """Auto-generated subclass of an ADT."""
+        __doc__ = f"""Auto-generated subclass {name} of ADT {_cls.__name__}.
+
+        Takes {length} argument{'' if length == 1 else 's'}.
+        """
 
         __slots__ = ()
 
