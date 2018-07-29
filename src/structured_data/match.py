@@ -1,4 +1,5 @@
 import collections
+import operator
 
 from ._attribute_constructor import AttributeConstructor
 from ._destructure import DESTRUCTURERS
@@ -8,6 +9,7 @@ from ._patterns import DISCARD
 from ._patterns import AttrPattern
 from ._patterns import Bind
 from ._patterns import DictPattern
+from ._patterns import Guard
 from ._patterns import Pattern
 
 
@@ -110,5 +112,8 @@ class Matchable:
 
 pat = AttributeConstructor(Pattern)
 
+TRUTHY = Guard(operator.truth)
+FALSY = Guard(operator.not_)
 
-__all__ = ["AttrPattern", "Bind", "DictPattern", "Pattern", "Matchable", "names", "pat"]
+
+__all__ = ["AttrPattern", "Bind", "DictPattern", "FALSY", "Guard", "Matchable", "Pattern", "TRUTHY", "names", "pat"]
