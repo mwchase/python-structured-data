@@ -118,4 +118,4 @@ class Matchable:
 pat = AttributeConstructor(Pattern)
 
 
-__all__ = ["AttrPattern", "DictPattern", "Pattern", "Matchable", "names", "pat"]
+__all__ = ["AttrPattern", "Bind", "DictPattern", "Pattern", "Matchable", "names", "pat"]
