@@ -116,4 +116,15 @@ TRUTHY = Guard(operator.truth)
 FALSY = Guard(operator.not_)
 
 
-__all__ = ["AttrPattern", "Bind", "DictPattern", "FALSY", "Guard", "Matchable", "Pattern", "TRUTHY", "names", "pat"]
+__all__ = [
+    "AttrPattern",
+    "Bind",
+    "DictPattern",
+    "FALSY",
+    "Guard",
+    "Matchable",
+    "Pattern",
+    "TRUTHY",
+    "names",
+    "pat",
+]
