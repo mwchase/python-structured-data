@@ -1,8 +1,8 @@
 from ._adt_constructor import ADTConstructor
 from ._match_failure import MatchFailure
 from ._not_in import not_in
-from ._patterns import CompoundMatch
-from ._patterns import Pattern
+from ._patterns.basic_patterns import Pattern
+from ._patterns.compound_match import CompoundMatch
 from ._unpack import unpack
 
 

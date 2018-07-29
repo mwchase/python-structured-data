@@ -5,12 +5,12 @@ from ._attribute_constructor import AttributeConstructor
 from ._destructure import DESTRUCTURERS
 from ._match_failure import MatchFailure
 from ._not_in import not_in
-from ._patterns import DISCARD
-from ._patterns import AttrPattern
-from ._patterns import Bind
-from ._patterns import DictPattern
-from ._patterns import Guard
-from ._patterns import Pattern
+from ._patterns.basic_patterns import DISCARD
+from ._patterns.basic_patterns import Pattern
+from ._patterns.bind import Bind
+from ._patterns.guard import Guard
+from ._patterns.mapping_match import AttrPattern
+from ._patterns.mapping_match import DictPattern
 
 
 def names(target):
