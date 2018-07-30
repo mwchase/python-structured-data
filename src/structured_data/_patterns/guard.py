@@ -9,11 +9,11 @@ class Guard(CompoundMatch, tuple):
 
     def __new__(cls, guard, structure=DISCARD):
         if structure is not DISCARD:
-            return AsGuard(guard, structure)
+            return AsGuard(Guard(guard), structure)
         return super().__new__(cls, (guard,))
 
     def __getitem__(self, key):
-        return Guard(self.guard, key)
+        return AsGuard(self, key)
 
     @property
     def guard(self):
@@ -29,12 +29,14 @@ class AsGuard(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, guard, structure):
-        return super().__new__(cls, (guard, structure))
+    def __new__(cls, base_guard, structure):
+        if structure is DISCARD:
+            return base_guard
+        return super().__new__(cls, (base_guard, structure))
 
     @property
     def guard(self):
-        return self[0]
+        return self[0].guard
 
     @property
     def structure(self):
