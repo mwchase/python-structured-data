@@ -7,11 +7,6 @@ def value_cant_be_smaller(target_match_dict, value_match_dict):
         raise MatchFailure
 
 
-def exhaustive_length_must_match(target, value_match_dict):
-    if target.exhaustive and len(value_match_dict) != len(target.match_dict):
-        raise MatchFailure
-
-
 class AttrPattern(CompoundMatch, tuple):
     """A matcher that destructures an object using attribute access."""
 
@@ -28,18 +23,28 @@ class AttrPattern(CompoundMatch, tuple):
         return self[0]
 
     def destructure(self, value):
+        if not self.match_dict:
+            return ()
         if isinstance(value, AttrPattern):
             value_cant_be_smaller(self.match_dict, value.match_dict)
-            if value.match_dict:
-                first_match, *remainder = value.match_dict
-                return (AttrPattern(**dict(remainder)), first_match[1])
-        elif self.match_dict:
-            first_match = self.match_dict[0]
-            try:
-                return (value, getattr(value, first_match[0]))
-            except AttributeError:
-                raise MatchFailure
-        return ()
+            first_match, *remainder = value.match_dict
+            return (AttrPattern(**dict(remainder)), first_match[1])
+        first_match = self.match_dict[0]
+        try:
+            return (value, getattr(value, first_match[0]))
+        except AttributeError:
+            raise MatchFailure
+
+
+def dict_pattern_length(dp_or_d):
+    if isinstance(dp_or_d, DictPattern):
+        return len(dp_or_d.match_dict)
+    return len(dp_or_d)
+
+
+def exhaustive_length_must_match(target, value):
+    if target.exhaustive and dict_pattern_length(value) != dict_pattern_length(target):
+        raise MatchFailure
 
 
 class DictPattern(CompoundMatch, tuple):
@@ -61,18 +66,15 @@ class DictPattern(CompoundMatch, tuple):
         return self[1]
 
     def destructure(self, value):
+        exhaustive_length_must_match(self, value)
+        if not self.match_dict:
+            return ()
         if isinstance(value, DictPattern):
             value_cant_be_smaller(self.match_dict, value.match_dict)
-            exhaustive_length_must_match(self, value.match_dict)
-            if value.match_dict:
-                first_match, *remainder = value.match_dict
-                return (DictPattern(dict(remainder)), first_match[1])
-        elif self.match_dict:
-            exhaustive_length_must_match(self, value)
-            first_match = self.match_dict[0]
-            try:
-                return (value, value[first_match[0]])
-            except KeyError:
-                raise MatchFailure
-        exhaustive_length_must_match(self, value)
-        return ()
+            first_match, *remainder = value.match_dict
+            return (DictPattern(dict(remainder)), first_match[1])
+        first_match = self.match_dict[0]
+        try:
+            return (value, value[first_match[0]])
+        except KeyError:
+            raise MatchFailure
