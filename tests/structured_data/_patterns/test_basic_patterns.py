@@ -15,8 +15,8 @@ def test_as(match):
     pat = match.pat.hello
     assert pat[match.pat._] is pat
     as_pat = pat[match.pat.world]
-    assert as_pat.matcher is pat
-    assert as_pat.match is match.pat.world
+    assert as_pat.pattern is pat
+    assert as_pat.structure is match.pat.world
 
 
 def test_name(match):

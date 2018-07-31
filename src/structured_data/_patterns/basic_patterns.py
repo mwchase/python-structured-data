@@ -33,24 +33,24 @@ class AsPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, matcher: Pattern, match):
-        if match is DISCARD:
-            return matcher
-        return super().__new__(cls, (matcher, match))
+    def __new__(cls, pattern: Pattern, structure):
+        if structure is DISCARD:
+            return pattern
+        return super().__new__(cls, (pattern, structure))
 
     @property
-    def matcher(self):
+    def pattern(self):
         """Return the left-hand-side of the as-match."""
         return self[0]
 
     @property
-    def match(self):
+    def structure(self):
         """Return the right-hand-side of the as-match."""
         return self[1]
 
     def destructure(self, value):
         if isinstance(value, AsPattern):
             if value is self:
-                return (self.match, self.matcher)
-            return (value.match, value)
+                return (self.structure, self.pattern)
+            return (value.structure, value)
         return (value, value)
