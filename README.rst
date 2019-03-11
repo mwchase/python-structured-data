@@ -37,9 +37,8 @@ Overview
     :alt: Coverage Status
     :target: https://codecov.io/github/mwchase/python-structured-data
 
-.. |codacy| image:: https://img.shields.io/codacy/1a9e4a5640b446768c21a87d3566d33e.svg?style=flat
-    :target: https://www.codacy.com/app/max-chase/python-structured-data
-    :alt: Codacy Code Quality Status
+.. |codacy| image:: https://api.codacy.com/project/badge/Grade/1a9e4a5640b446768c21a87d3566d33e
+    :target: https://www.codacy.com/app/max-chase/python-structured-data?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mwchase/python-structured-data&amp;utm_campaign=Badge_Grade
 
 .. |codebeat| image:: https://codebeat.co/badges/de1fa625-e4d4-4e11-bf94-ee9b4a0acf91
     :target: https://codebeat.co/projects/github-com-mwchase-python-structured-data-master
