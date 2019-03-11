@@ -23,6 +23,6 @@ def test_ctor_cant_index_twice(adt):
 
 def test_ignore_gibberish(adt):
     class CanMake:
-        Constructor: "7[55{.red$"
+        Constructor: "7[55{.red$"  # noqa
 
     assert adt.adt(CanMake)
