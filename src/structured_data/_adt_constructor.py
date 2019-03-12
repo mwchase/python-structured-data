@@ -50,12 +50,12 @@ class ADTMember:
         self.subcls = subcls
 
     def __get__(self, obj, cls):
-        if cls is ENUM_BASES[self.subcls] and obj is None:
+        if cls is ADT_BASES[self.subcls] and obj is None:
             return self.subcls
         raise AttributeError("Can only access adt members through base class.")
 
 
-ENUM_BASES = weakref.WeakKeyDictionary()
+ADT_BASES = weakref.WeakKeyDictionary()
 
 
 def make_constructor(_cls, name, args, subclasses, subclass_order):
@@ -74,7 +74,7 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
                 raise ValueError
             return super().__new__(cls, args)
 
-    ENUM_BASES[Constructor] = _cls
+    ADT_BASES[Constructor] = _cls
 
     Constructor.__name__ = name
     Constructor.__qualname__ = "{qualname}.{name}".format(

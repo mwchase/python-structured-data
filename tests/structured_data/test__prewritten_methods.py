@@ -32,7 +32,7 @@ def classes(_adt_constructor, _prewritten_methods):
     Base.__init_subclass__ = _prewritten_methods.PrewrittenMethods.__init_subclass__
 
     for cls in (Derived1, Derived2):
-        _adt_constructor.ENUM_BASES[cls] = Base
+        _adt_constructor.ADT_BASES[cls] = Base
 
     _prewritten_methods.SUBCLASS_ORDER[Base] = (Derived1, Derived2)
 

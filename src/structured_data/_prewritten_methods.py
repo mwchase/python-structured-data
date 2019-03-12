@@ -1,12 +1,12 @@
 import inspect
 import weakref
 
-from ._adt_constructor import ENUM_BASES
+from ._adt_constructor import ADT_BASES
 from ._unpack import unpack
 
 
 def adt_base(obj):
-    return ENUM_BASES.get(obj.__class__)
+    return ADT_BASES.get(obj.__class__)
 
 
 MISSING = object()
