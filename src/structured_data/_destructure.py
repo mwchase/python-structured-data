@@ -7,7 +7,6 @@ from ._patterns.basic_patterns import Pattern
 from ._patterns.compound_match import CompoundMatch
 from ._unpack import unpack
 
-
 _TYPE = type
 
 
