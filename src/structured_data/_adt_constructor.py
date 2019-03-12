@@ -59,7 +59,7 @@ class ADTMember:
 ADT_BASES: typing.MutableMapping[type, type] = weakref.WeakKeyDictionary()
 
 
-def make_constructor(_cls, name, args, subclasses, subclass_order):
+def make_constructor(_cls, name, args, subclass_order):
     length = len(args)
 
     class Constructor(_cls, ADTConstructor, tuple):
@@ -82,7 +82,6 @@ def make_constructor(_cls, name, args, subclasses, subclass_order):
         qualname=_cls.__qualname__, name=name
     )
 
-    subclasses.add(Constructor)
     setattr(_cls, name, ADTMember(Constructor))
     subclass_order.append(Constructor)
 

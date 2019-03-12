@@ -108,17 +108,16 @@ def _process_class(_cls, _repr, eq, order):
     if order and not eq:
         raise ValueError("eq must be true if order is true")
 
-    subclasses = set()
     subclass_order = []
 
     for name, args in _args_from_annotations(_cls).items():
-        make_constructor(_cls, name, args, subclasses, subclass_order)
+        make_constructor(_cls, name, args, subclass_order)
 
     SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
-    _custom_new(_cls, subclasses)
+    _custom_new(_cls, set(subclass_order))
 
     _set_new_functions(
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
