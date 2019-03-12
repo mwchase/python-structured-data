@@ -7,7 +7,9 @@ import astor
 _CTOR_CACHE: typing.Dict[typing.Tuple[type, ...], "Ctor"] = {}
 
 
-ARGS: typing.MutableMapping["Ctor", typing.Tuple[type, ...]] = weakref.WeakKeyDictionary()
+ARGS: typing.MutableMapping[
+    "Ctor", typing.Tuple[type, ...]
+] = weakref.WeakKeyDictionary()
 
 
 class Ctor:

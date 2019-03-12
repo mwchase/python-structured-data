@@ -13,7 +13,9 @@ def adt_base(obj):
 MISSING = object()
 
 
-SUBCLASS_ORDER: typing.MutableMapping[type, typing.Tuple[type, ...]] = weakref.WeakKeyDictionary()
+SUBCLASS_ORDER: typing.MutableMapping[
+    type, typing.Tuple[type, ...]
+] = weakref.WeakKeyDictionary()
 
 
 def cant_modify(self, name):
