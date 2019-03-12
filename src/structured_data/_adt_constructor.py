@@ -1,4 +1,5 @@
 import inspect
+import typing
 import weakref
 
 
@@ -55,7 +56,7 @@ class ADTMember:
         raise AttributeError("Can only access adt members through base class.")
 
 
-ADT_BASES = weakref.WeakKeyDictionary()
+ADT_BASES: typing.MutableMapping[type, type] = weakref.WeakKeyDictionary()
 
 
 def make_constructor(_cls, name, args, subclasses, subclass_order):

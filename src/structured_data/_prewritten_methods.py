@@ -1,4 +1,5 @@
 import inspect
+import typing
 import weakref
 
 from ._adt_constructor import ADT_BASES
@@ -12,7 +13,7 @@ def adt_base(obj):
 MISSING = object()
 
 
-SUBCLASS_ORDER = weakref.WeakKeyDictionary()
+SUBCLASS_ORDER: typing.MutableMapping[type, typing.Tuple[type, ...]] = weakref.WeakKeyDictionary()
 
 
 def cant_modify(self, name):
