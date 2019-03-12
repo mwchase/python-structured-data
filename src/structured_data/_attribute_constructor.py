@@ -1,3 +1,4 @@
+import sys
 import weakref
 
 ATTRIBUTE_CONSTRUCTORS = weakref.WeakKeyDictionary()
@@ -13,6 +14,7 @@ class AttributeConstructor:
         ATTRIBUTE_CACHE[self] = {}
 
     def __getattribute__(self, name):
+        name = sys.intern(name)
         return ATTRIBUTE_CACHE[self].setdefault(
             name, ATTRIBUTE_CONSTRUCTORS[self](name)
         )
