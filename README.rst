@@ -2,80 +2,78 @@
 Overview
 ========
 
-.. only:: not latex
+.. start-badges
 
-    .. start-badges
+.. list-table::
+    :stub-columns: 1
 
-    .. list-table::
-        :stub-columns: 1
+    * - docs
+      - |docs|
+    * - tests
+      - | |travis| |appveyor| |requires|
+        | |codecov|
+        | |codacy| |codebeat| |codeclimate| |scrutinizer|
+    * - package
+      - | |version| |wheel| |supported-versions| |supported-implementations|
+        | |commits-since|
 
-        * - docs
-          - |docs|
-        * - tests
-          - | |travis| |appveyor| |requires|
-            | |codecov|
-            | |codacy| |codebeat| |codeclimate| |scrutinizer|
-        * - package
-          - | |version| |wheel| |supported-versions| |supported-implementations|
-            | |commits-since|
+.. |docs| image:: https://readthedocs.org/projects/python-structured-data/badge/?style=flat
+    :target: https://readthedocs.org/projects/python-structured-data
+    :alt: Documentation Status
 
-    .. |docs| image:: https://readthedocs.org/projects/python-structured-data/badge/?style=flat
-        :target: https://readthedocs.org/projects/python-structured-data
-        :alt: Documentation Status
+.. |travis| image:: https://travis-ci.org/mwchase/python-structured-data.svg?branch=master
+    :alt: Travis-CI Build Status
+    :target: https://travis-ci.org/mwchase/python-structured-data
 
-    .. |travis| image:: https://travis-ci.org/mwchase/python-structured-data.svg?branch=master
-        :alt: Travis-CI Build Status
-        :target: https://travis-ci.org/mwchase/python-structured-data
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mwchase/python-structured-data?branch=master&svg=true
+    :alt: AppVeyor Build Status
+    :target: https://ci.appveyor.com/project/mwchase/python-structured-data
 
-    .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mwchase/python-structured-data?branch=master&svg=true
-        :alt: AppVeyor Build Status
-        :target: https://ci.appveyor.com/project/mwchase/python-structured-data
+.. |requires| image:: https://requires.io/github/mwchase/python-structured-data/requirements.svg?branch=master
+    :alt: Requirements Status
+    :target: https://requires.io/github/mwchase/python-structured-data/requirements/?branch=master
 
-    .. |requires| image:: https://requires.io/github/mwchase/python-structured-data/requirements.svg?branch=master
-        :alt: Requirements Status
-        :target: https://requires.io/github/mwchase/python-structured-data/requirements/?branch=master
+.. |codecov| image:: https://codecov.io/github/mwchase/python-structured-data/coverage.svg?branch=master
+    :alt: Coverage Status
+    :target: https://codecov.io/github/mwchase/python-structured-data
 
-    .. |codecov| image:: https://codecov.io/github/mwchase/python-structured-data/coverage.svg?branch=master
-        :alt: Coverage Status
-        :target: https://codecov.io/github/mwchase/python-structured-data
+.. |codacy| image:: https://api.codacy.com/project/badge/Grade/1a9e4a5640b446768c21a87d3566d33e
+    :target: https://www.codacy.com/app/max-chase/python-structured-data?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mwchase/python-structured-data&amp;utm_campaign=Badge_Grade
 
-    .. |codacy| image:: https://api.codacy.com/project/badge/Grade/1a9e4a5640b446768c21a87d3566d33e
-        :target: https://www.codacy.com/app/max-chase/python-structured-data?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mwchase/python-structured-data&amp;utm_campaign=Badge_Grade
+.. |codebeat| image:: https://codebeat.co/badges/de1fa625-e4d4-4e11-bf94-ee9b4a0acf91
+    :target: https://codebeat.co/projects/github-com-mwchase-python-structured-data-master
+    :alt: Codebeat Code Quality Status
 
-    .. |codebeat| image:: https://codebeat.co/badges/de1fa625-e4d4-4e11-bf94-ee9b4a0acf91
-        :target: https://codebeat.co/projects/github-com-mwchase-python-structured-data-master
-        :alt: Codebeat Code Quality Status
+.. |codeclimate| image:: https://api.codeclimate.com/v1/badges/535f66af50b72ee28e62/maintainability
+    :target: https://codeclimate.com/github/mwchase/python-structured-data/maintainability
+    :alt: Code Climate Maintainability Score
 
-    .. |codeclimate| image:: https://api.codeclimate.com/v1/badges/535f66af50b72ee28e62/maintainability
-        :target: https://codeclimate.com/github/mwchase/python-structured-data/maintainability
-        :alt: Code Climate Maintainability Score
+.. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
+    :target: https://scrutinizer-ci.com/g/mwchase/python-structured-data/?branch=master
+    :alt: Scrutinizer Code Quality Status
 
-    .. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
-        :target: https://scrutinizer-ci.com/g/mwchase/python-structured-data/?branch=master
-        :alt: Scrutinizer Code Quality Status
+.. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
+    :alt: PyPI Package latest release
+    :target: https://pypi.python.org/pypi/structured-data
 
-    .. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
-        :alt: PyPI Package latest release
-        :target: https://pypi.python.org/pypi/structured-data
+.. |commits-since| image:: https://img.shields.io/github/commits-since/mwchase/python-structured-data/v0.6.0.svg
+    :alt: Commits since latest release
+    :target: https://github.com/mwchase/python-structured-data/compare/v0.6.0...master
 
-    .. |commits-since| image:: https://img.shields.io/github/commits-since/mwchase/python-structured-data/v0.6.0.svg
-        :alt: Commits since latest release
-        :target: https://github.com/mwchase/python-structured-data/compare/v0.6.0...master
+.. |wheel| image:: https://img.shields.io/pypi/wheel/structured-data.svg
+    :alt: PyPI Wheel
+    :target: https://pypi.python.org/pypi/structured-data
 
-    .. |wheel| image:: https://img.shields.io/pypi/wheel/structured-data.svg
-        :alt: PyPI Wheel
-        :target: https://pypi.python.org/pypi/structured-data
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/structured-data.svg
+    :alt: Supported versions
+    :target: https://pypi.python.org/pypi/structured-data
 
-    .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/structured-data.svg
-        :alt: Supported versions
-        :target: https://pypi.python.org/pypi/structured-data
-
-    .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/structured-data.svg
-        :alt: Supported implementations
-        :target: https://pypi.python.org/pypi/structured-data
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/structured-data.svg
+    :alt: Supported implementations
+    :target: https://pypi.python.org/pypi/structured-data
 
 
-    .. end-badges
+.. end-badges
 
 Code generators for immutable structured data, including algebraic data types, and functions to destructure them.
 Structured Data provides three public modules: ``structured_data.adt``, ``structured_data.match``, and ``structured_data.data``.
