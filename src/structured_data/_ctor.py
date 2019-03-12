@@ -1,12 +1,13 @@
 import ast
+import typing
 import weakref
 
 import astor
 
-_CTOR_CACHE = {}
+_CTOR_CACHE: typing.Dict[typing.Tuple[type, ...], "Ctor"] = {}
 
 
-ARGS = weakref.WeakKeyDictionary()
+ARGS: typing.MutableMapping["Ctor", typing.Tuple[type, ...]] = weakref.WeakKeyDictionary()
 
 
 class Ctor:
@@ -32,7 +33,7 @@ class Ctor:
         return cls(args)
 
 
-ARGS[Ctor] = ()
+ARGS[typing.cast(Ctor, Ctor)] = ()
 
 
 def _interpret_args_from_non_string(constructor):
