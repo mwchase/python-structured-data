@@ -1,4 +1,5 @@
 import keyword
+import sys
 
 from .compound_match import CompoundMatch
 
@@ -17,7 +18,7 @@ class Pattern(tuple):
             raise ValueError
         if keyword.iskeyword(name):
             raise ValueError
-        return super().__new__(cls, (name,))
+        return super().__new__(cls, (sys.intern(name),))
 
     @property
     def name(self):
