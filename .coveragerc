@@ -8,7 +8,6 @@ source =
     src
     tests
     test_resources
-parallel = true
 
 [report]
 show_missing = true
