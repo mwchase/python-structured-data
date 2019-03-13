@@ -3,22 +3,25 @@ import typing
 import weakref
 
 
+def _should_include(name, static):
+    if name in SHADOWED_ATTRIBUTES and static is None:
+        return False
+    if isinstance(static, ADTMember):
+        return False
+    return True
+
+
 class ADTConstructor:
     """Base class for ADT Constructor classes."""
 
     __slots__ = ()
 
     def __dir__(self):
-        super_dir = super().__dir__()
-        my_dir = []
-        for attribute in super_dir:
-            static_attribute = inspect.getattr_static(self, attribute)
-            if attribute in SHADOWED_ATTRIBUTES and static_attribute is None:
-                continue
-            if isinstance(static_attribute, ADTMember):
-                continue
-            my_dir.append(attribute)
-        return my_dir
+        return [
+            attribute
+            for attribute in super().__dir__()
+            if _should_include(attribute, inspect.getattr_static(self, attribute))
+        ]
 
     __eq__ = object.__eq__
     __ne__ = object.__ne__
