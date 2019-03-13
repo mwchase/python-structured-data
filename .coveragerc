@@ -8,6 +8,7 @@ source =
     src
     tests
     test_resources
+dynamic_context = test_function
 
 [report]
 show_missing = true
