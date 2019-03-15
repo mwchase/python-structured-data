@@ -117,7 +117,7 @@ def _process_class(_cls, _repr, eq, order):
 
     _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
 
-    _custom_new(_cls, set(subclass_order))
+    _custom_new(_cls, frozenset(subclass_order))
 
     _set_new_functions(
         _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
