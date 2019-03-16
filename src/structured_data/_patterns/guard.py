@@ -7,7 +7,7 @@ class Guard(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, guard, structure=DISCARD):
+    def __new__(cls, guard, structure=DISCARD) -> CompoundMatch:
         if structure is not DISCARD:
             return AsGuard(Guard(guard), structure)
         return super().__new__(cls, (guard,))
@@ -29,7 +29,7 @@ class AsGuard(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, base_guard, structure):
+    def __new__(cls, base_guard, structure) -> CompoundMatch:
         if structure is DISCARD:
             return base_guard
         return super().__new__(cls, (base_guard, structure))

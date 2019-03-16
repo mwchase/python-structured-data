@@ -41,6 +41,9 @@ class TupleDestructurer(Destructurer):
     type = tuple
 
 
+T = typing.TypeVar('T', bound='DestructurerList')
+
+
 class DestructurerList(tuple):
 
     __slots__ = ()
@@ -57,7 +60,7 @@ class DestructurerList(tuple):
         return None
 
     @classmethod
-    def custom(cls, *destructurers):
+    def custom(cls: typing.Type[T], *destructurers) -> T:
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
     def names(self, target):
