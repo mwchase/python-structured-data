@@ -10,8 +10,6 @@ from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
 
 _T = typing.TypeVar("_T")
-_K = typing.TypeVar("_K")
-_V = typing.TypeVar("_V")
 
 
 def _name(cls: typing.Type[_T], function) -> str:
@@ -49,6 +47,10 @@ def _make_nested_new(_cls: typing.Type[_T], subclasses, base__new__):
     return staticmethod(__new__)
 
 
+_K = typing.TypeVar("_K")
+_V = typing.TypeVar("_V")
+
+
 def _nillable_write(dct: typing.Dict[_K, _V], key: _K, value: typing.Optional[_V]):
     if value is None:
         dct.pop(key, typing.cast(_V, None))
@@ -65,7 +67,7 @@ def _add_methods(cls: typing.Type[_T], do_set, *methods):
 
 def _set_hash(cls: typing.Type[_T], set_hash):
     if set_hash:
-        cls.__hash__ = PrewrittenMethods.__hash__
+        cls.__hash__ = PrewrittenMethods.__hash__  # type: ignore
 
 
 def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set):
@@ -94,7 +96,7 @@ def _custom_new(cls: typing.Type[_T], subclasses):
     basic_new = _make_nested_new(cls, subclasses, _adt_super(cls))
     if _set_new_functions(cls, basic_new):
         augmented_new = _make_nested_new(cls, subclasses, cls.__new__)
-        cls.__new__ = augmented_new
+        cls.__new__ = augmented_new  # type: ignore
 
 
 def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
@@ -118,7 +120,7 @@ def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
 
     SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
-    _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__
+    _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__  # type: ignore
 
     _custom_new(_cls, frozenset(subclass_order))
 
