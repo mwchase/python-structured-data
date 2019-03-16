@@ -153,7 +153,22 @@ def adt(*, repr: bool, eq: bool, order: bool) -> typing.Callable[[typing.Type[_T
 
 
 def adt(_cls=None, *, repr=True, eq=True, order=False):
-    """Decorate a class to be an algebraic data type."""
+    """Return the same class as was passed in, with subclasses and dunder methods added.
+
+    Examines PEP 526 __annotations__ to determine subclasses.
+
+    If repr is true, a __repr__() method is added to the class.
+    If order is true, rich comparison dunder methods are added.
+
+    The adt() decorator examines the class to find Ctor annotations.
+    A Ctor annotation is the adt.Ctor class itself, or the result of indexing
+    the class, either with a single type hint, or a tuple of type hints.
+    All other annotations are ignored.
+
+    The decorated class is not subclassable, but has subclasses at each of the
+    names that had Ctor annotations. Each subclass takes a fixed number of
+    arguments, corresponding to the type hints given to its annotation, if any.
+    """
 
     def wrap(cls: typing.Type[_T]) -> typing.Type[_T]:
         """Return the processed class."""
