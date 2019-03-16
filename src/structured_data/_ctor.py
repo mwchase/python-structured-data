@@ -2,7 +2,7 @@ import ast
 import typing
 import weakref
 
-import astor
+import astor  # type: ignore
 
 _CTOR_CACHE: typing.Dict[typing.Tuple[type, ...], "Ctor"] = {}
 
