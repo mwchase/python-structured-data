@@ -97,7 +97,7 @@ def _custom_new(cls: typing.Type[_T], subclasses):
         cls.__new__ = augmented_new
 
 
-def _args_from_annotations(cls: typing.Type[_T]):
+def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
     args: typing.Dict[str, typing.Tuple] = {}
     for superclass in reversed(cls.__mro__):
         for key, value in getattr(superclass, "__annotations__", {}).items():
