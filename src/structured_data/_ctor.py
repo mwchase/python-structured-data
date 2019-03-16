@@ -19,6 +19,8 @@ class Ctor:
     adt-decorated class with it.
     """
 
+    __slots__ = ("__weakref__",)
+
     def __new__(cls, args):
         if args == ():
             return cls
