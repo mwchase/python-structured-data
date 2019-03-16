@@ -38,27 +38,27 @@ class Ctor:
 ARGS[typing.cast(Ctor, Ctor)] = ()
 
 
-def _interpret_args_from_non_string(constructor):
+def _interpret_args_from_non_string(constructor) -> typing.Optional[typing.Tuple[type, ...]]:
     try:
         return ARGS.get(constructor)
     except TypeError:
         return None
 
 
-def _parse_constructor(constructor):
+def _parse_constructor(constructor) -> ast.Module:
     try:
         return ast.parse(constructor, mode="eval")
     except Exception:
         raise ValueError("parsing annotation failed")
 
 
-def _get_args_from_index(index):
+def _get_args_from_index(index: ast.AST):
     if isinstance(index, ast.Tuple):
         return tuple(astor.to_source(elt) for elt in index.elts)
     return (astor.to_source(index),)
 
 
-def _checked_eval(source, global_ns):
+def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]):
     try:
         return eval(source, global_ns)
     except Exception:
@@ -68,7 +68,7 @@ def _checked_eval(source, global_ns):
 NO_VALUE = object()
 
 
-def _extract_tuple_ast(constructor, global_ns):
+def _extract_tuple_ast(constructor, global_ns: typing.Dict[str, typing.Any]):
     ctor_ast = _parse_constructor(constructor)
     value = index = NO_VALUE
     if isinstance(ctor_ast.body, ast.Subscript) and isinstance(
@@ -78,13 +78,15 @@ def _extract_tuple_ast(constructor, global_ns):
         ctor_ast.body = ctor_ast.body.value
         value = _checked_eval(compile(ctor_ast, "<annotation>", "eval"), global_ns)
     if value is Ctor:
-        return _get_args_from_index(index)
+        # If value is Ctor, then value was set, which is only possible if the
+        # previous block executed, which will set "index" to an AST.
+        return _get_args_from_index(typing.cast(ast.AST, index))
     if value is None:
         return None
     return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
 
 
-def get_args(constructor, global_ns):
+def get_args(constructor, global_ns: typing.Dict[str, typing.Any]):
     if isinstance(constructor, str):
         try:
             return _extract_tuple_ast(constructor, global_ns)
