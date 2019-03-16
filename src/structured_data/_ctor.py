@@ -45,7 +45,7 @@ def _interpret_args_from_non_string(constructor) -> typing.Optional[typing.Tuple
         return None
 
 
-def _parse_constructor(constructor) -> ast.Module:
+def _parse_constructor(constructor: str) -> ast.Module:
     try:
         return ast.parse(constructor, mode="eval")
     except Exception:
@@ -68,7 +68,7 @@ def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]):
 NO_VALUE = object()
 
 
-def _extract_tuple_ast(constructor, global_ns: typing.Dict[str, typing.Any]):
+def _extract_tuple_ast(constructor: str, global_ns: typing.Dict[str, typing.Any]):
     ctor_ast = _parse_constructor(constructor)
     value = index = NO_VALUE
     if isinstance(ctor_ast.body, ast.Subscript) and isinstance(
