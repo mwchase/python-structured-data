@@ -8,7 +8,7 @@ _CTOR_CACHE: typing.Dict[typing.Tuple[type, ...], "Ctor"] = {}
 
 
 ARGS: typing.MutableMapping[
-    "Ctor", typing.Tuple[type, ...]
+    typing.Union["Ctor", typing.Type["Ctor"]], typing.Tuple[type, ...]
 ] = weakref.WeakKeyDictionary()
 
 
@@ -37,7 +37,7 @@ class Ctor:
         return cls(args)
 
 
-ARGS[typing.cast(Ctor, Ctor)] = ()
+ARGS[Ctor] = ()
 
 
 def _interpret_args_from_non_string(constructor) -> typing.Optional[typing.Tuple[type, ...]]:
