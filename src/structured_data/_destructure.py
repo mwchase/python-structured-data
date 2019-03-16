@@ -51,7 +51,7 @@ class DestructurerList(tuple):
     def __new__(cls, *destructurers):
         return super().__new__(cls, destructurers)
 
-    def get_destructurer(self, item):
+    def get_destructurer(self, item) -> typing.Optional[typing.Callable[[typing.Any], typing.Sequence[typing.Any]]]:
         if isinstance(item, CompoundMatch):
             return item.destructure
         for destructurer in self:
@@ -63,8 +63,8 @@ class DestructurerList(tuple):
     def custom(cls: typing.Type[T], *destructurers) -> T:
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
-    def names(self, target):
-        name_list = []
+    def names(self, target) -> typing.List[str]:
+        name_list: typing.List[str] = []
         to_process = [target]
         while to_process:
             item = to_process.pop()
