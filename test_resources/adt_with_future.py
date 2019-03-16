@@ -23,4 +23,14 @@ class Tupled:
     right_type = (str, str)
 
 
-TEST_CLASSES = [Basic, Tupled]
+@adt.adt
+class Empty:
+
+    Left: adt.Ctor
+    Right: adt.Ctor
+
+    left_type = ()
+    right_type = ()
+
+
+TEST_CLASSES = [Basic, Tupled, Empty]
