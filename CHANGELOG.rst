@@ -2,6 +2,22 @@
 Changelog
 =========
 
+0.8.0 (2019-03-19)
+------------------
+
+Changed
+~~~~~~~
+
+- Rewrote the facade.
+
+0.7.0 (2019-03-19)
+------------------
+
+Changed
+~~~~~~~
+
+- Tried to put up a facade for type analysis. It didn't work.
+
 0.6.1 (2019-03-18)
 ------------------
 
