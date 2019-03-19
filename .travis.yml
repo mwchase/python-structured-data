@@ -14,7 +14,7 @@ matrix:
   include:
     - python: '3.7'
       env:
-        - TOXENV=3.7-cover,report,codecov
+        - TOXENV=3.7-cover,codecov,report
     - python: '3.7'
       env:
         - TOXENV=3.7-nocov
