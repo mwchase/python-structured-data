@@ -2,13 +2,14 @@
 Changelog
 =========
 
-Unreleased
+0.6.1 (2019-03-18)
 ----------
 
 Added
 ~~~~~
 
 - ``Bind`` class for attaching extra data to a match structure.
+- PEP 561 support.
 
 Changed
 ~~~~~~~
