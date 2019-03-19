@@ -12,6 +12,11 @@ from ._prewritten_methods import PrewrittenMethods
 _T = typing.TypeVar("_T")
 
 
+if typing.TYPE_CHECKING:  # pragma: no cover
+    class Ctor:  # noqa
+        """Dummy class for type-checking purposes."""
+
+
 def _name(cls: typing.Type[_T], function) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
