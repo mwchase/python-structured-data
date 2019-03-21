@@ -4,7 +4,9 @@ from .._match_failure import MatchFailure
 from .compound_match import CompoundMatch
 
 
-def value_cant_be_smaller(target_match_dict: typing.Sized, value_match_dict: typing.Sized):
+def value_cant_be_smaller(
+    target_match_dict: typing.Sized, value_match_dict: typing.Sized
+):
     if len(value_match_dict) < len(target_match_dict):
         raise MatchFailure
 
@@ -24,7 +26,9 @@ class AttrPattern(CompoundMatch, tuple):
     def match_dict(self):
         return self[0]
 
-    def destructure(self, value) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
+    def destructure(
+        self, value
+    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
         if not self.match_dict:
             return ()
         if isinstance(value, AttrPattern):
@@ -50,9 +54,7 @@ class DictPattern(CompoundMatch, tuple):
     __slots__ = ()
 
     def __new__(cls, match_dict, *, exhaustive=False) -> "DictPattern":
-        return super().__new__(
-            cls, (tuple(match_dict.items()), exhaustive)
-        )
+        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
 
     @property
     def match_dict(self):
@@ -66,7 +68,9 @@ class DictPattern(CompoundMatch, tuple):
         if self.exhaustive and dict_pattern_length(value) != dict_pattern_length(self):
             raise MatchFailure
 
-    def destructure(self, value) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
+    def destructure(
+        self, value
+    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
         self.exhaustive_length_must_match(value)
         if not self.match_dict:
             return ()

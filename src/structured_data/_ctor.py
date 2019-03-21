@@ -40,7 +40,9 @@ class Ctor:
 ARGS[Ctor] = ()
 
 
-def _interpret_args_from_non_string(constructor: typing.Any) -> typing.Optional[typing.Tuple]:
+def _interpret_args_from_non_string(
+    constructor: typing.Any
+) -> typing.Optional[typing.Tuple]:
     try:
         return ARGS.get(constructor)
     except TypeError:
@@ -70,7 +72,9 @@ def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]) -> typing.Any
 NO_VALUE = object()
 
 
-def _extract_tuple_ast(constructor: str, global_ns: typing.Dict[str, typing.Any]) -> typing.Optional[typing.Tuple]:
+def _extract_tuple_ast(
+    constructor: str, global_ns: typing.Dict[str, typing.Any]
+) -> typing.Optional[typing.Tuple]:
     ctor_ast = _parse_constructor(constructor)
     value = index = NO_VALUE
     if isinstance(ctor_ast.body, ast.Subscript) and isinstance(
@@ -88,7 +92,9 @@ def _extract_tuple_ast(constructor: str, global_ns: typing.Dict[str, typing.Any]
     return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
 
 
-def get_args(constructor, global_ns: typing.Dict[str, typing.Any]) -> typing.Optional[typing.Tuple]:
+def get_args(
+    constructor, global_ns: typing.Dict[str, typing.Any]
+) -> typing.Optional[typing.Tuple]:
     if isinstance(constructor, str):
         try:
             return _extract_tuple_ast(constructor, global_ns)

@@ -12,8 +12,11 @@ _T = typing.TypeVar("_T")
 
 
 if typing.TYPE_CHECKING:  # pragma: nocover
+
     class Ctor:
         """Dummy class for type-checking purposes."""
+
+
 else:
     from ._ctor import Ctor
 
@@ -154,7 +157,9 @@ def adt(_cls: typing.Type[_T]) -> typing.Type[_T]:
 
 
 @typing.overload
-def adt(*, repr: bool, eq: bool, order: bool) -> typing.Callable[[typing.Type[_T]], typing.Type[_T]]:
+def adt(
+    *, repr: bool, eq: bool, order: bool
+) -> typing.Callable[[typing.Type[_T]], typing.Type[_T]]:
     """Return a class decorator."""
 
 

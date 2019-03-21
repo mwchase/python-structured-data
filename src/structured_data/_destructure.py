@@ -41,7 +41,7 @@ class TupleDestructurer(Destructurer):
     type = tuple
 
 
-T = typing.TypeVar('T', bound='DestructurerList')
+T = typing.TypeVar("T", bound="DestructurerList")
 
 
 class DestructurerList(tuple):
@@ -51,7 +51,9 @@ class DestructurerList(tuple):
     def __new__(cls, *destructurers):
         return super().__new__(cls, destructurers)
 
-    def get_destructurer(self, item) -> typing.Optional[typing.Callable[[typing.Any], typing.Sequence[typing.Any]]]:
+    def get_destructurer(
+        self, item
+    ) -> typing.Optional[typing.Callable[[typing.Any], typing.Sequence[typing.Any]]]:
         if isinstance(item, CompoundMatch):
             return item.destructure
         for destructurer in self:
