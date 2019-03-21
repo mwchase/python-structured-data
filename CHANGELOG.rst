@@ -2,6 +2,17 @@
 Changelog
 =========
 
+
+
+0.9.0 (2019-03-20)
+------------------
+
+Changed
+~~~~~~~
+
+- Removed the facade.
+- Added stability guarantee to Ctor.
+
 0.8.0 (2019-03-19)
 ------------------
 
