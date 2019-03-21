@@ -17,13 +17,6 @@ class Ctor:
 
     To use, index with a sequence of types, and annotate a variable in an
     adt-decorated class with it.
-
-    Stability guarantee: the precise location of the definition of the class
-    exported from ``structured_data.adt.Ctor`` may change, but it is a breaking
-    change if either of the following conditions cease to hold:
-
-    - The path begins with "structured_data."
-    - The path ends with ".Ctor"
     """
 
     __slots__ = ("__weakref__",)

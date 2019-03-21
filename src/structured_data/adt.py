@@ -4,12 +4,18 @@ import sys
 import typing
 
 from ._adt_constructor import make_constructor
-from ._ctor import Ctor
 from ._ctor import get_args
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenMethods
 
 _T = typing.TypeVar("_T")
+
+
+if typing.TYPE_CHECKING:  # pragma: nocover
+    class Ctor:
+        """Dummy class for type-checking purposes."""
+else:
+    from ._ctor import Ctor
 
 
 def _name(cls: typing.Type[_T], function) -> str:

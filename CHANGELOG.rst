@@ -2,7 +2,13 @@
 Changelog
 =========
 
+0.10.0 (2019-03-21)
+-------------------
 
+Changed
+~~~~~~~
+
+- Actually, the facade was working, I was just confused. Restored the facade.
 
 0.9.0 (2019-03-20)
 ------------------
