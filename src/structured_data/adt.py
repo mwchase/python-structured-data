@@ -16,6 +16,14 @@ if typing.TYPE_CHECKING:  # pragma: nocover
     class Ctor:
         """Dummy class for type-checking purposes."""
 
+    class ConcreteCtor(typing.Generic[_T]):
+        """Wrapper class for type-checking purposes.
+
+        The type parameter should be a Tuple type of fixed size.
+        Classes containing this annotation (meaning they haven't been
+        processed by the ``adt`` decorator) should not be instantiated.
+        """
+
 
 else:
     from ._ctor import Ctor

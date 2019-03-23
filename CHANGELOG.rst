@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.10.1 (2019-03-22)
+-------------------
+
+Added
+~~~~~
+
+- A non-ergonomic but simple wrapper class for use by the typing plugin. It's not available to runtime code.
+
 0.10.0 (2019-03-21)
 -------------------
 
