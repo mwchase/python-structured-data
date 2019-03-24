@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.11.0 (2019-03-23)
+-------------------
+
+Changed
+~~~~~~~
+
+- Consider all overrides of checked dunder methods, not just those in the decorated class.
+
 0.10.1 (2019-03-22)
 -------------------
 

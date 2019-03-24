@@ -41,8 +41,9 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
     return the already-defined name.
     """
     for function in functions:
-        if _name(cls, function) in cls.__dict__:
-            return _name(cls, function)
+        name = _name(cls, function)
+        if getattr(object, name, None) is not getattr(cls, name, None):
+            return name
     for function in functions:
         setattr(cls, _name(cls, function), function)
     return None
