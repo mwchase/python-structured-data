@@ -53,14 +53,14 @@ def _adt_super(_cls: typing.Type[_T]):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
 
-    return base
+    return staticmethod(base)
 
 
 def _make_nested_new(_cls: typing.Type[_T], subclasses, base__new__):
     def __new__(cls, args):
         if cls not in subclasses:
             raise TypeError
-        return base__new__(cls, args)
+        return base__new__.__get__(None, cls)(cls, args)
 
     return staticmethod(__new__)
 
@@ -111,10 +111,8 @@ def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set):
 
 
 def _custom_new(cls: typing.Type[_T], subclasses):
-    basic_new = _make_nested_new(cls, subclasses, _adt_super(cls))
-    if _set_new_functions(cls, basic_new):
-        augmented_new = _make_nested_new(cls, subclasses, cls.__new__)
-        cls.__new__ = augmented_new  # type: ignore
+    new = cls.__dict__.get("__new__", _adt_super(cls))
+    cls.__new__ = _make_nested_new(cls, subclasses, new)  # type: ignore
 
 
 def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
