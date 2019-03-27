@@ -11,6 +11,10 @@ _TYPE = type
 
 
 class Destructurer:
+    def __init_subclass__(cls, type, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.type: _TYPE = type
+
     def __init__(self, target):
         self.target = target
 
@@ -20,25 +24,19 @@ class Destructurer:
     def destructure(self, value):
         raise NotImplementedError
 
-    type: _TYPE = typing.cast(_TYPE, None)
 
-
-class ADTDestructurer(Destructurer):
+class ADTDestructurer(Destructurer, type=ADTConstructor):
     def destructure(self, value):
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
         return reversed(unpack(value))
 
-    type = ADTConstructor
 
-
-class TupleDestructurer(Destructurer):
+class TupleDestructurer(Destructurer, type=tuple):
     def destructure(self, value):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
         raise MatchFailure
-
-    type = tuple
 
 
 T = typing.TypeVar("T", bound="DestructurerList")
