@@ -1,4 +1,48 @@
-"""Class decorator for defining abstract data types."""
+"""Class decorator for defining abstract data types.
+
+This module provides two public members, which are used together.
+
+Given a structure, possibly a choice of different structures, that you'd like
+to associate with a type:
+
+- First, create a class.
+- Then, for each possible structure, add an attribute annotation to the class
+with the desired name of the constructor, and a type of ``Ctor``, with the
+types within the constructor as arguments.
+- Decorate the class with the ``adt`` function. Optionally, pass keyword-only
+arguments to control the generated functions.
+
+To look inside an ADT instance, use the functions from the
+:mod:`structured_data.match` module.
+
+Putting it together:
+
+>>> from structured_data import match
+>>> @adt
+... class Example:
+...     FirstConstructor: Ctor[int, str]
+...     SecondConstructor: Ctor[bytes]
+...     ThirdConstructor: Ctor
+...     def __iter__(self):
+...         matchable = match.Matchable(self)
+...         if matchable(Example.FirstConstructor(match.pat.count, match.pat.string)):
+...             count, string = matchable[match.pat.count, match.pat.string]
+...             for _ in range(count):
+...                 yield string
+...         elif matchable(Example.SecondConstructor(match.pat.bytes)):
+...             bytes_ = matchable[match.pat.bytes]
+...             for byte in bytes_:
+...                 yield chr(byte)
+...         elif matchable(Example.ThirdConstructor()):
+...             yield "Third"
+...             yield "Constructor"
+>>> list(Example.FirstConstructor(5, "abc"))
+['abc', 'abc', 'abc', 'abc', 'abc']
+>>> list(Example.SecondConstructor(b"abc"))
+['a', 'b', 'c']
+>>> list(Example.ThirdConstructor())
+['Third', 'Constructor']
+"""
 
 import sys
 import typing
