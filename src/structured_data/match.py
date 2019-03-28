@@ -4,12 +4,12 @@ Given a value to destructure, called ``value``:
 
 - Construct a matchable: ``matchable = Matchable(value)``
 - The matchable is initially falsy, but it will become truthy if it is passed a
-**match target** that matches ``value``:
-``assert matchable(some_pattern_that_matches)`` (Matchable returns itself from
-the call, so you can put the calls in an if-elif block, and only make a given
-call at most once.)
+  **match target** that matches ``value``:
+  ``assert matchable(some_pattern_that_matches)`` (Matchable returns itself
+  from the call, so you can put the calls in an if-elif block, and only make a
+  given call at most once.)
 - When the matchable is truthy, it can be indexed to access bindings created by
-the target.
+  the target.
 """
 
 import collections

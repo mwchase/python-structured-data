@@ -7,10 +7,10 @@ to associate with a type:
 
 - First, create a class.
 - Then, for each possible structure, add an attribute annotation to the class
-with the desired name of the constructor, and a type of ``Ctor``, with the
-types within the constructor as arguments.
+  with the desired name of the constructor, and a type of ``Ctor``, with the
+  types within the constructor as arguments.
 - Decorate the class with the ``adt`` function. Optionally, pass keyword-only
-arguments to control the generated functions.
+  arguments to control the generated functions.
 
 To look inside an ADT instance, use the functions from the
 :mod:`structured_data.match` module.
