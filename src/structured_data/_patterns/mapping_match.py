@@ -1,8 +1,12 @@
+import typing
+
 from .._match_failure import MatchFailure
 from .compound_match import CompoundMatch
 
 
-def value_cant_be_smaller(target_match_dict, value_match_dict):
+def value_cant_be_smaller(
+    target_match_dict: typing.Sized, value_match_dict: typing.Sized
+):
     if len(value_match_dict) < len(target_match_dict):
         raise MatchFailure
 
@@ -12,8 +16,8 @@ class AttrPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):
-        cls, *args = args
+    def __new__(*args, **kwargs) -> "AttrPattern":
+        cls, *args = args  # type: ignore
         if args:
             raise ValueError(args)
         return super(AttrPattern, cls).__new__(cls, (tuple(kwargs.items()),))
@@ -22,7 +26,9 @@ class AttrPattern(CompoundMatch, tuple):
     def match_dict(self):
         return self[0]
 
-    def destructure(self, value):
+    def destructure(
+        self, value
+    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
         if not self.match_dict:
             return ()
         if isinstance(value, AttrPattern):
@@ -36,15 +42,10 @@ class AttrPattern(CompoundMatch, tuple):
             raise MatchFailure
 
 
-def dict_pattern_length(dp_or_d):
+def dict_pattern_length(dp_or_d: typing.Sized):
     if isinstance(dp_or_d, DictPattern):
         return len(dp_or_d.match_dict)
     return len(dp_or_d)
-
-
-def exhaustive_length_must_match(target, value):
-    if target.exhaustive and dict_pattern_length(value) != dict_pattern_length(target):
-        raise MatchFailure
 
 
 class DictPattern(CompoundMatch, tuple):
@@ -52,10 +53,8 @@ class DictPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, match_dict, *, exhaustive=False):
-        return super(DictPattern, cls).__new__(
-            cls, (tuple(match_dict.items()), exhaustive)
-        )
+    def __new__(cls, match_dict, *, exhaustive=False) -> "DictPattern":
+        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
 
     @property
     def match_dict(self):
@@ -65,8 +64,14 @@ class DictPattern(CompoundMatch, tuple):
     def exhaustive(self):
         return self[1]
 
-    def destructure(self, value):
-        exhaustive_length_must_match(self, value)
+    def exhaustive_length_must_match(self, value: typing.Sized):
+        if self.exhaustive and dict_pattern_length(value) != dict_pattern_length(self):
+            raise MatchFailure
+
+    def destructure(
+        self, value
+    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
+        self.exhaustive_length_must_match(value)
         if not self.match_dict:
             return ()
         if isinstance(value, DictPattern):

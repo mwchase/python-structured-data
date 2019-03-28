@@ -50,7 +50,7 @@ for _attribute in SHADOWED_ATTRIBUTES:
 
 
 class ADTMember:
-    def __init__(self, subcls):
+    def __init__(self, subcls: type):
         self.subcls = subcls
 
     def __get__(self, obj, cls):
@@ -62,10 +62,10 @@ class ADTMember:
 ADT_BASES: typing.MutableMapping[type, type] = weakref.WeakKeyDictionary()
 
 
-def make_constructor(_cls, name, args, subclass_order):
+def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
     length = len(args)
 
-    class Constructor(_cls, ADTConstructor, tuple):
+    class Constructor(_cls, ADTConstructor, tuple):  # type: ignore
         __doc__ = f"""Auto-generated subclass {name} of ADT {_cls.__qualname__}.
 
         Takes {length} argument{'' if length == 1 else 's'}.
@@ -95,7 +95,7 @@ def make_constructor(_cls, name, args, subclass_order):
     ]
     annotations["return"] = _cls.__qualname__
 
-    Constructor.__new__.__signature__ = inspect.Signature(
+    Constructor.__new__.__signature__ = inspect.Signature(  # type: ignore
         parameters, return_annotation=_cls.__qualname__
     )
     Constructor.__new__.__annotations__ = annotations

@@ -2,13 +2,71 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.11.1 (2019-03-23)
+-------------------
+
+Changed
+~~~~~~~
+
+- Restore proper behavior of ``__new__`` overrides.
+
+0.11.0 (2019-03-23)
+-------------------
+
+Changed
+~~~~~~~
+
+- Consider all overrides of checked dunder methods, not just those in the decorated class.
+
+0.10.1 (2019-03-22)
+-------------------
+
+Added
+~~~~~
+
+- A non-ergonomic but simple wrapper class for use by the typing plugin. It's not available to runtime code.
+
+0.10.0 (2019-03-21)
+-------------------
+
+Changed
+~~~~~~~
+
+- Actually, the facade was working, I was just confused. Restored the facade.
+
+0.9.0 (2019-03-20)
+------------------
+
+Changed
+~~~~~~~
+
+- Removed the facade.
+- Added stability guarantee to Ctor.
+
+0.8.0 (2019-03-19)
+------------------
+
+Changed
+~~~~~~~
+
+- Rewrote the facade.
+
+0.7.0 (2019-03-19)
+------------------
+
+Changed
+~~~~~~~
+
+- Tried to put up a facade for type analysis. It didn't work.
+
+0.6.1 (2019-03-18)
+------------------
 
 Added
 ~~~~~
 
 - ``Bind`` class for attaching extra data to a match structure.
+- PEP 561 support.
 
 Changed
 ~~~~~~~

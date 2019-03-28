@@ -56,9 +56,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/structured-data
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/mwchase/python-structured-data/v0.6.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/mwchase/python-structured-data/v0.11.1.svg
     :alt: Commits since latest release
-    :target: https://github.com/mwchase/python-structured-data/compare/v0.6.0...master
+    :target: https://github.com/mwchase/python-structured-data/compare/v0.11.1...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/structured-data.svg
     :alt: PyPI Wheel

@@ -11,6 +11,10 @@ _TYPE = type
 
 
 class Destructurer:
+    def __init_subclass__(cls, type, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.type: _TYPE = type
+
     def __init__(self, target):
         self.target = target
 
@@ -20,25 +24,22 @@ class Destructurer:
     def destructure(self, value):
         raise NotImplementedError
 
-    type: _TYPE = typing.cast(_TYPE, None)
 
-
-class ADTDestructurer(Destructurer):
+class ADTDestructurer(Destructurer, type=ADTConstructor):
     def destructure(self, value):
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
         return reversed(unpack(value))
 
-    type = ADTConstructor
 
-
-class TupleDestructurer(Destructurer):
+class TupleDestructurer(Destructurer, type=tuple):
     def destructure(self, value):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
         raise MatchFailure
 
-    type = tuple
+
+T = typing.TypeVar("T", bound="DestructurerList")
 
 
 class DestructurerList(tuple):
@@ -48,7 +49,9 @@ class DestructurerList(tuple):
     def __new__(cls, *destructurers):
         return super().__new__(cls, destructurers)
 
-    def get_destructurer(self, item):
+    def get_destructurer(
+        self, item
+    ) -> typing.Optional[typing.Callable[[typing.Any], typing.Sequence[typing.Any]]]:
         if isinstance(item, CompoundMatch):
             return item.destructure
         for destructurer in self:
@@ -57,11 +60,11 @@ class DestructurerList(tuple):
         return None
 
     @classmethod
-    def custom(cls, *destructurers):
+    def custom(cls: typing.Type[T], *destructurers) -> T:
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
-    def names(self, target):
-        name_list = []
+    def names(self, target) -> typing.List[str]:
+        name_list: typing.List[str] = []
         to_process = [target]
         while to_process:
             item = to_process.pop()

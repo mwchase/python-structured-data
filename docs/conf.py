@@ -27,7 +27,7 @@ project = "Structured Data"
 year = "2018"
 author = "Max Woerner Chase"
 copyright = "{0}, {1}".format(year, author)
-version = release = "0.6.0"
+version = release = "0.11.1"
 
 pygments_style = "trac"
 templates_path = ["."]
