@@ -8,7 +8,7 @@ source =
     src
     tests
     test_resources
-parallel = true
+dynamic_context = test_function
 
 [report]
 show_missing = true
