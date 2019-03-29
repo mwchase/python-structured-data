@@ -8,3 +8,7 @@ def test_binding(match):
     assert match.names(structure) == ["b", "c", "a"]
     matchable = match.Matchable(5)
     assert matchable(structure)["b", "c", "a"] == (1, 2, 3)
+
+
+def test_empty(match):
+    assert match.Bind(match.pat._) is match.pat._
