@@ -4,7 +4,13 @@ from .compound_match import CompoundMatch
 
 
 class Bind(CompoundMatch, tuple):
-    """A wrapper that adds additional bindings to a successful match."""
+    """A wrapper that adds additional bindings to a successful match.
+
+    The ``Bind`` constructor takes a single required argument, and any number
+    of keyword arguments. The required argument is a matcher. When matching, if
+    the match succeeds, the ``Bind`` instance adds bindings corresponding to
+    its keyword arguments.
+    """
 
     __slots__ = ()
 

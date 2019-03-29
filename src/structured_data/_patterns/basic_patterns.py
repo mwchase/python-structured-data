@@ -7,7 +7,14 @@ DISCARD = object()
 
 
 class Pattern(tuple):
-    """A matcher that binds a value to a name."""
+    """A matcher that binds a value to a name.
+
+    A ``Pattern`` can be indexed with another matcher to produce an
+    ``AsPattern``. When matched with a value, an ``AsPattern`` both binds the
+    value to the name, and uses the matcher to match the value, thereby
+    constraining it to have a particular shape, and possibly introducing
+    further bindings.
+    """
 
     __slots__ = ()
 
