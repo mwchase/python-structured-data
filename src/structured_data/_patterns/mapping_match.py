@@ -12,7 +12,13 @@ def value_cant_be_smaller(
 
 
 class AttrPattern(CompoundMatch, tuple):
-    """A matcher that destructures an object using attribute access."""
+    """A matcher that destructures an object using attribute access.
+
+    The ``AttrPattern`` constructor takes keyword arguments. Each name-value
+    pair is the name of an attribute, and a matcher to apply to that attribute.
+
+    Attributes are checked in the order they were passed.
+    """
 
     __slots__ = ()
 
@@ -49,7 +55,18 @@ def dict_pattern_length(dp_or_d: typing.Sized):
 
 
 class DictPattern(CompoundMatch, tuple):
-    """A matcher that destructures a dictionary by key."""
+    """A matcher that destructures a dictionary by key.
+
+    The ``DictPattern`` constructor takes a required argument, a dictionary
+    where the keys are keys to check, and the values are matchers to apply.
+    It also takes an optional keyword argument, "exhaustive", which defaults to
+    False.
+    If "exhaustive" is True, then the match requires that the matched
+    dictionary has no keys not in the ``DictPattern``. Otherwise, "extra" keys
+    are ignored.
+
+    Keys are checked in iteration order.
+    """
 
     __slots__ = ()
 

@@ -4,6 +4,17 @@ from .compound_match import CompoundMatch
 
 
 class Guard(CompoundMatch, tuple):
+    """Apply arbitrary predicates to matching.
+
+    The ``Guard`` constructor takes one required argument and one optional
+    argument.
+
+    The required argument is a predicate. The match succeeds against a value
+    if the predicate applied to that value is truthy.
+
+    The optional argument is a matcher. If it's passed, then it will be matched
+    against values that satisfy the predicate.
+    """
 
     __slots__ = ()
 

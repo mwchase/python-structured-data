@@ -10,6 +10,9 @@ class Bind(CompoundMatch, tuple):
     of keyword arguments. The required argument is a matcher. When matching, if
     the match succeeds, the ``Bind`` instance adds bindings corresponding to
     its keyword arguments.
+
+    First, the matcher is checked, then the bindings are added in the order
+    they were passed.
     """
 
     __slots__ = ()
