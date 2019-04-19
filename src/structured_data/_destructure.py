@@ -63,6 +63,11 @@ class DestructurerList(tuple):
     def custom(cls: typing.Type[T], *destructurers) -> T:
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
+    def destructure(self, item):
+        destructurer = self.get_destructurer(item)
+        if destructurer:
+            yield from destructurer(item)
+
     def stack_iter(self, target):
         to_process = [target]
         while to_process:
@@ -70,9 +75,7 @@ class DestructurerList(tuple):
             if isinstance(item, Pattern):
                 yield item
             else:
-                destructurer = self.get_destructurer(item)
-                if destructurer:
-                    to_process.extend(destructurer(item))
+                to_process.extend(self.destructure(item))
 
     def names(self, target) -> typing.List[str]:
         name_list: typing.List[str] = []
