@@ -17,7 +17,7 @@ class Yield(Action):
 
 
 class Extend(Action):
-    def __init__(self, iterable=()) -> None:
+    def __init__(self, iterable) -> None:
         self.iterable = iterable
 
     def handle(self, to_process):
