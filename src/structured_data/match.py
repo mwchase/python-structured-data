@@ -26,6 +26,10 @@ from ._patterns.bind import Bind
 from ._patterns.guard import Guard
 from ._patterns.mapping_match import AttrPattern
 from ._patterns.mapping_match import DictPattern
+from ._stack_iter import Action
+from ._stack_iter import Extend
+from ._stack_iter import Yield
+from ._stack_iter import stack_iter
 
 
 def names(target) -> typing.List[str]:
@@ -73,25 +77,23 @@ class MatchDict(collections.abc.MutableMapping):
         return len(self.data)
 
 
-def _match_stack(target, value):
-    to_process = [(target, value)]
-    while to_process:
-        target, value = to_process.pop()
-        if target is DISCARD:
-            pass
-        elif isinstance(target, Pattern):
-            yield (target, value)
-        else:
-            destructurer = DESTRUCTURERS.get_destructurer(target)
-            if destructurer:
-                to_process.extend(zip(destructurer(target), destructurer(value)))
-            elif target != value:
-                raise MatchFailure
+def _stack_iteration(item) -> Action:
+    target, value = item
+    if target is DISCARD:
+        return Extend()
+    if isinstance(target, Pattern):
+        return Yield((target, value))
+    destructurer = DESTRUCTURERS.get_destructurer(target)
+    if destructurer:
+        return Extend(zip(destructurer(target), destructurer(value)))
+    elif target != value:
+        raise MatchFailure
+    return Extend()
 
 
 def _match(target, value) -> MatchDict:
     match_dict = MatchDict()
-    for target, value in _match_stack(target, value):
+    for target, value in stack_iter((target, value), _stack_iteration):
         not_in(match_dict, target.name)
         match_dict[target.name] = value
     return match_dict
