@@ -13,3 +13,10 @@ def test_stack_iter(_stack_iter):
         return _stack_iter.Yield(item)
 
     assert tuple(_stack_iter.stack_iter(3, double_dec)) == (0,) * 8
+
+
+def test_none(_stack_iter):
+    def nothing(item):
+        pass
+
+    assert tuple(_stack_iter.stack_iter(None, nothing)) == ()
