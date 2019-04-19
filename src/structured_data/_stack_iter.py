@@ -25,7 +25,12 @@ class Extend(Action):
         yield from ()
 
 
-def stack_iter(first: T, process: typing.Callable[[T], Action]):
+def handle(action: typing.Optional[Action], to_process):
+    if action is not None:
+        yield from action.handle(to_process)
+
+
+def stack_iter(first: T, process: typing.Callable[[T], typing.Optional[Action]]):
     to_process = [first]
     while to_process:
-        yield from process(to_process.pop()).handle(to_process)
+        yield from handle(process(to_process.pop()), to_process)
