@@ -5,6 +5,9 @@ from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns.basic_patterns import Pattern
 from ._patterns.compound_match import CompoundMatch
+from ._stack_iter import Extend
+from ._stack_iter import Yield
+from ._stack_iter import stack_iter
 from ._unpack import unpack
 
 _TYPE = type
@@ -68,18 +71,14 @@ class DestructurerList(tuple):
         if destructurer:
             yield from destructurer(item)
 
-    def stack_iter(self, target):
-        to_process = [target]
-        while to_process:
-            item = to_process.pop()
-            if isinstance(item, Pattern):
-                yield item
-            else:
-                to_process.extend(self.destructure(item))
+    def stack_iteration(self, item):
+        if isinstance(item, Pattern):
+            return Yield(item)
+        return Extend(self.destructure(item))
 
     def names(self, target) -> typing.List[str]:
         name_list: typing.List[str] = []
-        for item in self.stack_iter(target):
+        for item in stack_iter(target, self.stack_iteration):
             not_in(name_list, item.name)
             name_list.append(item.name)
         return name_list
