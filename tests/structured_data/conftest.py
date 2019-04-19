@@ -30,6 +30,13 @@ def _adt_constructor():
 
 
 @pytest.fixture(scope="session")
+def _stack_iter():
+    from structured_data import _stack_iter
+
+    return _stack_iter
+
+
+@pytest.fixture(scope="session")
 def data():
     from structured_data import data
 
