@@ -5,6 +5,7 @@ from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns.basic_patterns import Pattern
 from ._patterns.compound_match import CompoundMatch
+from ._stack_iter import Action
 from ._stack_iter import Extend
 from ._stack_iter import Yield
 from ._stack_iter import stack_iter
@@ -66,12 +67,12 @@ class DestructurerList(tuple):
     def custom(cls: typing.Type[T], *destructurers) -> T:
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
-    def destructure(self, item):
+    def destructure(self, item) -> typing.Generator:
         destructurer = self.get_destructurer(item)
         if destructurer:
             yield from destructurer(item)
 
-    def stack_iteration(self, item):
+    def stack_iteration(self, item) -> Action:
         if isinstance(item, Pattern):
             return Yield(item)
         return Extend(self.destructure(item))
