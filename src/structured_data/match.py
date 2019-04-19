@@ -82,7 +82,7 @@ def _stack_iteration(item) -> typing.Optional[Action]:
     if target is DISCARD:
         return
     if isinstance(target, Pattern):
-        return Yield((target, value))
+        return Yield(item)
     destructurer = DESTRUCTURERS.get_destructurer(target)
     if destructurer:
         return Extend(zip(destructurer(target), destructurer(value)))
