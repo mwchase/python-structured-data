@@ -73,25 +73,27 @@ class MatchDict(collections.abc.MutableMapping):
         return len(self.data)
 
 
-def _match_iteration(match_dict: MatchDict, target, value):
-    if target is DISCARD:
-        return
-    if isinstance(target, Pattern):
-        not_in(match_dict, target.name)
-        match_dict[target.name] = value
-        return
-    destructurer = DESTRUCTURERS.get_destructurer(target)
-    if destructurer:
-        yield from zip(destructurer(target), destructurer(value))
-    elif target != value:
-        raise MatchFailure
+def _match_stack(target, value):
+    to_process = [(target, value)]
+    while to_process:
+        target, value = to_process.pop()
+        if target is DISCARD:
+            pass
+        elif isinstance(target, Pattern):
+            yield (target, value)
+        else:
+            destructurer = DESTRUCTURERS.get_destructurer(target)
+            if destructurer:
+                to_process.extend(zip(destructurer(target), destructurer(value)))
+            elif target != value:
+                raise MatchFailure
 
 
 def _match(target, value) -> MatchDict:
     match_dict = MatchDict()
-    to_process = [(target, value)]
-    while to_process:
-        to_process.extend(_match_iteration(match_dict, *to_process.pop()))
+    for target, value in _match_stack(target, value):
+        not_in(match_dict, target.name)
+        match_dict[target.name] = value
     return match_dict
 
 
