@@ -96,7 +96,8 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
     annotations["return"] = _cls.__qualname__
 
     Constructor.__new__.__signature__ = inspect.Signature(  # type: ignore
-        parameters, return_annotation=_cls.__qualname__
+        [inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)] + parameters,
+        return_annotation=_cls.__qualname__,
     )
     Constructor.__new__.__annotations__ = annotations
 
