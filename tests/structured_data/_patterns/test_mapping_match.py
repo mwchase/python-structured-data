@@ -14,7 +14,7 @@ def test_match_dict_dict(match):
 
 
 def test_fail_fast(match):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         assert not match.AttrPattern(None)
 
 

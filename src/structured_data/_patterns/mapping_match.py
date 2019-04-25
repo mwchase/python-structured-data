@@ -1,6 +1,7 @@
 import typing
 
 from .._match_failure import MatchFailure
+from .._pep_570_when import pep_570_when
 from .compound_match import CompoundMatch
 
 
@@ -22,10 +23,8 @@ class AttrPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs) -> "AttrPattern":
-        cls, *args = args  # type: ignore
-        if args:
-            raise ValueError(args)
+    @pep_570_when
+    def __new__(cls, kwargs) -> "AttrPattern":
         return super(AttrPattern, cls).__new__(cls, (tuple(kwargs.items()),))
 
     @property

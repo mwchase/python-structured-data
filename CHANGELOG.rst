@@ -2,6 +2,14 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Changed
+~~~~~~~
+
+- Improved documentation of some match constructors.
+
 0.11.1 (2019-03-23)
 -------------------
 
