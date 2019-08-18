@@ -10,6 +10,11 @@ Changed
 
 - Improved documentation of some match constructors.
 
+Removed
+~~~~~~~
+
+- ``Guard`` type removed in favor of user-defined validation functions.
+
 0.11.1 (2019-03-23)
 -------------------
 

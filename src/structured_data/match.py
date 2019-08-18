@@ -13,7 +13,6 @@ Given a value to destructure, called ``value``:
 """
 
 import collections
-import operator
 import typing
 
 from ._attribute_constructor import AttributeConstructor
@@ -23,7 +22,6 @@ from ._not_in import not_in
 from ._patterns.basic_patterns import DISCARD
 from ._patterns.basic_patterns import Pattern
 from ._patterns.bind import Bind
-from ._patterns.guard import Guard
 from ._patterns.mapping_match import AttrPattern
 from ._patterns.mapping_match import DictPattern
 from ._stack_iter import Action
@@ -127,19 +125,13 @@ class Matchable:
 
 pat = AttributeConstructor(Pattern)
 
-TRUTHY = Guard(operator.truth)
-FALSY = Guard(operator.not_)
-
 
 __all__ = [
     "AttrPattern",
     "Bind",
     "DictPattern",
-    "FALSY",
-    "Guard",
     "Matchable",
     "Pattern",
-    "TRUTHY",
     "names",
     "pat",
 ]
