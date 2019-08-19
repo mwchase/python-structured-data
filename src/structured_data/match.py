@@ -147,6 +147,7 @@ __all__ = [
     "AttrPattern",
     "Bind",
     "DictPattern",
+    "MatchDict",
     "Matchable",
     "Pattern",
     "names",

@@ -9,6 +9,7 @@ Changed
 ~~~~~~~
 
 - Improved documentation of some match constructors.
+- Exposed ``MatchDict`` type, so it gets documented.
 
 Removed
 ~~~~~~~
