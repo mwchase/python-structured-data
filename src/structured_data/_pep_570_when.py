@@ -3,6 +3,14 @@ import inspect
 
 
 def pep_570_when(func):
+    """This function exists because I don't live in the future.
+
+    It is awful, and its existence single-handedly justifies the effort put
+    into writing up and implementing PEP 570.
+
+    It is also not generally applicable, being tuned for exactly the use-case
+    I wrote it for.
+    """
     signature = inspect.signature(func)
 
     parameters = [
