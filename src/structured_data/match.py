@@ -119,7 +119,7 @@ class Matchable:
     ``Matchable`` values provide two basic forms of syntactic sugar.
     ``m_able(target)`` is equivalent to ``m_able.match(target)``, and
     ``m_able[k]`` will return ``m_able.matches[k]`` if the ``Matchable`` is
-    truthy, and raise a ValueError otherwise.
+    truthy, and raise a ``ValueError`` otherwise.
     """
 
     value: typing.Any
