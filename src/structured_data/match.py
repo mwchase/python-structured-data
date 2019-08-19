@@ -111,7 +111,16 @@ def _match(target, value) -> MatchDict:
 
 
 class Matchable:
-    """Given a value, attempt to match against a target."""
+    """Given a value, attempt to match against a target.
+
+    The truthiness of ``Matchable`` values varies on whether they have bindings
+    associated with them. They are truthy exactly when they have bindings.
+
+    ``Matchable`` values provide two basic forms of syntactic sugar.
+    ``m_able(target)`` is equivalent to ``m_able.match(target)``, and
+    ``m_able[k]`` will return ``m_able.matches[k]`` if the ``Matchable`` is
+    truthy, and raise a ValueError otherwise.
+    """
 
     value: typing.Any
     matches: typing.Optional[MatchDict]
