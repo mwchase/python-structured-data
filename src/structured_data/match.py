@@ -50,6 +50,18 @@ def _multi_index(dct, key):
 
 
 class MatchDict(collections.abc.MutableMapping):
+    """A MutableMapping that allows for retrieval into structures.
+
+    The actual keys in the mapping must be string values. Most of the mapping
+    methods will only operate on or yield string keys. The exception is
+    subscription: the "key" in subscription can be a structure made of tuples
+    and dicts. For example, ``md["a", "b"] == (md["a"], md["b"])``, and
+    ``md[{1: "a"}] == {1: md["a"]}``. The typical use of this will be to
+    extract many match values at once, as in ``a, b, c == md["a", "b", "c"]``.
+
+    The behavior of most of the pre-defined MutableMapping methods is currently
+    neither tested nor guaranteed.
+    """
     def __init__(self) -> None:
         self.data: typing.Dict[str, typing.Any] = {}
 
@@ -99,9 +111,9 @@ def _match(target, value) -> MatchDict:
 class Matchable:
     """Given a value, attempt to match against a target."""
 
-    def __init__(self, value):
-        self.value = value
-        self.matches = None
+    def __init__(self, value: typing.Any):
+        self.value: typing.Any = value
+        self.matches: typing.Optional[MatchDict] = None
 
     def match(self, target) -> "Matchable":
         """Match against target, generating a set of bindings."""
@@ -111,7 +123,7 @@ class Matchable:
             self.matches = None
         return self
 
-    def __call__(self, target):
+    def __call__(self, target) -> "Matchable":
         return self.match(target)
 
     def __getitem__(self, key):
