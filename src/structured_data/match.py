@@ -113,9 +113,12 @@ def _match(target, value) -> MatchDict:
 class Matchable:
     """Given a value, attempt to match against a target."""
 
+    value: typing.Any
+    matches: typing.Optional[MatchDict]
+
     def __init__(self, value: typing.Any):
-        self.value: typing.Any = value
-        self.matches: typing.Optional[MatchDict] = None
+        self.value = value
+        self.matches = None
 
     def match(self, target) -> Matchable:
         """Match against target, generating a set of bindings."""
