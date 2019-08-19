@@ -12,6 +12,8 @@ Given a value to destructure, called ``value``:
   the target.
 """
 
+from __future__ import annotations
+
 import collections
 import typing
 
@@ -115,7 +117,7 @@ class Matchable:
         self.value: typing.Any = value
         self.matches: typing.Optional[MatchDict] = None
 
-    def match(self, target) -> "Matchable":
+    def match(self, target) -> Matchable:
         """Match against target, generating a set of bindings."""
         try:
             self.matches = _match(target, self.value)
@@ -123,7 +125,7 @@ class Matchable:
             self.matches = None
         return self
 
-    def __call__(self, target) -> "Matchable":
+    def __call__(self, target) -> Matchable:
         return self.match(target)
 
     def __getitem__(self, key):
