@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import keyword
 import sys
+import typing
 
 from .compound_match import CompoundMatch
 
@@ -28,11 +31,11 @@ class Pattern(tuple):
         return super().__new__(cls, (sys.intern(name),))
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return the name of the matcher."""
         return tuple.__getitem__(self, 0)
 
-    def __getitem__(self, other):
+    def __getitem__(self, other) -> AsPattern:
         return AsPattern(self, other)
 
 
@@ -41,13 +44,13 @@ class AsPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, pattern: Pattern, structure):
+    def __new__(cls, pattern: Pattern, structure) -> typing.Union[Pattern, AsPattern]:
         if structure is DISCARD:
             return pattern
         return super().__new__(cls, (pattern, structure))
 
     @property
-    def pattern(self):
+    def pattern(self) -> Pattern:
         """Return the left-hand-side of the as-match."""
         return self[0]
 
