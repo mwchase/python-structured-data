@@ -5,12 +5,10 @@ This module provides two public members, which are used together.
 Given a structure, possibly a choice of different structures, that you'd like
 to associate with a type:
 
-- First, create a class.
+- First, create a class, that subclasses the Sum class.
 - Then, for each possible structure, add an attribute annotation to the class
   with the desired name of the constructor, and a type of ``Ctor``, with the
   types within the constructor as arguments.
-- Decorate the class with the ``adt`` function. Optionally, pass keyword-only
-  arguments to control the generated functions.
 
 To look inside an ADT instance, use the functions from the
 :mod:`structured_data.match` module.
@@ -93,7 +91,7 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
     return None
 
 
-def _adt_super(_cls: typing.Type[_T]):
+def _sum_super(_cls: typing.Type[_T]):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
 
@@ -155,7 +153,7 @@ def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set):
 
 
 def _custom_new(cls: typing.Type[_T], subclasses):
-    new = cls.__dict__.get("__new__", _adt_super(cls))
+    new = cls.__dict__.get("__new__", _sum_super(cls))
     cls.__new__ = _make_nested_new(cls, subclasses, new)  # type: ignore
 
 
