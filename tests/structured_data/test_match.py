@@ -2,8 +2,7 @@ import pytest
 
 
 def test_matching(adt, match):
-    @adt.adt
-    class TestClass:
+    class TestClass(adt.Sum):
         StrPair: adt.Ctor[str, str]
 
     matchable = match.Matchable(((1, 2), TestClass.StrPair("a", "b")))
@@ -58,8 +57,7 @@ def test_different_length_tuples(match):
 
 
 def test_different_constructors(adt, match):
-    @adt.adt
-    class TestClass:
+    class TestClass(adt.Sum):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 

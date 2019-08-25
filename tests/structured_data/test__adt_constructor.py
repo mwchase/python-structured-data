@@ -23,8 +23,7 @@ def test_cant_pass_nothing(option_class):
 
 
 def test_non_existent_dir_entry_is_acceptable(adt):
-    @adt.adt
-    class TestDir:
+    class TestDir(adt.Sum):
         Int: adt.Ctor[int]
         Str: adt.Ctor[str]
 

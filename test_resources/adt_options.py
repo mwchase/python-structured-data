@@ -3,8 +3,7 @@ import typing
 from structured_data import adt
 
 
-@adt.adt(repr=False, eq=False, order=False)
-class AllFalse:
+class AllFalse(adt.Sum, repr=False, eq=False, order=False):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -14,8 +13,7 @@ class AllFalse:
     order = False
 
 
-@adt.adt(repr=False, eq=True, order=False)
-class EqOnly:
+class EqOnly(adt.Sum, repr=False, eq=True, order=False):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -25,8 +23,7 @@ class EqOnly:
     order = False
 
 
-@adt.adt(repr=False, eq=True, order=True)
-class MinimalOrder:
+class MinimalOrder(adt.Sum, repr=False, eq=True, order=True):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -36,8 +33,7 @@ class MinimalOrder:
     order = True
 
 
-@adt.adt(repr=True, eq=False, order=False)
-class ReprOnly:
+class ReprOnly(adt.Sum, repr=True, eq=False, order=False):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -47,8 +43,7 @@ class ReprOnly:
     order = False
 
 
-@adt.adt(repr=True, eq=True, order=False)
-class ReprAndEq:
+class ReprAndEq(adt.Sum, repr=True, eq=True, order=False):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -58,8 +53,7 @@ class ReprAndEq:
     order = False
 
 
-@adt.adt(repr=True, eq=True, order=True)
-class ReprAndOrder:
+class ReprAndOrder(adt.Sum, repr=True, eq=True, order=True):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -69,8 +63,7 @@ class ReprAndOrder:
     order = True
 
 
-@adt.adt
-class CustomEq:
+class CustomEq(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -79,8 +72,7 @@ class CustomEq:
         return self is other
 
 
-@adt.adt
-class CustomInitSubclass:
+class CustomInitSubclass(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -96,8 +88,7 @@ class CustomInitSubclass:
 MyList = typing.List
 
 
-@adt.adt
-class CustomNew:
+class CustomNew(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]

@@ -12,8 +12,7 @@ def adt_module(request):
 
 
 def test_generic_subclass_succeeds(adt):
-    @adt.adt
-    class TestClass(typing.Generic[T]):
+    class TestClass(adt.Sum, typing.Generic[T]):
         Variant: adt.Ctor[()]
 
     assert TestClass.Variant()
@@ -85,30 +84,33 @@ def test_custom_new(adt_options):
 
 
 def test_invalid_options(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Sum, **kwargs):
+            pass
     for repr_on in (False, True):
 
-        class CantMake:
-            pass
-
         with pytest.raises(ValueError):
-            adt.adt(repr=repr_on, eq=False, order=True)(CantMake)
+            cant_make(repr=repr_on, eq=False, order=True)
 
 
 def test_cant_generate_order(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Sum, **kwargs):
+            __eq__ = True
     for repr_on in (False, True):
 
-        class CantMake:
-            __eq__ = True
-
         with pytest.raises(ValueError):
-            adt.adt(repr=repr_on, eq=True, order=True)(CantMake)
+            cant_make(repr=repr_on, eq=True, order=True)
 
 
 def test_cant_overwrite_order(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Sum, **kwargs):
+            __le__ = True
     for repr_on in (False, True):
 
         class CantMake:
             __le__ = True
 
         with pytest.raises(TypeError):
-            adt.adt(repr=repr_on, eq=True, order=True)(CantMake)
+            cant_make(repr=repr_on, eq=True, order=True)

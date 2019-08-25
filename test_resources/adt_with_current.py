@@ -1,8 +1,7 @@
 from structured_data import adt
 
 
-@adt.adt
-class Basic:
+class Basic(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -11,8 +10,7 @@ class Basic:
     right_type = (str,)
 
 
-@adt.adt
-class StringedInternally:
+class StringedInternally(adt.Sum):
 
     Left: adt.Ctor["int"]
     Right: adt.Ctor["str"]
@@ -21,8 +19,7 @@ class StringedInternally:
     right_type = (str,)
 
 
-@adt.adt
-class StringedExternally:
+class StringedExternally(adt.Sum):
 
     Left: "adt.Ctor[int]"
     Right: "adt.Ctor[str]"
@@ -31,8 +28,7 @@ class StringedExternally:
     right_type = (str,)
 
 
-@adt.adt
-class Tupled:
+class Tupled(adt.Sum):
 
     Left: adt.Ctor[int, "int"]
     Right: "adt.Ctor[str, str]"
@@ -41,8 +37,7 @@ class Tupled:
     right_type = (str, str)
 
 
-@adt.adt
-class Empty:
+class Empty(adt.Sum):
 
     Left: adt.Ctor
     Right: "adt.Ctor"

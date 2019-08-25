@@ -14,8 +14,7 @@ def test_tuple(match):
 
 
 def test_adt(adt, match):
-    @adt.adt
-    class TestClass:
+    class TestClass(adt.Sum):
         StrPair: adt.Ctor[str, str]
         Str: adt.Ctor[str]
 
@@ -34,8 +33,7 @@ def test_cant_use_base_processor():
 
 
 def test_names(adt, match):
-    @adt.adt
-    class TestClass:
+    class TestClass(adt.Sum):
         StrPair: adt.Ctor[str, str]
 
     structure = (
