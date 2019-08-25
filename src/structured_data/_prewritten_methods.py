@@ -29,7 +29,7 @@ def cant_modify(self, name):
 
 
 class PrewrittenMethods:
-    """Methods for classes decorated with ``structured_data.adt.adt``."""
+    """Methods for subclasses of ``structured_data.adt.Sum``."""
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError

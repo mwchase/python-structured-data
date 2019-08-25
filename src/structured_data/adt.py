@@ -18,8 +18,7 @@ To look inside an ADT instance, use the functions from the
 Putting it together:
 
 >>> from structured_data import match
->>> @adt
-... class Example:
+>>> class Example(Sum):
 ...     FirstConstructor: Ctor[int, str]
 ...     SecondConstructor: Ctor[bytes]
 ...     ThirdConstructor: Ctor
@@ -47,6 +46,7 @@ Putting it together:
 import sys
 import typing
 
+from ._adt_constructor import ADTConstructor
 from ._adt_constructor import make_constructor
 from ._ctor import get_args
 from ._prewritten_methods import SUBCLASS_ORDER
@@ -202,44 +202,33 @@ def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
     return _cls
 
 
-@typing.overload
-def adt(_cls: typing.Type[_T]) -> typing.Type[_T]:
-    """Return a decorated class."""
-
-
-@typing.overload
-def adt(
-    *, repr: bool, eq: bool, order: bool
-) -> typing.Callable[[typing.Type[_T]], typing.Type[_T]]:
-    """Return a class decorator."""
-
-
-def adt(_cls=None, *, repr=True, eq=True, order=False):
-    """Return the same class as was passed in, with subclasses and dunder methods added.
+class Sum:
+    """Base class of classes with disjoint constructors.
 
     Examines PEP 526 __annotations__ to determine subclasses.
 
     If repr is true, a __repr__() method is added to the class.
     If order is true, rich comparison dunder methods are added.
 
-    The adt() decorator examines the class to find Ctor annotations.
+    The Sum class examines the class to find Ctor annotations.
     A Ctor annotation is the adt.Ctor class itself, or the result of indexing
     the class, either with a single type hint, or a tuple of type hints.
     All other annotations are ignored.
 
-    The decorated class is not subclassable, but has subclasses at each of the
+    The subclass is not subclassable, but has subclasses at each of the
     names that had Ctor annotations. Each subclass takes a fixed number of
     arguments, corresponding to the type hints given to its annotation, if any.
     """
 
-    def wrap(cls: typing.Type[_T]) -> typing.Type[_T]:
-        """Return the processed class."""
-        return _process_class(cls, repr, eq, order)
+    __slots__ = ()
 
-    if _cls is None:
-        return wrap
+    def __init_subclass__(cls, **kwargs):
+        if not issubclass(cls, ADTConstructor):
+            repr_ = kwargs.pop("repr", True)
+            eq = kwargs.pop("eq", True)
+            order = kwargs.pop("order", False)
+            _process_class(cls, repr_, eq, order)
+        super().__init_subclass__(**kwargs)
 
-    return wrap(_cls)
 
-
-__all__ = ["Ctor", "adt"]
+__all__ = ["Ctor", "Sum"]

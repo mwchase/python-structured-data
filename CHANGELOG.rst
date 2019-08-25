@@ -10,6 +10,7 @@ Changed
 
 - Improved documentation of some match constructors.
 - Exposed ``MatchDict`` type, so it gets documented.
+- Converted the ``adt`` decorator to a ``Sum`` base class.
 
 Removed
 ~~~~~~~

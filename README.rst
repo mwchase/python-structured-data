@@ -108,14 +108,13 @@ Here are implementations of common algebraic data types in other languages:
 
 .. code-block:: python3
 
-    @adt.adt
-    class Maybe(typing.Generic[T]):
+    class Maybe(adt.Sum, typing.Generic[T]):
 
         Just: adt.Ctor[T]
         Nothing: adt.Ctor
 
-    @adt.adt
-    class Either(typing.Generic[E, R]):
+
+    class Either(adt.Sum, typing.Generic[E, R]):
 
         Left: adt.Ctor[E]
         Right: adt.Ctor[R]
