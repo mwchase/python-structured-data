@@ -222,15 +222,10 @@ class Sum:
 
     __slots__ = ()
 
-    def __init_subclass__(cls, **kwargs):
-        is_adt = issubclass(cls, ADTConstructor)
-        if not is_adt:
-            repr_ = kwargs.pop("repr", True)
-            eq = kwargs.pop("eq", True)
-            order = kwargs.pop("order", False)
+    def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
         super().__init_subclass__(**kwargs)
-        if not is_adt:
-            _process_class(cls, repr_, eq, order)
+        if not issubclass(cls, ADTConstructor):
+            _process_class(cls, repr, eq, order)
 
 
 __all__ = ["Ctor", "Sum"]
