@@ -223,12 +223,13 @@ class Sum:
     __slots__ = ()
 
     def __init_subclass__(cls, **kwargs):
-        if not issubclass(cls, ADTConstructor):
+        is_adt = issubclass(cls, ADTConstructor)
+        if not is_adt:
             repr_ = kwargs.pop("repr", True)
             eq = kwargs.pop("eq", True)
             order = kwargs.pop("order", False)
         super().__init_subclass__(**kwargs)
-        if not issubclass(cls, ADTConstructor):
+        if not is_adt:
             _process_class(cls, repr_, eq, order)
 
 
