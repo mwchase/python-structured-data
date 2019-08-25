@@ -169,39 +169,6 @@ def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tupl
     return args
 
 
-def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
-    if order and not eq:
-        raise ValueError("eq must be true if order is true")
-
-    subclass_order: typing.List[typing.Type[_T]] = []
-
-    for name, args in _args_from_annotations(_cls).items():
-        make_constructor(_cls, name, args, subclass_order)
-
-    SUBCLASS_ORDER[_cls] = tuple(subclass_order)
-
-    _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__  # type: ignore
-
-    _custom_new(_cls, frozenset(subclass_order))
-
-    _set_new_functions(
-        _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
-    )
-    _set_new_functions(_cls, PrewrittenMethods.__bool__)
-
-    _add_methods(_cls, _repr, PrewrittenMethods.__repr__)
-
-    equality_methods_were_set = _add_methods(
-        _cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__
-    )
-
-    _set_hash(_cls, equality_methods_were_set)
-
-    _add_order(_cls, order, equality_methods_were_set)
-
-    return _cls
-
-
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -227,7 +194,34 @@ class Sum:
             repr_ = kwargs.pop("repr", True)
             eq = kwargs.pop("eq", True)
             order = kwargs.pop("order", False)
-            _process_class(cls, repr_, eq, order)
+            if order and not eq:
+                raise ValueError("eq must be true if order is true")
+
+            subclass_order: typing.List[typing.Type[_T]] = []
+
+            for name, args in _args_from_annotations(cls).items():
+                make_constructor(cls, name, args, subclass_order)
+
+            SUBCLASS_ORDER[cls] = tuple(subclass_order)
+
+            cls.__init_subclass__ = PrewrittenMethods.__init_subclass__  # type: ignore
+
+            _custom_new(cls, frozenset(subclass_order))
+
+            _set_new_functions(
+                cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
+            )
+            _set_new_functions(cls, PrewrittenMethods.__bool__)
+
+            _add_methods(cls, repr_, PrewrittenMethods.__repr__)
+
+            equality_methods_were_set = _add_methods(
+                cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__
+            )
+
+            _set_hash(cls, equality_methods_were_set)
+
+            _add_order(cls, order, equality_methods_were_set)
         super().__init_subclass__(**kwargs)
 
 
