@@ -38,6 +38,8 @@ class ADTDestructurer(Destructurer, type=ADTConstructor):
 
 class TupleDestructurer(Destructurer, type=tuple):
     def destructure(self, value):
+        if isinstance(value, ADTConstructor):
+            raise MatchFailure
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(value)
         raise MatchFailure

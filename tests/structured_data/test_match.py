@@ -85,5 +85,5 @@ def test_products(adt, match):
     assert not base_matchable((1,))
     assert not subclass_matchable((1,))
 
-    assert tuple_matchable(Base(1))
-    assert tuple_matchable(Subclass(1))
+    assert not tuple_matchable(Base(1))
+    assert not tuple_matchable(Subclass(1))
