@@ -1,6 +1,6 @@
-"""Class decorator for defining abstract data types.
+"""Base classes for defining abstract data types.
 
-This module provides two public members, which are used together.
+This module provides three public members, which are used together.
 
 Given a structure, possibly a choice of different structures, that you'd like
 to associate with a type:
