@@ -6,7 +6,7 @@ from ._adt_constructor import ADT_BASES
 from ._unpack import unpack
 
 
-def adt_base(obj):
+def sum_base(obj):
     return ADT_BASES.get(obj.__class__)
 
 
@@ -28,11 +28,8 @@ def cant_modify(self, name):
     raise AttributeError(format_msg.format(class_repr=class_repr, name_repr=name_repr))
 
 
-class PrewrittenMethods:
-    """Methods for subclasses of ``structured_data.adt.Sum``."""
-
-    def __init_subclass__(cls, **kwargs):
-        raise TypeError
+class CommonPrewrittenMethods:
+    """Methods to slot into various modified classes."""
 
     def __repr__(self):
         return "{}({})".format(
@@ -49,46 +46,6 @@ class PrewrittenMethods:
             return unpack(self) != unpack(other)
         return True
 
-    def __lt__(self, other):
-        if other.__class__ is self.__class__:
-            return unpack(self) < unpack(other)
-        if adt_base(other) is adt_base(self):
-            order = SUBCLASS_ORDER.get(adt_base(self))
-            self_index = order.index(self.__class__)
-            other_index = order.index(other.__class__)
-            return self_index < other_index
-        raise TypeError
-
-    def __le__(self, other):
-        if other.__class__ is self.__class__:
-            return unpack(self) <= unpack(other)
-        if adt_base(other) is adt_base(self):
-            order = SUBCLASS_ORDER.get(adt_base(self))
-            self_index = order.index(self.__class__)
-            other_index = order.index(other.__class__)
-            return self_index <= other_index
-        raise TypeError
-
-    def __gt__(self, other):
-        if other.__class__ is self.__class__:
-            return unpack(self) > unpack(other)
-        if adt_base(other) is adt_base(self):
-            order = SUBCLASS_ORDER.get(adt_base(self))
-            self_index = order.index(self.__class__)
-            other_index = order.index(other.__class__)
-            return self_index > other_index
-        raise TypeError
-
-    def __ge__(self, other):
-        if other.__class__ is self.__class__:
-            return unpack(self) >= unpack(other)
-        if adt_base(other) is adt_base(self):
-            order = SUBCLASS_ORDER.get(adt_base(self))
-            self_index = order.index(self.__class__)
-            other_index = order.index(other.__class__)
-            return self_index >= other_index
-        raise TypeError
-
     def __hash__(self):
         return hash(unpack(self))
 
@@ -102,4 +59,75 @@ class PrewrittenMethods:
         return True
 
 
-__all__ = ["PrewrittenMethods"]
+class PrewrittenProductMethods(CommonPrewrittenMethods):
+    """Methods for subclasses of ``structured_data.adt.Product``."""
+
+    def __lt__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) < unpack(other)
+        raise TypeError
+
+    def __le__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) <= unpack(other)
+        raise TypeError
+
+    def __gt__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) > unpack(other)
+        raise TypeError
+
+    def __ge__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) >= unpack(other)
+        raise TypeError
+
+
+class PrewrittenSumMethods(CommonPrewrittenMethods):
+    """Methods for subclasses of ``structured_data.adt.Sum``."""
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+    def __lt__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) < unpack(other)
+        if sum_base(other) is sum_base(self):
+            order = SUBCLASS_ORDER.get(sum_base(self))
+            self_index = order.index(self.__class__)
+            other_index = order.index(other.__class__)
+            return self_index < other_index
+        raise TypeError
+
+    def __le__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) <= unpack(other)
+        if sum_base(other) is sum_base(self):
+            order = SUBCLASS_ORDER.get(sum_base(self))
+            self_index = order.index(self.__class__)
+            other_index = order.index(other.__class__)
+            return self_index <= other_index
+        raise TypeError
+
+    def __gt__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) > unpack(other)
+        if sum_base(other) is sum_base(self):
+            order = SUBCLASS_ORDER.get(sum_base(self))
+            self_index = order.index(self.__class__)
+            other_index = order.index(other.__class__)
+            return self_index > other_index
+        raise TypeError
+
+    def __ge__(self, other):
+        if other.__class__ is self.__class__:
+            return unpack(self) >= unpack(other)
+        if sum_base(other) is sum_base(self):
+            order = SUBCLASS_ORDER.get(sum_base(self))
+            self_index = order.index(self.__class__)
+            other_index = order.index(other.__class__)
+            return self_index >= other_index
+        raise TypeError
+
+
+__all__ = ["PrewrittenProductMethods", "PrewrittenSumMethods"]

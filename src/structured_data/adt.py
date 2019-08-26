@@ -41,6 +41,7 @@ Putting it together:
 ['Third', 'Constructor']
 """
 
+import inspect
 import sys
 import typing
 
@@ -48,7 +49,8 @@ from ._adt_constructor import ADTConstructor
 from ._adt_constructor import make_constructor
 from ._ctor import get_args
 from ._prewritten_methods import SUBCLASS_ORDER
-from ._prewritten_methods import PrewrittenMethods
+from ._prewritten_methods import PrewrittenProductMethods
+from ._prewritten_methods import PrewrittenSumMethods
 
 _T = typing.TypeVar("_T")
 
@@ -125,23 +127,19 @@ def _add_methods(cls: typing.Type[_T], do_set, *methods):
     return methods_were_set
 
 
-def _set_hash(cls: typing.Type[_T], set_hash):
+def _set_hash(cls: typing.Type[_T], set_hash, src):
     if set_hash:
-        cls.__hash__ = PrewrittenMethods.__hash__  # type: ignore
+        cls.__hash__ = src.__hash__  # type: ignore
 
 
-def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set):
+def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set, src):
     if set_order:
         if not equality_methods_were_set:
             raise ValueError(
                 "Can't add ordering methods if equality methods are provided."
             )
         collision = _set_new_functions(
-            cls,
-            PrewrittenMethods.__lt__,
-            PrewrittenMethods.__le__,
-            PrewrittenMethods.__gt__,
-            PrewrittenMethods.__ge__,
+            cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
         )
         if collision:
             raise TypeError(
@@ -152,12 +150,39 @@ def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set):
             )
 
 
-def _custom_new(cls: typing.Type[_T], subclasses):
+def _sum_new(cls: typing.Type[_T], subclasses):
     new = cls.__dict__.get("__new__", _sum_super(cls))
     cls.__new__ = _make_nested_new(cls, subclasses, new)  # type: ignore
 
 
-def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
+_SENTINEL = object()
+
+
+def _product_new(
+    _cls: typing.Type[_T],
+    annotations: typing.Dict[str, typing.Any],
+    defaults: typing.Dict[str, typing.Any],
+):
+    def __new__(*args, **kwargs):
+        cls, *args = args
+        return super(_cls, cls).__new__(cls, *args, **kwargs)
+
+    __new__.__signature__ = inspect.signature(__new__).replace(
+        parameters=[inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)]
+        + [
+            inspect.Parameter(
+                field,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=annotation,
+                default=defaults.get(field, inspect.Parameter.empty),
+            )
+            for (field, annotation) in annotations.items()
+        ]
+    )
+    _cls.__new__ = __new__
+
+
+def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
     args: typing.Dict[str, typing.Tuple] = {}
     for superclass in reversed(cls.__mro__):
         for key, value in getattr(superclass, "__annotations__", {}).items():
@@ -167,35 +192,56 @@ def _args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tupl
     return args
 
 
+def _product_args_from_annotations(
+    cls: typing.Type[_T]
+) -> typing.Dict[str, typing.Any]:
+    args: typing.Dict[str, typing.Any] = {}
+    for superclass in reversed(cls.__mro__):
+        for key, value in getattr(superclass, "__annotations__", {}).items():
+            if value == "None":
+                value = None
+            _nillable_write(args, key, value)
+    return args
+
+
+def _tuple_getter(index: int):
+    # TODO: __name__ and __qualname__
+    @property
+    def getter(self):
+        return tuple.__getitem__(self, index)
+
+    return getter
+
+
 def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
     if order and not eq:
         raise ValueError("eq must be true if order is true")
 
     subclass_order: typing.List[typing.Type[_T]] = []
 
-    for name, args in _args_from_annotations(_cls).items():
+    for name, args in _sum_args_from_annotations(_cls).items():
         make_constructor(_cls, name, args, subclass_order)
 
     SUBCLASS_ORDER[_cls] = tuple(subclass_order)
 
-    _cls.__init_subclass__ = PrewrittenMethods.__init_subclass__  # type: ignore
+    _cls.__init_subclass__ = PrewrittenSumMethods.__init_subclass__  # type: ignore
 
-    _custom_new(_cls, frozenset(subclass_order))
+    _sum_new(_cls, frozenset(subclass_order))
 
     _set_new_functions(
-        _cls, PrewrittenMethods.__setattr__, PrewrittenMethods.__delattr__
+        _cls, PrewrittenSumMethods.__setattr__, PrewrittenSumMethods.__delattr__
     )
-    _set_new_functions(_cls, PrewrittenMethods.__bool__)
+    _set_new_functions(_cls, PrewrittenSumMethods.__bool__)
 
-    _add_methods(_cls, _repr, PrewrittenMethods.__repr__)
+    _add_methods(_cls, _repr, PrewrittenSumMethods.__repr__)
 
     equality_methods_were_set = _add_methods(
-        _cls, eq, PrewrittenMethods.__eq__, PrewrittenMethods.__ne__
+        _cls, eq, PrewrittenSumMethods.__eq__, PrewrittenSumMethods.__ne__
     )
 
-    _set_hash(_cls, equality_methods_were_set)
+    _set_hash(_cls, equality_methods_were_set, PrewrittenSumMethods)
 
-    _add_order(_cls, order, equality_methods_were_set)
+    _add_order(_cls, order, equality_methods_were_set, PrewrittenSumMethods)
 
     return _cls
 
@@ -226,4 +272,68 @@ class Sum:
             _process_class(cls, repr, eq, order)
 
 
-__all__ = ["Ctor", "Sum"]
+class Product(ADTConstructor, tuple):
+
+    __slots__ = ()
+
+    def __new__(*args, **kwargs):
+        cls, *args = args
+        values = cls.__defaults.copy()
+        fields_iter = iter(cls.__annotations)
+        for arg, field in zip(args, fields_iter):
+            values[field] = arg
+        for field in fields_iter:
+            if field in values and field not in kwargs:
+                continue
+            values[field] = kwargs.pop(field)
+        if kwargs:
+            raise TypeError(kwargs)
+        return super(Product, cls).__new__(
+            cls, [values[field] for field in cls.__annotations]
+        )
+
+    def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not getattr(cls, "__annotations__", {}):
+            return
+        if order and not eq:
+            raise ValueError("eq must be true if order is true")
+
+        annotations = _product_args_from_annotations(cls)
+        cls.__annotations = annotations
+
+        cls.__defaults = {}
+        field_names = iter(reversed(tuple(annotations)))
+        for field in field_names:
+            default = getattr(cls, field, _SENTINEL)
+            if default is _SENTINEL:
+                break
+            cls.__defaults[field] = default
+        if field in field_names:
+            if getattr(cls, field, _SENTINEL) is _SENTINEL:
+                raise TypeError
+
+        _product_new(cls, annotations, cls.__defaults)
+
+        for index, field in enumerate(annotations):
+            setattr(cls, field, _tuple_getter(index))
+
+        _set_new_functions(
+            cls,
+            PrewrittenProductMethods.__setattr__,
+            PrewrittenProductMethods.__delattr__,
+        )
+        _set_new_functions(cls, PrewrittenProductMethods.__bool__)
+
+        _add_methods(cls, repr, PrewrittenProductMethods.__repr__)
+
+        equality_methods_were_set = _add_methods(
+            cls, eq, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
+        )
+
+        _set_hash(cls, equality_methods_were_set, PrewrittenProductMethods)
+
+        _add_order(cls, order, equality_methods_were_set, PrewrittenProductMethods)
+
+
+__all__ = ["Ctor", "Product", "Sum"]

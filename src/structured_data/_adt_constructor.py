@@ -6,7 +6,7 @@ import weakref
 def _should_include(name, static):
     if name in SHADOWED_ATTRIBUTES and static is None:
         return False
-    if isinstance(static, ADTMember):
+    if isinstance(static, SumMember):
         return False
     return True
 
@@ -49,7 +49,7 @@ for _attribute in SHADOWED_ATTRIBUTES:
     setattr(ADTConstructor, _attribute, None)
 
 
-class ADTMember:
+class SumMember:
     def __init__(self, subcls: type):
         self.subcls = subcls
 
@@ -85,7 +85,7 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
         qualname=_cls.__qualname__, name=name
     )
 
-    setattr(_cls, name, ADTMember(Constructor))
+    setattr(_cls, name, SumMember(Constructor))
     subclass_order.append(Constructor)
 
     annotations = {f"_{index}": arg for (index, arg) in enumerate(args)}

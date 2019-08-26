@@ -114,3 +114,54 @@ def test_cant_overwrite_order(adt):
 
         with pytest.raises(TypeError):
             cant_make(repr=repr_on, eq=True, order=True)
+
+
+def test_basic_product(adt):
+    class Product(adt.Product):
+        fst: int
+        snd: str
+
+    assert Product(1, "")
+
+
+def test_products_with_default(adt):
+    class Product(adt.Product):
+        fst: int
+        snd: str = ""
+
+    assert Product(1) == Product(1, "")
+
+
+def test_products_with_all_default(adt):
+    class Product(adt.Product):
+        fst: int = 1
+        snd: str = ""
+
+    assert Product() == Product(snd="", fst=1)
+
+
+def test_invalid_product_options(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Product, **kwargs):
+            value: int
+    for repr_on in (False, True):
+
+        with pytest.raises(ValueError):
+            cant_make(repr=repr_on, eq=False, order=True)
+
+
+def test_subclass(adt):
+    class Product(adt.Product):
+        fst: int
+        snd: str
+
+    class Subclass1(Product):
+        pass
+
+    class Subclass2(Product):
+        fst: "None"
+
+    assert Product(1, "") != Subclass1(1, "")
+    assert Subclass2("").snd == ""
+    with pytest.raises(TypeError):
+        assert not Subclass2(snd="", fst=1)
