@@ -93,22 +93,6 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
     return None
 
 
-def _sum_super(_cls: typing.Type[_T]):
-    def base(cls, args):
-        return super(_cls, cls).__new__(cls, args)
-
-    return staticmethod(base)
-
-
-def _make_nested_new(_cls: typing.Type[_T], subclasses, base__new__):
-    def __new__(cls, args):
-        if cls not in subclasses:
-            raise TypeError
-        return base__new__.__get__(None, cls)(cls, args)
-
-    return staticmethod(__new__)
-
-
 _K = typing.TypeVar("_K")
 _V = typing.TypeVar("_V")
 
@@ -150,9 +134,16 @@ def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set, src):
             )
 
 
-def _sum_new(cls: typing.Type[_T], subclasses):
-    new = cls.__dict__.get("__new__", _sum_super(cls))
-    cls.__new__ = _make_nested_new(cls, subclasses, new)  # type: ignore
+def _sum_new(_cls: typing.Type[_T], subclasses):
+    def base(cls, args):
+        return super(_cls, cls).__new__(cls, args)
+    new = _cls.__dict__.get("__new__", staticmethod(base))
+
+    def __new__(cls, args):
+        if cls not in subclasses:
+            raise TypeError
+        return new.__get__(None, cls)(cls, args)
+    _cls.__new__ = staticmethod(__new__)  # type: ignore
 
 
 _SENTINEL = object()
