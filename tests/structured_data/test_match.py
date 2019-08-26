@@ -63,3 +63,27 @@ def test_different_constructors(adt, match):
 
     matchable = match.Matchable(TestClass.Left(5))
     assert not matchable(TestClass.Right("abc"))
+
+
+def test_products(adt, match):
+    class Base(adt.Product):
+        field: int
+
+    class Subclass(Base):
+        pass
+
+    base_matchable = match.Matchable(Base(1))
+    subclass_matchable = match.Matchable(Subclass(1))
+    tuple_matchable = match.Matchable((1,))
+
+    assert base_matchable(Base(1))
+    assert subclass_matchable(Subclass(1))
+
+    assert not base_matchable(Subclass(1))
+    assert not subclass_matchable(Base(1))
+
+    assert not base_matchable((1,))
+    assert not subclass_matchable((1,))
+
+    assert tuple_matchable(Base(1))
+    assert tuple_matchable(Subclass(1))
