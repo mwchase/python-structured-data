@@ -209,6 +209,19 @@ def _tuple_getter(index: int):
     return getter
 
 
+def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
+    _set_new_functions(_cls, src.__setattr__, src.__delattr__)
+    _set_new_functions(_cls, src.__bool__)
+
+    _add_methods(_cls, _repr, src.__repr__)
+
+    equality_methods_were_set = _add_methods(_cls, eq, src.__eq__, src.__ne__)
+
+    _set_hash(_cls, equality_methods_were_set, src)
+
+    _add_order(_cls, order, equality_methods_were_set, src)
+
+
 def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
     if order and not eq:
         raise ValueError("eq must be true if order is true")
@@ -224,20 +237,7 @@ def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
 
     _sum_new(_cls, frozenset(subclass_order))
 
-    _set_new_functions(
-        _cls, PrewrittenSumMethods.__setattr__, PrewrittenSumMethods.__delattr__
-    )
-    _set_new_functions(_cls, PrewrittenSumMethods.__bool__)
-
-    _add_methods(_cls, _repr, PrewrittenSumMethods.__repr__)
-
-    equality_methods_were_set = _add_methods(
-        _cls, eq, PrewrittenSumMethods.__eq__, PrewrittenSumMethods.__ne__
-    )
-
-    _set_hash(_cls, equality_methods_were_set, PrewrittenSumMethods)
-
-    _add_order(_cls, order, equality_methods_were_set, PrewrittenSumMethods)
+    _add_prewritten_methods(_cls, _repr, eq, order, PrewrittenSumMethods)
 
     return _cls
 
@@ -334,22 +334,7 @@ class Product(ADTConstructor, tuple):
         for index, field in enumerate(cls.__annotations):
             setattr(cls, field, _tuple_getter(index))
 
-        _set_new_functions(
-            cls,
-            PrewrittenProductMethods.__setattr__,
-            PrewrittenProductMethods.__delattr__,
-        )
-        _set_new_functions(cls, PrewrittenProductMethods.__bool__)
-
-        _add_methods(cls, repr, PrewrittenProductMethods.__repr__)
-
-        equality_methods_were_set = _add_methods(
-            cls, eq, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
-        )
-
-        _set_hash(cls, equality_methods_were_set, PrewrittenProductMethods)
-
-        _add_order(cls, order, equality_methods_were_set, PrewrittenProductMethods)
+        _add_prewritten_methods(cls, repr, eq, order, PrewrittenProductMethods)
 
 
 __all__ = ["Ctor", "Product", "Sum"]
