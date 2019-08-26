@@ -19,10 +19,13 @@ def test_adt(adt, match):
         Str: adt.Ctor[str]
 
     matchable = match.Matchable(TestClass.StrPair("a", "b"))
+    tuple_matchable = match.Matchable(("a", "b"))
     assert not matchable(TestClass.Str("c"))
     assert matchable.matches is None
     structure = TestClass.StrPair(match.pat.a, match.pat.b)
     assert matchable(structure)
+    assert not tuple_matchable(TestClass.StrPair("a", "b"))
+    assert not matchable(("a", "b"))
 
 
 def test_cant_use_base_processor():
