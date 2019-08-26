@@ -184,9 +184,8 @@ def _product_new(
 
 def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
     args: typing.Dict[str, typing.Tuple] = {}
-    # TODO: The outer loop in these functions appears to be unnecessary.
     for superclass in reversed(cls.__mro__):
-        for key, value in getattr(superclass, "__annotations__", {}).items():
+        for key, value in vars(superclass).get("__annotations__", {}).items():
             _nillable_write(
                 args, key, get_args(value, vars(sys.modules[superclass.__module__]))
             )
@@ -198,7 +197,7 @@ def _product_args_from_annotations(
 ) -> typing.Dict[str, typing.Any]:
     args: typing.Dict[str, typing.Any] = {}
     for superclass in reversed(cls.__mro__):
-        for key, value in getattr(superclass, "__annotations__", {}).items():
+        for key, value in vars(superclass).get("__annotations__", {}).items():
             if value == "None":
                 value = None
             _nillable_write(args, key, value)
@@ -295,28 +294,27 @@ class Product(ADTConstructor, tuple):
 
     def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
         super().__init_subclass__(**kwargs)
-        if not getattr(cls, "__annotations__", {}):
+        if "__annotations__" not in vars(cls):
             return
         if order and not eq:
             raise ValueError("eq must be true if order is true")
 
-        annotations = _product_args_from_annotations(cls)
-        cls.__annotations = annotations
+        cls.__annotations = _product_args_from_annotations(cls)
 
         cls.__defaults = {}
-        field_names = iter(reversed(tuple(annotations)))
+        field_names = iter(reversed(tuple(cls.__annotations)))
         for field in field_names:
             default = getattr(cls, field, _SENTINEL)
             if default is _SENTINEL:
                 break
             cls.__defaults[field] = default
-        if field in field_names:
-            if getattr(cls, field, _SENTINEL) is _SENTINEL:
+        for field in field_names:
+            if getattr(cls, field, _SENTINEL) is not _SENTINEL:
                 raise TypeError
 
-        _product_new(cls, annotations, cls.__defaults)
+        _product_new(cls, cls.__annotations, cls.__defaults)
 
-        for index, field in enumerate(annotations):
+        for index, field in enumerate(cls.__annotations):
             setattr(cls, field, _tuple_getter(index))
 
         _set_new_functions(

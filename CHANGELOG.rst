@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Product base class
+
 Changed
 ~~~~~~~
 

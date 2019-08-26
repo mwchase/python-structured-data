@@ -140,6 +140,13 @@ def test_products_with_all_default(adt):
     assert Product() == Product(snd="", fst=1)
 
 
+def test_products_with_bad_default(adt):
+    with pytest.raises(TypeError):
+        class Product(adt.Product):
+            fst: int = 1
+            snd: str
+
+
 def test_invalid_product_options(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Product, **kwargs):
@@ -162,18 +169,28 @@ def test_subclass_to_sum(adt):
     assert Sum.Right("")
 
 
-def test_subclass_product(adt):
+def test_subclass_product_unchanged(adt):
     class Product(adt.Product):
         fst: int
         snd: str
 
-    class Subclass1(Product):
+    class Subclass(Product):
         pass
 
-    class Subclass2(Product):
+    assert Product(1, "") != Subclass(1, "")
+
+
+def test_subclass_product_redacted(adt):
+    class Product(adt.Product):
+        fst: int
+        snd: str
+
+    class Subclass(Product):
         fst: "None"
 
-    assert Product(1, "") != Subclass1(1, "")
-    assert Subclass2("").snd == ""
+    assert Product.snd != Subclass.snd
+
+    assert tuple.__getitem__(Subclass(""), slice(None)) == ("",)
+    assert Subclass("").snd == ""
     with pytest.raises(TypeError):
-        assert not Subclass2(snd="", fst=1)
+        assert not Subclass(snd="", fst=1)
