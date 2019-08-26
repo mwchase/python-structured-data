@@ -197,21 +197,23 @@ def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
     if equality_methods_were_set:
         _cls.__hash__ = src.__hash__
 
-    if order:
-        if not equality_methods_were_set:
-            raise ValueError(
-                "Can't add ordering methods if equality methods are provided."
-            )
-        collision = _set_new_functions(
-            _cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
+    if not order:
+        return
+
+    if not equality_methods_were_set:
+        raise ValueError(
+            "Can't add ordering methods if equality methods are provided."
         )
-        if collision:
-            raise TypeError(
-                "Cannot overwrite attribute {collision} in class "
-                "{name}. Consider using functools.total_ordering".format(
-                    collision=collision, name=_cls.__name__
-                )
+    collision = _set_new_functions(
+        _cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
+    )
+    if collision:
+        raise TypeError(
+            "Cannot overwrite attribute {collision} in class "
+            "{name}. Consider using functools.total_ordering".format(
+                collision=collision, name=_cls.__name__
             )
+        )
 
 
 def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
