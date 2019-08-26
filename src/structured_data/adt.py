@@ -182,13 +182,20 @@ def _product_new(
     _cls.__new__ = __new__
 
 
-def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
-    args: typing.Dict[str, typing.Tuple] = {}
+def _all_annotations(
+    cls: typing.Type[_T]
+) -> typing.Iterator[typing.Tuple[typing.Type[_T], str, typing.Any]]:
     for superclass in reversed(cls.__mro__):
         for key, value in vars(superclass).get("__annotations__", {}).items():
-            _nillable_write(
-                args, key, get_args(value, vars(sys.modules[superclass.__module__]))
-            )
+            yield (superclass, key, value)
+
+
+def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
+    args: typing.Dict[str, typing.Tuple] = {}
+    for superclass, key, value in _all_annotations(cls):
+        _nillable_write(
+            args, key, get_args(value, vars(sys.modules[superclass.__module__]))
+        )
     return args
 
 
@@ -196,11 +203,10 @@ def _product_args_from_annotations(
     cls: typing.Type[_T]
 ) -> typing.Dict[str, typing.Any]:
     args: typing.Dict[str, typing.Any] = {}
-    for superclass in reversed(cls.__mro__):
-        for key, value in vars(superclass).get("__annotations__", {}).items():
-            if value == "None":
-                value = None
-            _nillable_write(args, key, value)
+    for superclass, key, value in _all_annotations(cls):
+        if value == "None":
+            value = None
+        _nillable_write(args, key, value)
     return args
 
 
