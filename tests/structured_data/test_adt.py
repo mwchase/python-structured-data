@@ -150,7 +150,19 @@ def test_invalid_product_options(adt):
             cant_make(repr=repr_on, eq=False, order=True)
 
 
-def test_subclass(adt):
+def test_subclass_to_sum(adt):
+    class Base:
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
+
+    class Sum(Base, adt.Sum):
+        pass
+
+    assert Sum.Left(1)
+    assert Sum.Right("")
+
+
+def test_subclass_product(adt):
     class Product(adt.Product):
         fst: int
         snd: str

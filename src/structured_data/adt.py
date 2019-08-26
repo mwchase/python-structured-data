@@ -184,6 +184,7 @@ def _product_new(
 
 def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
     args: typing.Dict[str, typing.Tuple] = {}
+    # TODO: The outer loop in these functions appears to be unnecessary.
     for superclass in reversed(cls.__mro__):
         for key, value in getattr(superclass, "__annotations__", {}).items():
             _nillable_write(
