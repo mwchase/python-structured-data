@@ -137,16 +137,15 @@ def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set, src):
 def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
+
     new = _cls.__dict__.get("__new__", staticmethod(base))
 
     def __new__(cls, args):
         if cls not in subclasses:
             raise TypeError
         return new.__get__(None, cls)(cls, args)
+
     _cls.__new__ = staticmethod(__new__)  # type: ignore
-
-
-_SENTINEL = object()
 
 
 def _product_new(
@@ -301,12 +300,15 @@ class Product(ADTConstructor, tuple):
         cls.__defaults = {}
         field_names = iter(reversed(tuple(cls.__annotations)))
         for field in field_names:
-            default = getattr(cls, field, _SENTINEL)
-            if default is _SENTINEL:
+            default = getattr(cls, field, inspect.Parameter.empty)
+            if default is inspect.Parameter.empty:
                 break
             cls.__defaults[field] = default
         for field in field_names:
-            if getattr(cls, field, _SENTINEL) is not _SENTINEL:
+            if (
+                getattr(cls, field, inspect.Parameter.empty)
+                is not inspect.Parameter.empty
+            ):
                 raise TypeError
 
         _product_new(cls, cls.__annotations, cls.__defaults)
