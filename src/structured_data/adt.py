@@ -269,6 +269,24 @@ class Sum:
 
 
 class Product(ADTConstructor, tuple):
+    """Base class of classes with typed fields.
+
+    Examines PEP 526 __annotations__ to determine fields.
+
+    If repr is true, a __repr__() method is added to the class.
+    If order is true, rich comparison dunder methods are added.
+
+    The Product class examines the class to find annotations.
+    Annotations with a value of "None" are discarded.
+    Fields may have default values, and can be set to inspect.empty to
+    indicate "no default".
+
+    The subclass is subclassable. The implementation was designed with a focus
+    on flexibility over ideals of purity, and therefore provides various
+    optional facilities that conflict with, for example, Liskov
+    substitutability. For the purposes of matching, each class is considered
+    distinct.
+    """
 
     __slots__ = ()
 
