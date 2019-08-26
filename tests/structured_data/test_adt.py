@@ -188,8 +188,6 @@ def test_subclass_product_redacted(adt):
     class Subclass(Product):
         fst: "None"
 
-    assert Product.snd != Subclass.snd
-
     assert tuple.__getitem__(Subclass(""), slice(None)) == ("",)
     assert Subclass("").snd == ""
     with pytest.raises(TypeError):
