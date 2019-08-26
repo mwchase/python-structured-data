@@ -216,26 +216,6 @@ def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
         )
 
 
-def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
-    if order and not eq:
-        raise ValueError("eq must be true if order is true")
-
-    subclass_order: typing.List[typing.Type[_T]] = []
-
-    for name, args in _sum_args_from_annotations(_cls).items():
-        make_constructor(_cls, name, args, subclass_order)
-
-    SUBCLASS_ORDER[_cls] = tuple(subclass_order)
-
-    _cls.__init_subclass__ = PrewrittenSumMethods.__init_subclass__  # type: ignore
-
-    _sum_new(_cls, frozenset(subclass_order))
-
-    _add_prewritten_methods(_cls, _repr, eq, order, PrewrittenSumMethods)
-
-    return _cls
-
-
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -258,8 +238,23 @@ class Sum:
 
     def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
         super().__init_subclass__(**kwargs)
-        if not issubclass(cls, ADTConstructor):
-            _process_class(cls, repr, eq, order)
+        if issubclass(cls, ADTConstructor):
+            return
+        if order and not eq:
+            raise ValueError("eq must be true if order is true")
+
+        subclass_order: typing.List[typing.Type[_T]] = []
+
+        for name, args in _sum_args_from_annotations(cls).items():
+            make_constructor(cls, name, args, subclass_order)
+
+        SUBCLASS_ORDER[cls] = tuple(subclass_order)
+
+        cls.__init_subclass__ = PrewrittenSumMethods.__init_subclass__  # type: ignore
+
+        _sum_new(cls, frozenset(subclass_order))
+
+        _add_prewritten_methods(cls, repr, eq, order, PrewrittenSumMethods)
 
 
 class Product(ADTConstructor, tuple):
