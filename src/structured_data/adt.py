@@ -111,29 +111,6 @@ def _add_methods(cls: typing.Type[_T], do_set, *methods):
     return methods_were_set
 
 
-def _set_hash(cls: typing.Type[_T], set_hash, src):
-    if set_hash:
-        cls.__hash__ = src.__hash__  # type: ignore
-
-
-def _add_order(cls: typing.Type[_T], set_order, equality_methods_were_set, src):
-    if set_order:
-        if not equality_methods_were_set:
-            raise ValueError(
-                "Can't add ordering methods if equality methods are provided."
-            )
-        collision = _set_new_functions(
-            cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
-        )
-        if collision:
-            raise TypeError(
-                "Cannot overwrite attribute {collision} in class "
-                "{name}. Consider using functools.total_ordering".format(
-                    collision=collision, name=cls.__name__
-                )
-            )
-
-
 def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
@@ -217,9 +194,24 @@ def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
 
     equality_methods_were_set = _add_methods(_cls, eq, src.__eq__, src.__ne__)
 
-    _set_hash(_cls, equality_methods_were_set, src)
+    if equality_methods_were_set:
+        _cls.__hash__ = src.__hash__
 
-    _add_order(_cls, order, equality_methods_were_set, src)
+    if order:
+        if not equality_methods_were_set:
+            raise ValueError(
+                "Can't add ordering methods if equality methods are provided."
+            )
+        collision = _set_new_functions(
+            _cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
+        )
+        if collision:
+            raise TypeError(
+                "Cannot overwrite attribute {collision} in class "
+                "{name}. Consider using functools.total_ordering".format(
+                    collision=collision, name=_cls.__name__
+                )
+            )
 
 
 def _process_class(_cls: typing.Type[_T], _repr, eq, order) -> typing.Type[_T]:
