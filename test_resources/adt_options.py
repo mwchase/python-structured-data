@@ -63,7 +63,7 @@ class ReprAndOrderSum(adt.Sum, repr=True, eq=True, order=True):
     order = True
 
 
-class CustomEq(adt.Sum):
+class CustomEqSum(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -72,13 +72,13 @@ class CustomEq(adt.Sum):
         return self is other
 
 
-class CustomInitSubclass(adt.Sum):
+class CustomInitSubclassSum(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
 
-    subclasses: "typing.List[typing.Type[CustomInitSubclass]]" = []
-    dummy_variable: "MyList[CustomInitSubclass]"
+    subclasses: "typing.List[typing.Type[CustomInitSubclassSum]]" = []
+    dummy_variable: "MyList[CustomInitSubclassSum]"
 
     def __init_subclass__(cls, **kwargs):
         cls.subclasses.append(cls)
@@ -88,7 +88,7 @@ class CustomInitSubclass(adt.Sum):
 MyList = typing.List
 
 
-class CustomNew(adt.Sum):
+class CustomNewSum(adt.Sum):
 
     Left: adt.Ctor[int]
     Right: adt.Ctor[str]
@@ -98,11 +98,11 @@ class CustomNew(adt.Sum):
     def __new__(cls, args):
         self = super().__new__(cls, args)
         CUSTOM_NEW_INSTANCES.append(self)
-        CustomNew.instances += 1
+        CustomNewSum.instances += 1
         return self
 
 
-CUSTOM_NEW_INSTANCES: typing.List[CustomNew] = []
+CUSTOM_NEW_INSTANCES: typing.List[CustomNewSum] = []
 
 
 SUM_CLASSES = [AllFalseSum, EqOnlySum, MinimalOrderSum, ReprOnlySum, ReprAndEqSum, ReprAndOrderSum]

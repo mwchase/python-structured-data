@@ -58,8 +58,8 @@ def test_valid_eq(option_class):
 
 def test_cant_hash(adt_options):
     with pytest.raises(TypeError):
-        assert not hash(adt_options.CustomEq.Left(1))
-    assert adt_options.CustomEq.Left(1) != adt_options.CustomEq.Left(1)
+        assert not hash(adt_options.CustomEqSum.Left(1))
+    assert adt_options.CustomEqSum.Left(1) != adt_options.CustomEqSum.Left(1)
 
 
 def test_str(option_class):
@@ -72,15 +72,15 @@ def test_cant_init_superclass(option_class):
 
 
 def test_customize_constructors(adt_options):
-    assert adt_options.CustomInitSubclass.subclasses == [
-        adt_options.CustomInitSubclass.Left,
-        adt_options.CustomInitSubclass.Right,
+    assert adt_options.CustomInitSubclassSum.subclasses == [
+        adt_options.CustomInitSubclassSum.Left,
+        adt_options.CustomInitSubclassSum.Right,
     ]
 
 
 def test_custom_new(adt_options):
-    assert adt_options.CustomNew.Left(1) in adt_options.CUSTOM_NEW_INSTANCES
-    assert adt_options.CustomNew.instances == 1
+    assert adt_options.CustomNewSum.Left(1) in adt_options.CUSTOM_NEW_INSTANCES
+    assert adt_options.CustomNewSum.instances == 1
 
 
 def test_invalid_sum_options(adt):
