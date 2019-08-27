@@ -83,7 +83,7 @@ def test_custom_new(adt_options):
     assert adt_options.CustomNew.instances == 1
 
 
-def test_invalid_options(adt):
+def test_invalid_sum_options(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
             pass
@@ -93,7 +93,7 @@ def test_invalid_options(adt):
             cant_make(repr=repr_on, eq=False, order=True)
 
 
-def test_cant_generate_order(adt):
+def test_sum_cant_generate_order(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
             __eq__ = True
@@ -103,9 +103,44 @@ def test_cant_generate_order(adt):
             cant_make(repr=repr_on, eq=True, order=True)
 
 
-def test_cant_overwrite_order(adt):
+def test_sum_cant_overwrite_order(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
+            __le__ = True
+    for repr_on in (False, True):
+
+        class CantMake:
+            __le__ = True
+
+        with pytest.raises(TypeError):
+            cant_make(repr=repr_on, eq=True, order=True)
+
+
+def test_invalid_product_options(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Product, **kwargs):
+            value: int
+    for repr_on in (False, True):
+
+        with pytest.raises(ValueError):
+            cant_make(repr=repr_on, eq=False, order=True)
+
+
+def test_product_cant_generate_order(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Product, **kwargs):
+            value: int
+            __eq__ = True
+    for repr_on in (False, True):
+
+        with pytest.raises(ValueError):
+            cant_make(repr=repr_on, eq=True, order=True)
+
+
+def test_product_cant_overwrite_order(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Product, **kwargs):
+            value: int
             __le__ = True
     for repr_on in (False, True):
 
@@ -145,16 +180,6 @@ def test_products_with_bad_default(adt):
         class Product(adt.Product):
             fst: int = 1
             snd: str
-
-
-def test_invalid_product_options(adt):
-    def cant_make(**kwargs):
-        class CantMake(adt.Product, **kwargs):
-            value: int
-    for repr_on in (False, True):
-
-        with pytest.raises(ValueError):
-            cant_make(repr=repr_on, eq=False, order=True)
 
 
 def test_subclass_to_sum(adt):
