@@ -68,5 +68,20 @@ def adt_options():
         "ReprAndOrderSum",
     ],
 )
-def option_class(adt_options, request):
+def sum_option_class(adt_options, request):
+    return getattr(adt_options, request.param)
+
+
+@pytest.fixture(
+    scope="session",
+    params=[
+        "AllFalseProduct",
+        "EqOnlyProduct",
+        "MinimalOrderProduct",
+        "ReprOnlyProduct",
+        "ReprAndEqProduct",
+        "ReprAndOrderProduct",
+    ],
+)
+def product_option_class(adt_options, request):
     return getattr(adt_options, request.param)

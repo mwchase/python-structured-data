@@ -39,21 +39,34 @@ def test_adt_class(adt_module):
         assert annotations_right == expected_annotations_right
 
 
-def test_valid_eq(option_class):
-    if option_class.eq:
-        assert option_class.Left(1) == option_class.Left(1)
-        assert option_class.Right("abc") == option_class.Right("abc")
-        assert option_class.Left(1) != option_class.Right("abc")
+def test_sum_valid_eq(sum_option_class):
+    if sum_option_class.eq:
+        assert sum_option_class.Left(1) == sum_option_class.Left(1)
+        assert sum_option_class.Right("abc") == sum_option_class.Right("abc")
+        assert sum_option_class.Left(1) != sum_option_class.Right("abc")
         # This next one is invalid type-wise.
-        assert option_class.Left(1) != option_class.Right(1)
-        assert option_class.Left(1) != option_class.Left(2)
-        assert hash(option_class.Left(1))
+        assert sum_option_class.Left(1) != sum_option_class.Right(1)
+        assert sum_option_class.Left(1) != sum_option_class.Left(2)
+        assert hash(sum_option_class.Left(1))
     else:
-        instance = option_class.Left(1)
+        instance = sum_option_class.Left(1)
         assert instance
         # The base class should compare by object identity instead.
         assert instance == instance
-        assert option_class.Left(1) != option_class.Left(1)
+        assert sum_option_class.Left(1) != sum_option_class.Left(1)
+
+
+def test_product_valid_eq(product_option_class):
+    if product_option_class.eq:
+        assert product_option_class(1, "abc") == product_option_class(1, "abc")
+        # This next one is invalid type-wise.
+        assert hash(product_option_class(1, "abc"))
+    else:
+        instance = product_option_class(1, "abc")
+        assert instance
+        # The base class should compare by object identity instead.
+        assert instance == instance
+        assert product_option_class(1, "abc") != product_option_class(1, "abc")
 
 
 def test_cant_hash(adt_options):
@@ -62,13 +75,13 @@ def test_cant_hash(adt_options):
     assert adt_options.CustomEqSum.Left(1) != adt_options.CustomEqSum.Left(1)
 
 
-def test_str(option_class):
-    assert str(option_class.Left(1)) == repr(option_class.Left(1))
+def test_str(sum_option_class):
+    assert str(sum_option_class.Left(1)) == repr(sum_option_class.Left(1))
 
 
-def test_cant_init_superclass(option_class):
+def test_cant_init_superclass(sum_option_class):
     with pytest.raises(TypeError):
-        assert not option_class(())
+        assert not sum_option_class(())
 
 
 def test_customize_constructors(adt_options):

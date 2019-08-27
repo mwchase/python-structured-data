@@ -63,6 +63,66 @@ class ReprAndOrderSum(adt.Sum, repr=True, eq=True, order=True):
     order = True
 
 
+class AllFalseProduct(adt.Product, repr=False, eq=False, order=False):
+
+    fst: int
+    snd: str
+
+    repr = False
+    eq = False
+    order = False
+
+
+class EqOnlyProduct(adt.Product, repr=False, eq=True, order=False):
+
+    fst: int
+    snd: str
+
+    repr = False
+    eq = True
+    order = False
+
+
+class MinimalOrderProduct(adt.Product, repr=False, eq=True, order=True):
+
+    fst: int
+    snd: str
+
+    repr = False
+    eq = True
+    order = True
+
+
+class ReprOnlyProduct(adt.Product, repr=True, eq=False, order=False):
+
+    fst: int
+    snd: str
+
+    repr = True
+    eq = False
+    order = False
+
+
+class ReprAndEqProduct(adt.Product, repr=True, eq=True, order=False):
+
+    fst: int
+    snd: str
+
+    repr = True
+    eq = True
+    order = False
+
+
+class ReprAndOrderProduct(adt.Product, repr=True, eq=True, order=True):
+
+    fst: int
+    snd: str
+
+    repr = True
+    eq = True
+    order = True
+
+
 class CustomEqSum(adt.Sum):
 
     Left: adt.Ctor[int]
@@ -112,4 +172,14 @@ SUM_CLASSES = [
     ReprOnlySum,
     ReprAndEqSum,
     ReprAndOrderSum,
+]
+
+
+PRODUCT_CLASSES = [
+    AllFalseProduct,
+    EqOnlyProduct,
+    MinimalOrderProduct,
+    ReprOnlyProduct,
+    ReprAndEqProduct,
+    ReprAndOrderProduct,
 ]
