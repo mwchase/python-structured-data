@@ -309,12 +309,11 @@ class Product(ADTConstructor, tuple):
             if default is inspect.Parameter.empty:
                 break
             cls.__defaults[field] = default
-        for field in field_names:
-            if (
-                getattr(cls, field, inspect.Parameter.empty)
-                is not inspect.Parameter.empty
-            ):
-                raise TypeError
+        if any(
+            getattr(cls, field, inspect.Parameter.empty) is not inspect.Parameter.empty
+            for field in field_names
+        ):
+            raise TypeError
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
