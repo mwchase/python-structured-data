@@ -390,7 +390,6 @@ class Product(ADTConstructor, tuple):
 
     @property
     def __hash__(self):
-        # I don't *think* I need any stronger checks
         if self.__eq_succeeded:
             return PrewrittenProductMethods.__hash__.__get__(self, type(self))
         return super().__hash__
