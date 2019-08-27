@@ -87,7 +87,7 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
     for function in functions:
         name = _name(cls, function)
         existing = getattr(cls, name, None)
-        if existing not in (getattr(object, name, None), function):
+        if existing not in (getattr(object, name, None), None, function):
             return name
     for function in functions:
         setattr(cls, _name(cls, function), function)
