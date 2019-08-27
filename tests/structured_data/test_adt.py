@@ -99,6 +99,46 @@ def test_product_base_hash(adt_options):
     assert isinstance(hash(adt_options.ReprOnlyProduct(1, "abc")), int)
 
 
+def test_product_lt(product_option_class):
+    if product_option_class.order:
+        assert not (product_option_class(1, "abc") < product_option_class(1, "abc"))
+    else:
+        with pytest.raises(TypeError):
+            assert (product_option_class(1, "abc") < product_option_class(1, "abc"))
+    with pytest.raises(TypeError):
+        assert not product_option_class(1, "abc") < (True,)
+
+
+def test_product_le(product_option_class):
+    if product_option_class.order:
+        assert (product_option_class(1, "abc") <= product_option_class(1, "abc"))
+    else:
+        with pytest.raises(TypeError):
+            assert not (product_option_class(1, "abc") <= product_option_class(1, "abc"))
+    with pytest.raises(TypeError):
+        assert not product_option_class(1, "abc") <= (True,)
+
+
+def test_product_gt(product_option_class):
+    if product_option_class.order:
+        assert not (product_option_class(1, "abc") > product_option_class(1, "abc"))
+    else:
+        with pytest.raises(TypeError):
+            assert (product_option_class(1, "abc") > product_option_class(1, "abc"))
+    with pytest.raises(TypeError):
+        assert not product_option_class(1, "abc") > (True,)
+
+
+def test_product_ge(product_option_class):
+    if product_option_class.order:
+        assert (product_option_class(1, "abc") >= product_option_class(1, "abc"))
+    else:
+        with pytest.raises(TypeError):
+            assert not (product_option_class(1, "abc") >= product_option_class(1, "abc"))
+    with pytest.raises(TypeError):
+        assert not product_option_class(1, "abc") >= (True,)
+
+
 def test_str(sum_option_class):
     assert str(sum_option_class.Left(1)) == repr(sum_option_class.Left(1))
 
