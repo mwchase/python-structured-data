@@ -338,7 +338,7 @@ class Product(ADTConstructor, tuple):
 
         equality_methods_were_set = False
         if cls.__eq:
-            equality_methods_were_set = _cant_set_new_functions(
+            equality_methods_were_set = not _cant_set_new_functions(
                 cls, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
             )
 
