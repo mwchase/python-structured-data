@@ -198,3 +198,12 @@ def test_subclass_product_redacted(adt):
 
     with pytest.raises(AttributeError):
         assert not Subclass("").fst
+
+
+def test_subclass_product_ordered(adt):
+    class Product(adt.Product):
+        fst: int
+        snd: str
+
+    class Subclass(Product, order=True):
+        pass
