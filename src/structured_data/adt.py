@@ -78,17 +78,28 @@ def _name(cls: typing.Type[_T], function) -> str:
     return function.__get__(None, cls).__name__
 
 
+def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
+    for function in functions:
+        name = _name(cls, function)
+        existing = getattr(cls, name, None)
+        if existing not in (
+            getattr(object, name, None),
+            getattr(Product, name, None),
+            None,
+            function,
+        ):
+            return name
+
+
 def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
     If any attributes are already defined, fail *before* setting any, and
     return the already-defined name.
     """
-    for function in functions:
-        name = _name(cls, function)
-        existing = getattr(cls, name, None)
-        if existing not in (getattr(object, name, None), None, function):
-            return name
+    cant_set = _cant_set_new_functions(cls, *functions)
+    if cant_set:
+        return cant_set
     for function in functions:
         setattr(cls, _name(cls, function), function)
     return None
@@ -178,32 +189,6 @@ def _product_args_from_annotations(
     return args
 
 
-def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
-    _set_new_functions(_cls, src.__setattr__, src.__delattr__)
-    _set_new_functions(_cls, src.__bool__)
-
-    _add_methods(_cls, _repr, src.__repr__)
-
-    equality_methods_were_set = _add_methods(_cls, eq, src.__eq__, src.__ne__)
-
-    if equality_methods_were_set:
-        _cls.__hash__ = src.__hash__
-
-    if not order:
-        return
-
-    if not equality_methods_were_set:
-        raise ValueError("Can't add ordering methods if equality methods are provided.")
-    collision = _set_new_functions(_cls, src.__lt__, src.__le__, src.__gt__, src.__ge__)
-    if collision:
-        raise TypeError(
-            "Cannot overwrite attribute {collision} in class "
-            "{name}. Consider using functools.total_ordering".format(
-                collision=collision, name=_cls.__name__
-            )
-        )
-
-
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -242,7 +227,40 @@ class Sum:
 
         _sum_new(cls, frozenset(subclass_order))
 
-        _add_prewritten_methods(cls, repr, eq, order, PrewrittenSumMethods)
+        _set_new_functions(
+            cls, PrewrittenSumMethods.__setattr__, PrewrittenSumMethods.__delattr__
+        )
+        _set_new_functions(cls, PrewrittenSumMethods.__bool__)
+
+        _add_methods(cls, repr, PrewrittenSumMethods.__repr__)
+
+        equality_methods_were_set = _add_methods(
+            cls, eq, PrewrittenSumMethods.__eq__, PrewrittenSumMethods.__ne__
+        )
+
+        if equality_methods_were_set:
+            cls.__hash__ = PrewrittenSumMethods.__hash__
+
+        if order:
+
+            if not equality_methods_were_set:
+                raise ValueError(
+                    "Can't add ordering methods if equality methods are provided."
+                )
+            collision = _set_new_functions(
+                cls,
+                PrewrittenSumMethods.__lt__,
+                PrewrittenSumMethods.__le__,
+                PrewrittenSumMethods.__gt__,
+                PrewrittenSumMethods.__ge__,
+            )
+            if collision:
+                raise TypeError(
+                    "Cannot overwrite attribute {collision} in class "
+                    "{name}. Consider using functools.total_ordering".format(
+                        collision=collision, name=cls.__name__
+                    )
+                )
 
 
 class Product(ADTConstructor, tuple):
@@ -318,9 +336,32 @@ class Product(ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
-        _add_prewritten_methods(
-            cls, cls.__repr, cls.__eq, cls.__order, PrewrittenProductMethods
-        )
+        equality_methods_were_set = False
+        if cls.__eq:
+            equality_methods_were_set = _cant_set_new_functions(
+                cls, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
+            )
+
+        if order:
+
+            if not equality_methods_were_set:
+                raise ValueError(
+                    "Can't add ordering methods if equality methods are provided."
+                )
+            collision = _cant_set_new_functions(
+                cls,
+                PrewrittenProductMethods.__lt__,
+                PrewrittenProductMethods.__le__,
+                PrewrittenProductMethods.__gt__,
+                PrewrittenProductMethods.__ge__,
+            )
+            if collision:
+                raise TypeError(
+                    "Cannot overwrite attribute {collision} in class "
+                    "{name}. Consider using functools.total_ordering".format(
+                        collision=collision, name=cls.__name__
+                    )
+                )
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
@@ -333,6 +374,61 @@ class Product(ADTConstructor, tuple):
             if index is None:
                 raise
             return tuple.__getitem__(self, index)
+
+    __setattr__ = PrewrittenProductMethods.__setattr__
+    __delattr__ = PrewrittenProductMethods.__delattr__
+    __bool__ = PrewrittenProductMethods.__bool__
+
+    # TODO: replace sets in __init_subclass__ with checks
+
+    @property
+    def __repr__(self):
+        if self.__repr:
+            return PrewrittenProductMethods.__repr__.__get__(self, type(self))
+        return super().__repr__.__get__(self, type(self))
+
+    @property
+    def __hash__(self):
+        # I don't *think* I need any stronger checks
+        if self.__eq:
+            return PrewrittenProductMethods.__hash__.__get__(self, type(self))
+        return super().__hash__.__get__(self, type(self))
+
+    @property
+    def __eq__(self):
+        if self.__eq:
+            return PrewrittenProductMethods.__eq__.__get__(self, type(self))
+        return super().__eq__.__get__(self, type(self))
+
+    @property
+    def __ne__(self):
+        if self.__eq:
+            return PrewrittenProductMethods.__ne__.__get__(self, type(self))
+        return super().__ne__.__get__(self, type(self))
+
+    @property
+    def __lt__(self):
+        if self.__order:
+            return PrewrittenProductMethods.__lt__.__get__(self, type(self))
+        return super().__lt__.__get__(self, type(self))
+
+    @property
+    def __le__(self):
+        if self.__order:
+            return PrewrittenProductMethods.__le__.__get__(self, type(self))
+        return super().__le__.__get__(self, type(self))
+
+    @property
+    def __gt__(self):
+        if self.__order:
+            return PrewrittenProductMethods.__gt__.__get__(self, type(self))
+        return super().__gt__.__get__(self, type(self))
+
+    @property
+    def __ge__(self):
+        if self.__order:
+            return PrewrittenProductMethods.__ge__.__get__(self, type(self))
+        return super().__ge__.__get__(self, type(self))
 
 
 __all__ = ["Ctor", "Product", "Sum"]
