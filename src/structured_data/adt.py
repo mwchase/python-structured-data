@@ -385,50 +385,50 @@ class Product(ADTConstructor, tuple):
     def __repr__(self):
         if self.__repr:
             return PrewrittenProductMethods.__repr__.__get__(self, type(self))
-        return super().__repr__.__get__(self, type(self))
+        return super().__repr__
 
     @property
     def __hash__(self):
         # I don't *think* I need any stronger checks
         if self.__eq:
             return PrewrittenProductMethods.__hash__.__get__(self, type(self))
-        return super().__hash__.__get__(self, type(self))
+        return super().__hash__
 
     @property
     def __eq__(self):
         if self.__eq:
             return PrewrittenProductMethods.__eq__.__get__(self, type(self))
-        return super().__eq__.__get__(self, type(self))
+        return super().__eq__
 
     @property
     def __ne__(self):
         if self.__eq:
             return PrewrittenProductMethods.__ne__.__get__(self, type(self))
-        return super().__ne__.__get__(self, type(self))
+        return super().__ne__
 
     @property
     def __lt__(self):
         if self.__order:
             return PrewrittenProductMethods.__lt__.__get__(self, type(self))
-        return super().__lt__.__get__(self, type(self))
+        return super().__lt__
 
     @property
     def __le__(self):
         if self.__order:
             return PrewrittenProductMethods.__le__.__get__(self, type(self))
-        return super().__le__.__get__(self, type(self))
+        return super().__le__
 
     @property
     def __gt__(self):
         if self.__order:
             return PrewrittenProductMethods.__gt__.__get__(self, type(self))
-        return super().__gt__.__get__(self, type(self))
+        return super().__gt__
 
     @property
     def __ge__(self):
         if self.__order:
             return PrewrittenProductMethods.__ge__.__get__(self, type(self))
-        return super().__ge__.__get__(self, type(self))
+        return super().__ge__
 
 
 __all__ = ["Ctor", "Product", "Sum"]
