@@ -177,15 +177,6 @@ def _product_args_from_annotations(
     return args
 
 
-def _tuple_getter(index: int):
-    # TODO: __name__ and __qualname__
-    @property
-    def getter(self):
-        return tuple.__getitem__(self, index)
-
-    return getter
-
-
 def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
     _set_new_functions(_cls, src.__setattr__, src.__delattr__)
     _set_new_functions(_cls, src.__bool__)
@@ -201,12 +192,8 @@ def _add_prewritten_methods(_cls: typing.Type[_T], _repr, eq, order, src):
         return
 
     if not equality_methods_were_set:
-        raise ValueError(
-            "Can't add ordering methods if equality methods are provided."
-        )
-    collision = _set_new_functions(
-        _cls, src.__lt__, src.__le__, src.__gt__, src.__ge__
-    )
+        raise ValueError("Can't add ordering methods if equality methods are provided.")
+    collision = _set_new_functions(_cls, src.__lt__, src.__le__, src.__gt__, src.__ge__)
     if collision:
         raise TypeError(
             "Cannot overwrite attribute {collision} in class "
@@ -303,6 +290,7 @@ class Product(ADTConstructor, tuple):
             raise ValueError("eq must be true if order is true")
 
         cls.__annotations = _product_args_from_annotations(cls)
+        cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
 
         cls.__defaults = {}
         field_names = iter(reversed(tuple(cls.__annotations)))
@@ -320,10 +308,19 @@ class Product(ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
-        for index, field in enumerate(cls.__annotations):
-            setattr(cls, field, _tuple_getter(index))
-
         _add_prewritten_methods(cls, repr, eq, order, PrewrittenProductMethods)
+
+    def __dir__(self):
+        return super().__dir__() + list(self.__fields)
+
+    def __getattribute__(self, name):
+        try:
+            return super().__getattribute__(name)
+        except AttributeError:
+            index = self.__fields.get(name)
+            if index is None:
+                raise
+            return tuple.__getitem__(self, index)
 
 
 __all__ = ["Ctor", "Product", "Sum"]
