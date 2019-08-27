@@ -69,6 +69,16 @@ def test_product_valid_eq(product_option_class):
         assert product_option_class(1, "abc") != product_option_class(1, "abc")
 
 
+def test_product_repr(product_option_class):
+    if product_option_class.repr:
+        assert (
+            repr(product_option_class(1, "abc"))
+            == f"{product_option_class.__name__}(1, 'abc')"
+        )
+    else:
+        assert repr(product_option_class(1, "abc")) == "(1, 'abc')"
+
+
 def test_sum_cant_hash(adt_options):
     with pytest.raises(TypeError):
         assert not hash(adt_options.CustomEqSum.Left(1))
@@ -110,6 +120,7 @@ def test_invalid_sum_options(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
             pass
+
     for repr_on in (False, True):
 
         with pytest.raises(ValueError):
@@ -120,6 +131,7 @@ def test_sum_cant_generate_order(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
             __eq__ = True
+
     for repr_on in (False, True):
 
         with pytest.raises(ValueError):
@@ -130,6 +142,7 @@ def test_sum_cant_overwrite_order(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Sum, **kwargs):
             __le__ = True
+
     for repr_on in (False, True):
 
         class CantMake:
@@ -143,6 +156,7 @@ def test_invalid_product_options(adt):
     def cant_make(**kwargs):
         class CantMake(adt.Product, **kwargs):
             value: int
+
     for repr_on in (False, True):
 
         with pytest.raises(ValueError):
@@ -154,6 +168,7 @@ def test_product_cant_generate_order(adt):
         class CantMake(adt.Product, **kwargs):
             value: int
             __eq__ = True
+
     for repr_on in (False, True):
 
         with pytest.raises(ValueError):
@@ -165,6 +180,7 @@ def test_product_cant_overwrite_order(adt):
         class CantMake(adt.Product, **kwargs):
             value: int
             __le__ = True
+
     for repr_on in (False, True):
 
         class CantMake:
@@ -200,6 +216,7 @@ def test_products_with_all_default(adt):
 
 def test_products_with_bad_default(adt):
     with pytest.raises(TypeError):
+
         class Product(adt.Product):
             fst: int = 1
             snd: str
