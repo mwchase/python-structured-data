@@ -132,6 +132,15 @@ class CustomEqSum(adt.Sum):
         return self is other
 
 
+class CustomEqProduct(adt.Product):
+
+    fst: int
+    snd: str
+
+    def __eq__(self, other):
+        return self is other
+
+
 class CustomInitSubclassSum(adt.Sum):
 
     Left: adt.Ctor[int]

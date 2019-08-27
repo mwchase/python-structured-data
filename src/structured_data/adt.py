@@ -304,6 +304,7 @@ class Product(ADTConstructor, tuple):
     __repr = True
     __eq = True
     __order = False
+    __eq_succeeded = None
 
     def __init_subclass__(cls, *, repr=None, eq=None, order=None, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -336,15 +337,15 @@ class Product(ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
-        equality_methods_were_set = False
+        cls.__eq_succeeded = False
         if cls.__eq:
-            equality_methods_were_set = not _cant_set_new_functions(
+            cls.__eq_succeeded = not _cant_set_new_functions(
                 cls, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
             )
 
         if order:
 
-            if not equality_methods_were_set:
+            if not cls.__eq_succeeded:
                 raise ValueError(
                     "Can't add ordering methods if equality methods are provided."
                 )
@@ -390,19 +391,19 @@ class Product(ADTConstructor, tuple):
     @property
     def __hash__(self):
         # I don't *think* I need any stronger checks
-        if self.__eq:
+        if self.__eq_succeeded:
             return PrewrittenProductMethods.__hash__.__get__(self, type(self))
         return super().__hash__
 
     @property
     def __eq__(self):
-        if self.__eq:
+        if self.__eq_succeeded:
             return PrewrittenProductMethods.__eq__.__get__(self, type(self))
         return super().__eq__
 
     @property
     def __ne__(self):
-        if self.__eq:
+        if self.__eq_succeeded:
             return PrewrittenProductMethods.__ne__.__get__(self, type(self))
         return super().__ne__
 

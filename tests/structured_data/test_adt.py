@@ -69,10 +69,20 @@ def test_product_valid_eq(product_option_class):
         assert product_option_class(1, "abc") != product_option_class(1, "abc")
 
 
-def test_cant_hash(adt_options):
+def test_sum_cant_hash(adt_options):
     with pytest.raises(TypeError):
         assert not hash(adt_options.CustomEqSum.Left(1))
-    assert adt_options.CustomEqSum.Left(1) != adt_options.CustomEqSum.Left(1)
+    fst = adt_options.CustomEqSum.Left(1)
+    snd = adt_options.CustomEqSum.Left(1)
+    assert fst != snd
+
+
+def test_product_cant_hash(adt_options):
+    with pytest.raises(TypeError):
+        assert not hash(adt_options.CustomEqProduct(1, "abc"))
+    fst = adt_options.CustomEqProduct(1, "abc")
+    snd = adt_options.CustomEqProduct(1, "abc")
+    assert fst != snd
 
 
 def test_str(sum_option_class):
