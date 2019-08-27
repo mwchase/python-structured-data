@@ -318,7 +318,9 @@ class Product(ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
-        _add_prewritten_methods(cls, cls.__repr, cls.__eq, cls.__order, PrewrittenProductMethods)
+        _add_prewritten_methods(
+            cls, cls.__repr, cls.__eq, cls.__order, PrewrittenProductMethods
+        )
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
