@@ -95,6 +95,10 @@ def test_product_cant_hash(adt_options):
     assert fst != snd
 
 
+def test_product_base_hash(adt_options):
+    assert isinstance(hash(adt_options.ReprOnlyProduct(1, "abc")), int)
+
+
 def test_str(sum_option_class):
     assert str(sum_option_class.Left(1)) == repr(sum_option_class.Left(1))
 
