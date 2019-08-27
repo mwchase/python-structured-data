@@ -60,12 +60,12 @@ def adt_options():
 @pytest.fixture(
     scope="session",
     params=[
-        "AllFalse",
-        "EqOnly",
-        "MinimalOrder",
-        "ReprOnly",
-        "ReprAndEq",
-        "ReprAndOrder",
+        "AllFalseSum",
+        "EqOnlySum",
+        "MinimalOrderSum",
+        "ReprOnlySum",
+        "ReprAndEqSum",
+        "ReprAndOrderSum",
     ],
 )
 def option_class(adt_options, request):
