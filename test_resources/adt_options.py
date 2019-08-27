@@ -105,4 +105,11 @@ class CustomNewSum(adt.Sum):
 CUSTOM_NEW_INSTANCES: typing.List[CustomNewSum] = []
 
 
-SUM_CLASSES = [AllFalseSum, EqOnlySum, MinimalOrderSum, ReprOnlySum, ReprAndEqSum, ReprAndOrderSum]
+SUM_CLASSES = [
+    AllFalseSum,
+    EqOnlySum,
+    MinimalOrderSum,
+    ReprOnlySum,
+    ReprAndEqSum,
+    ReprAndOrderSum,
+]
