@@ -282,11 +282,19 @@ class Product(ADTConstructor, tuple):
             cls, [values[field] for field in cls.__annotations]
         )
 
-    def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
+    __repr = True
+    __eq = True
+    __order = False
+
+    def __init_subclass__(cls, *, repr=None, eq=None, order=None, **kwargs):
         super().__init_subclass__(**kwargs)
-        if "__annotations__" not in vars(cls):
-            return
-        if order and not eq:
+        if repr is not None:
+            cls.__repr = repr
+        if eq is not None:
+            cls.__eq = eq
+        if order is not None:
+            cls.__order = order
+        if cls.__order and not cls.__eq:
             raise ValueError("eq must be true if order is true")
 
         cls.__annotations = _product_args_from_annotations(cls)
@@ -308,7 +316,7 @@ class Product(ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
-        _add_prewritten_methods(cls, repr, eq, order, PrewrittenProductMethods)
+        _add_prewritten_methods(cls, cls.__repr, cls.__eq, cls.__order, PrewrittenProductMethods)
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
