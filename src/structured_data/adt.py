@@ -288,12 +288,14 @@ class Product(ADTConstructor, tuple):
 
     def __init_subclass__(cls, *, repr=None, eq=None, order=None, **kwargs):
         super().__init_subclass__(**kwargs)
+
         if repr is not None:
             cls.__repr = repr
         if eq is not None:
             cls.__eq = eq
         if order is not None:
             cls.__order = order
+
         if cls.__order and not cls.__eq:
             raise ValueError("eq must be true if order is true")
 
