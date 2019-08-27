@@ -30,4 +30,4 @@ class Empty(adt.Sum):
     right_type = ()
 
 
-TEST_CLASSES = [Basic, Tupled, Empty]
+SUM_CLASSES = [Basic, Tupled, Empty]

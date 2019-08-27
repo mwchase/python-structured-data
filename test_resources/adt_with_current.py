@@ -46,4 +46,4 @@ class Empty(adt.Sum):
     right_type = ()
 
 
-TEST_CLASSES = [Basic, StringedInternally, StringedExternally, Tupled, Empty]
+SUM_CLASSES = [Basic, StringedInternally, StringedExternally, Tupled, Empty]

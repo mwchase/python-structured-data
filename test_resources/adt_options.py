@@ -105,4 +105,4 @@ class CustomNew(adt.Sum):
 CUSTOM_NEW_INSTANCES: typing.List[CustomNew] = []
 
 
-TEST_CLASSES = [AllFalse, EqOnly, MinimalOrder, ReprOnly, ReprAndEq, ReprAndOrder]
+SUM_CLASSES = [AllFalse, EqOnly, MinimalOrder, ReprOnly, ReprAndEq, ReprAndOrder]

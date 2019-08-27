@@ -19,7 +19,7 @@ def test_generic_subclass_succeeds(adt):
 
 
 def test_adt_class(adt_module):
-    for adt_class in adt_module.TEST_CLASSES:
+    for adt_class in adt_module.SUM_CLASSES:
         assert adt_class
 
         annotations_left = typing.get_type_hints(
