@@ -210,6 +210,12 @@ class Sum:
 
     __slots__ = ()
 
+    def __new__(*args, **kwargs):
+        cls, *args = args
+        if not issubclass(cls, ADTConstructor):
+            raise TypeError
+        return super(Sum, cls).__new__(cls, *args, **kwargs)
+
     def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
         super().__init_subclass__(**kwargs)
         if issubclass(cls, ADTConstructor):
@@ -288,6 +294,8 @@ class Product(ADTConstructor, tuple):
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
+        if cls is Product:
+            raise TypeError
         values = cls.__defaults.copy()
         fields_iter = iter(cls.__annotations)
         for arg, field in zip(args, fields_iter):
