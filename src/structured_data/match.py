@@ -100,6 +100,7 @@ def _stack_iteration(item) -> typing.Optional[Action]:
         return Extend(zip(destructurer(target), destructurer(value)))
     if target != value:
         raise MatchFailure
+    return None
 
 
 def _match(target, value) -> MatchDict:

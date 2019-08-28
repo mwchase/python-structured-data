@@ -1,3 +1,5 @@
+"""The simplest patterns."""
+
 from __future__ import annotations
 
 import keyword
@@ -60,6 +62,20 @@ class AsPattern(CompoundMatch, tuple):
         return self[1]
 
     def destructure(self, value):
+        """Return a tuple of sub-values to check.
+
+        By default, return the value twice.
+
+        If ``isinstance(value, AsPattern)``, return two values:
+        First, the structure to match against.
+        Second, by default, the value itself, but if ``value is self``,
+        instead return the pattern to bind to.
+
+        The behavior of returning the full AsPattern when ``value is not self``
+        is present because it makes it possible to sensically use an AsPattern
+        as a target, which I don't know if there's a good reason for, but it
+        was easy to implement.
+        """
         if isinstance(value, AsPattern):
             if value is self:
                 return (self.structure, self.pattern)

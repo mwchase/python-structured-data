@@ -12,7 +12,8 @@ class Yield(Action):
     def __init__(self, item) -> None:
         self.item = item
 
-    def handle(self, _to_process):
+    def handle(self, to_process):
+        del to_process
         yield self.item
 
 
