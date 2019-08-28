@@ -155,7 +155,7 @@ class Matchable:
         return self.matches is not None
 
 
-pat = AttributeConstructor(Pattern)
+pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
 
 
 __all__ = [
