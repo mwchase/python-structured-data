@@ -316,3 +316,13 @@ def test_subclass_product_ordered(adt):
 
     class Subclass(Product, order=True):
         pass
+
+
+def test_cannot_init_sum(adt):
+    with pytest.raises(TypeError):
+        assert not adt.Sum()
+
+
+def test_cannot_init_product(adt):
+    with pytest.raises(TypeError):
+        assert not adt.Product()
