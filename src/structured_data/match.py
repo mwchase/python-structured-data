@@ -64,6 +64,7 @@ class MatchDict(collections.abc.MutableMapping):
     The behavior of most of the pre-defined MutableMapping methods is currently
     neither tested nor guaranteed.
     """
+
     def __init__(self) -> None:
         self.data: typing.Dict[str, typing.Any] = {}
 
@@ -104,10 +105,14 @@ def _stack_iteration(item) -> typing.Optional[Action]:
 
 
 def _match(target, value) -> MatchDict:
+    local_target = target
+    local_value = value
     match_dict = MatchDict()
-    for target, value in stack_iter((target, value), _stack_iteration):
-        not_in(match_dict, target.name)
-        match_dict[target.name] = value
+    for local_target, local_value in stack_iter(
+        (local_target, local_value), _stack_iteration
+    ):
+        not_in(match_dict, local_target.name)
+        match_dict[local_target.name] = local_value
     return match_dict
 
 
