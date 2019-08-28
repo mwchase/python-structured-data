@@ -70,7 +70,9 @@ def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]) -> typing.Any
         # Oh no, the user might end up executing arbitrary code that they wrote
         # in the first place.
         return eval(source, global_ns)  # pylint: disable=eval-used
-    except Exception:
+    # If we hit this, anything could have gone wrong, but just assume it's not
+    # anything we care about.
+    except Exception:  # pylint: disable=broad-except
         return None
 
 
@@ -100,6 +102,13 @@ def _extract_tuple_ast(
 def get_args(
     constructor, global_ns: typing.Dict[str, typing.Any]
 ) -> typing.Optional[typing.Tuple]:
+    """Given annotation value and module namespace, return Ctor args, if any.
+
+    The function first checks if the value is a string. If so, it tries to
+    parse it.
+    Otherwise, if the value is a Ctor instance, it extracts the annotation, and
+    if not, it returns ``None``.
+    """
     if isinstance(constructor, str):
         try:
             return _extract_tuple_ast(constructor, global_ns)
