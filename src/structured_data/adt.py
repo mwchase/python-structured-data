@@ -380,8 +380,6 @@ class Product(ADTConstructor, tuple):
     __delattr__ = PrewrittenProductMethods.__delattr__
     __bool__ = PrewrittenProductMethods.__bool__
 
-    # TODO: replace sets in __init_subclass__ with checks
-
     @property
     def __repr__(self):
         if self.__repr:
