@@ -92,7 +92,7 @@ class MatchDict(collections.abc.MutableMapping):
 def _stack_iteration(item) -> typing.Optional[Action]:
     target, value = item
     if target is DISCARD:
-        return
+        return None
     if isinstance(target, Pattern):
         return Yield(item)
     destructurer = DESTRUCTURERS.get_destructurer(target)
