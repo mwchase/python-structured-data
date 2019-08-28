@@ -34,7 +34,8 @@ class Ctor:
     def __class_getitem__(cls, args):
         if not isinstance(args, tuple):
             args = (args,)
-        return cls(args)
+        # Yes it is.
+        return cls(args)  # pylint: disable=not-callable
 
 
 ARGS[Ctor] = ()
@@ -64,7 +65,9 @@ def _get_args_from_index(index: ast.AST) -> typing.Tuple:
 
 def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]) -> typing.Any:
     try:
-        return eval(source, global_ns)
+        # Oh no, the user might end up executing arbitrary code that they wrote
+        # in the first place.
+        return eval(source, global_ns)  # pylint: disable=eval-used
     except Exception:
         return None
 

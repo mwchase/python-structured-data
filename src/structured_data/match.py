@@ -98,7 +98,7 @@ def _stack_iteration(item) -> typing.Optional[Action]:
     destructurer = DESTRUCTURERS.get_destructurer(target)
     if destructurer:
         return Extend(zip(destructurer(target), destructurer(value)))
-    elif target != value:
+    if target != value:
         raise MatchFailure
 
 
