@@ -263,6 +263,12 @@ class Sum:
                 )
 
 
+def _coalesce(new, old):
+    if new is None:
+        return old
+    return new
+
+
 class Product(ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
@@ -309,12 +315,9 @@ class Product(ADTConstructor, tuple):
     def __init_subclass__(cls, *, repr=None, eq=None, order=None, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        if repr is not None:
-            cls.__repr = repr
-        if eq is not None:
-            cls.__eq = eq
-        if order is not None:
-            cls.__order = order
+        cls.__repr = _coalesce(repr, cls.__repr)
+        cls.__eq = _coalesce(eq, cls.__eq)
+        cls.__order = _coalesce(order, cls.__order)
 
         if cls.__order and not cls.__eq:
             raise ValueError("eq must be true if order is true")
