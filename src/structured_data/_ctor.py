@@ -1,3 +1,5 @@
+"""Internal implementation of helper types for Sum annotations."""
+
 import ast
 import typing
 import weakref

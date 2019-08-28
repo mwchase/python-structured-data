@@ -1,10 +1,13 @@
+"""Example types showing simple usage of adt.Sum."""
+
 import typing
 
 from . import adt
 
-T = typing.TypeVar("T")
-R = typing.TypeVar("R")
-E = typing.TypeVar("E")
+# Name type variables like type variables.
+T = typing.TypeVar("T")  # pylint: disable=invalid-name
+R = typing.TypeVar("R")  # pylint: disable=invalid-name
+E = typing.TypeVar("E")  # pylint: disable=invalid-name
 
 
 class Maybe(adt.Sum, typing.Generic[T]):
