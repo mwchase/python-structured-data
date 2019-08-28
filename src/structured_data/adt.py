@@ -396,37 +396,37 @@ class Product(ADTConstructor, tuple):
         return super().__hash__
 
     @property
-    def __eq__(self):
+    def __eq__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__eq_succeeded:
             return PrewrittenProductMethods.__eq__.__get__(self, type(self))
         return super().__eq__
 
     @property
-    def __ne__(self):
+    def __ne__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__eq_succeeded:
             return PrewrittenProductMethods.__ne__.__get__(self, type(self))
         return super().__ne__
 
     @property
-    def __lt__(self):
+    def __lt__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
             return PrewrittenProductMethods.__lt__.__get__(self, type(self))
         return super().__lt__
 
     @property
-    def __le__(self):
+    def __le__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
             return PrewrittenProductMethods.__le__.__get__(self, type(self))
         return super().__le__
 
     @property
-    def __gt__(self):
+    def __gt__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
             return PrewrittenProductMethods.__gt__.__get__(self, type(self))
         return super().__gt__
 
     @property
-    def __ge__(self):
+    def __ge__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
             return PrewrittenProductMethods.__ge__.__get__(self, type(self))
         return super().__ge__
