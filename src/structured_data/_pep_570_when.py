@@ -1,3 +1,8 @@
+"""Temporary measure to hack in PEP 570-like behavior.
+
+Will drop this module once I stop supporting Python 3.7.
+"""
+
 import functools
 import inspect
 

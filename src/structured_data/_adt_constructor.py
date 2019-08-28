@@ -1,3 +1,8 @@
+"""Base class for Sum subclasses and Product.
+
+Blocks access to many built-in methods.
+"""
+
 import inspect
 import typing
 import weakref
@@ -50,6 +55,7 @@ for _attribute in SHADOWED_ATTRIBUTES:
 
 
 class SumMember:
+    """Accessor for Sum subclass constructor, only accessible from the base."""
     def __init__(self, subcls: type):
         self.subcls = subcls
 
@@ -63,8 +69,10 @@ ADT_BASES: typing.MutableMapping[type, type] = weakref.WeakKeyDictionary()
 
 
 def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
+    """Create a subclass of _cls with a constructor generated from args."""
     length = len(args)
 
+    # pylint: disable=missing-docstring
     class Constructor(_cls, ADTConstructor, tuple):  # type: ignore
         __doc__ = f"""Auto-generated subclass {name} of ADT {_cls.__qualname__}.
 
