@@ -89,6 +89,7 @@ def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional
             function,
         ):
             return name
+    return None
 
 
 def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
@@ -285,7 +286,7 @@ class Product(ADTConstructor, tuple):
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):
+    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
         values = cls.__defaults.copy()
         fields_iter = iter(cls.__annotations)
@@ -395,36 +396,48 @@ class Product(ADTConstructor, tuple):
     @property
     def __eq__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__eq_succeeded:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__eq__.__get__(self, type(self))
         return super().__eq__
 
     @property
     def __ne__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__eq_succeeded:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__ne__.__get__(self, type(self))
         return super().__ne__
 
     @property
     def __lt__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__lt__.__get__(self, type(self))
         return super().__lt__
 
     @property
     def __le__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__le__.__get__(self, type(self))
         return super().__le__
 
     @property
     def __gt__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__gt__.__get__(self, type(self))
         return super().__gt__
 
     @property
     def __ge__(self):  # pylint: disable=unexpected-special-method-signature
         if self.__order:
+            # I think this is a Pylint bug, but I'm not sure how to reduce it.
+            # pylint: disable=no-value-for-parameter
             return PrewrittenProductMethods.__ge__.__get__(self, type(self))
         return super().__ge__
 
