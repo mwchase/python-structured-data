@@ -307,7 +307,7 @@ class Product(ADTConstructor, tuple):
             raise TypeError
         # Similar to https://github.com/PyCQA/pylint/issues/1802
         values = cls.__defaults.copy()  # pylint: disable=protected-access
-        fields_iter = iter(cls.__annotations)  # pylint: disable=protected-access
+        fields_iter = iter(cls.__fields)  # pylint: disable=protected-access
         for arg, field in zip(args, fields_iter):
             values[field] = arg
         for field in fields_iter:
@@ -320,7 +320,7 @@ class Product(ADTConstructor, tuple):
             cls,
             [
                 values[field]
-                for field in cls.__annotations  # pylint: disable=protected-access
+                for field in cls.__fields  # pylint: disable=protected-access
             ],
         )
 
