@@ -73,9 +73,9 @@ else:
     from ._ctor import Ctor
 
 
-def _conditional_type_error(do_raise, *args):
+def _conditional_raise(do_raise, exc_class, *args):
     if do_raise:
-        raise TypeError(*args)
+        raise exc_class(*args)
 
 
 def _name(cls: typing.Type[_T], function) -> str:
@@ -136,7 +136,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
     new = _cls.__dict__.get("__new__", staticmethod(base))
 
     def __new__(cls, args):
-        _conditional_type_error(cls not in subclasses)
+        _conditional_raise(cls not in subclasses, TypeError)
         return new.__get__(None, cls)(cls, args)
 
     _cls.__new__ = staticmethod(__new__)  # type: ignore
@@ -216,7 +216,7 @@ class Sum:
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        _conditional_type_error(not issubclass(cls, ADTConstructor))
+        _conditional_raise(not issubclass(cls, ADTConstructor), TypeError)
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
     # Both of these are for consistency with modules defined in the stdlib.
@@ -232,8 +232,9 @@ class Sum:
         super().__init_subclass__(**kwargs)
         if issubclass(cls, ADTConstructor):
             return
-        if order and not eq:
-            raise ValueError("eq must be true if order is true")
+        _conditional_raise(
+            order and not eq, ValueError, "eq must be true if order is true"
+        )
 
         subclass_order: typing.List[typing.Type[_T]] = []
 
@@ -262,10 +263,11 @@ class Sum:
 
         if order:
 
-            if not equality_methods_were_set:
-                raise ValueError(
-                    "Can't add ordering methods if equality methods are provided."
-                )
+            _conditional_raise(
+                not equality_methods_were_set,
+                ValueError,
+                "Can't add ordering methods if equality methods are provided.",
+            )
             collision = _set_new_functions(
                 cls,
                 PrewrittenSumMethods.__lt__,
@@ -273,8 +275,9 @@ class Sum:
                 PrewrittenSumMethods.__gt__,
                 PrewrittenSumMethods.__ge__,
             )
-            _conditional_type_error(
+            _conditional_raise(
                 collision,
+                TypeError,
                 "Cannot overwrite attribute {collision} in class "
                 "{name}. Consider using functools.total_ordering".format(
                     collision=collision, name=cls.__name__
@@ -306,7 +309,7 @@ class Product(ADTConstructor, tuple):
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        _conditional_type_error(cls is Product)
+        _conditional_raise(cls is Product, TypeError)
         # Similar to https://github.com/PyCQA/pylint/issues/1802
         values = cls.__defaults.copy()  # pylint: disable=protected-access
         fields_iter = iter(cls.__fields)  # pylint: disable=protected-access
@@ -316,7 +319,7 @@ class Product(ADTConstructor, tuple):
             if field in values and field not in kwargs:
                 continue
             values[field] = kwargs.pop(field)
-        _conditional_type_error(kwargs, kwargs)
+        _conditional_raise(kwargs, TypeError, kwargs)
         return super(Product, cls).__new__(
             cls,
             [
@@ -349,8 +352,9 @@ class Product(ADTConstructor, tuple):
         if order is not None:
             cls.__order = order
 
-        if cls.__order and not cls.__eq:
-            raise ValueError("eq must be true if order is true")
+        _conditional_raise(
+            cls.__order and not cls.__eq, ValueError, "eq must be true if order is true"
+        )
 
         cls.__annotations = _product_args_from_annotations(cls)
         cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
@@ -362,12 +366,13 @@ class Product(ADTConstructor, tuple):
             if default is inspect.Parameter.empty:
                 break
             cls.__defaults[field] = default
-        _conditional_type_error(
+        _conditional_raise(
             any(
                 getattr(cls, field, inspect.Parameter.empty)
                 is not inspect.Parameter.empty
                 for field in field_names
-            )
+            ),
+            TypeError,
         )
 
         _product_new(cls, cls.__annotations, cls.__defaults)
@@ -380,10 +385,11 @@ class Product(ADTConstructor, tuple):
 
         if order:
 
-            if not cls.__eq_succeeded:
-                raise ValueError(
-                    "Can't add ordering methods if equality methods are provided."
-                )
+            _conditional_raise(
+                not cls.__eq_succeeded,
+                ValueError,
+                "Can't add ordering methods if equality methods are provided.",
+            )
             collision = _cant_set_new_functions(
                 cls,
                 PrewrittenProductMethods.__lt__,
@@ -391,8 +397,9 @@ class Product(ADTConstructor, tuple):
                 PrewrittenProductMethods.__gt__,
                 PrewrittenProductMethods.__ge__,
             )
-            _conditional_type_error(
+            _conditional_raise(
                 collision,
+                TypeError,
                 "Cannot overwrite attribute {collision} in class "
                 "{name}. Consider using functools.total_ordering".format(
                     collision=collision, name=cls.__name__
