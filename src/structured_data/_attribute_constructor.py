@@ -1,14 +1,17 @@
+"""Utility class for generating instances from attribute names."""
+
 import sys
 import typing
 import weakref
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T")  # pylint: disable=invalid-name
 
 ATTRIBUTE_CONSTRUCTORS: typing.MutableMapping = weakref.WeakKeyDictionary()
 ATTRIBUTE_CACHE: typing.MutableMapping = weakref.WeakKeyDictionary()
 
 
 class AttributeConstructor(typing.Generic[T]):
+    """An object that converts attribute access to constructor calls."""
 
     __slots__ = ("__weakref__",)
 
