@@ -73,6 +73,11 @@ else:
     from ._ctor import Ctor
 
 
+def _conditional_type_error(do_raise, *args):
+    if do_raise:
+        raise TypeError(*args)
+
+
 def _name(cls: typing.Type[_T], function) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
@@ -131,8 +136,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
     new = _cls.__dict__.get("__new__", staticmethod(base))
 
     def __new__(cls, args):
-        if cls not in subclasses:
-            raise TypeError
+        _conditional_type_error(cls not in subclasses)
         return new.__get__(None, cls)(cls, args)
 
     _cls.__new__ = staticmethod(__new__)  # type: ignore
@@ -212,8 +216,7 @@ class Sum:
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        if not issubclass(cls, ADTConstructor):
-            raise TypeError
+        _conditional_type_error(not issubclass(cls, ADTConstructor))
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
     # Both of these are for consistency with modules defined in the stdlib.
@@ -270,13 +273,13 @@ class Sum:
                 PrewrittenSumMethods.__gt__,
                 PrewrittenSumMethods.__ge__,
             )
-            if collision:
-                raise TypeError(
-                    "Cannot overwrite attribute {collision} in class "
-                    "{name}. Consider using functools.total_ordering".format(
-                        collision=collision, name=cls.__name__
-                    )
-                )
+            _conditional_type_error(
+                collision,
+                "Cannot overwrite attribute {collision} in class "
+                "{name}. Consider using functools.total_ordering".format(
+                    collision=collision, name=cls.__name__
+                ),
+            )
 
 
 class Product(ADTConstructor, tuple):
@@ -303,8 +306,7 @@ class Product(ADTConstructor, tuple):
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        if cls is Product:
-            raise TypeError
+        _conditional_type_error(cls is Product)
         # Similar to https://github.com/PyCQA/pylint/issues/1802
         values = cls.__defaults.copy()  # pylint: disable=protected-access
         fields_iter = iter(cls.__fields)  # pylint: disable=protected-access
@@ -314,8 +316,7 @@ class Product(ADTConstructor, tuple):
             if field in values and field not in kwargs:
                 continue
             values[field] = kwargs.pop(field)
-        if kwargs:
-            raise TypeError(kwargs)
+        _conditional_type_error(kwargs, kwargs)
         return super(Product, cls).__new__(
             cls,
             [
@@ -361,11 +362,13 @@ class Product(ADTConstructor, tuple):
             if default is inspect.Parameter.empty:
                 break
             cls.__defaults[field] = default
-        if any(
-            getattr(cls, field, inspect.Parameter.empty) is not inspect.Parameter.empty
-            for field in field_names
-        ):
-            raise TypeError
+        _conditional_type_error(
+            any(
+                getattr(cls, field, inspect.Parameter.empty)
+                is not inspect.Parameter.empty
+                for field in field_names
+            )
+        )
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
@@ -388,13 +391,13 @@ class Product(ADTConstructor, tuple):
                 PrewrittenProductMethods.__gt__,
                 PrewrittenProductMethods.__ge__,
             )
-            if collision:
-                raise TypeError(
-                    "Cannot overwrite attribute {collision} in class "
-                    "{name}. Consider using functools.total_ordering".format(
-                        collision=collision, name=cls.__name__
-                    )
-                )
+            _conditional_type_error(
+                collision,
+                "Cannot overwrite attribute {collision} in class "
+                "{name}. Consider using functools.total_ordering".format(
+                    collision=collision, name=cls.__name__
+                ),
+            )
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
