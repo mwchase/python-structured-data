@@ -210,13 +210,22 @@ class Sum:
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):
+    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
         if not issubclass(cls, ADTConstructor):
             raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
-    def __init_subclass__(cls, *, repr=True, eq=True, order=False, **kwargs):
+    # Both of these are for consistency with modules defined in the stdlib.
+    # BOOM!
+    def __init_subclass__(
+        cls,
+        *,
+        repr=True,  # pylint: disable=redefined-builtin
+        eq=True,  # pylint: disable=invalid-name
+        order=False,
+        **kwargs
+    ):
         super().__init_subclass__(**kwargs)
         if issubclass(cls, ADTConstructor):
             return
@@ -296,8 +305,9 @@ class Product(ADTConstructor, tuple):
         cls, *args = args
         if cls is Product:
             raise TypeError
-        values = cls.__defaults.copy()
-        fields_iter = iter(cls.__annotations)
+        # Similar to https://github.com/PyCQA/pylint/issues/1802
+        values = cls.__defaults.copy()  # pylint: disable=protected-access
+        fields_iter = iter(cls.__annotations)  # pylint: disable=protected-access
         for arg, field in zip(args, fields_iter):
             values[field] = arg
         for field in fields_iter:
@@ -307,7 +317,11 @@ class Product(ADTConstructor, tuple):
         if kwargs:
             raise TypeError(kwargs)
         return super(Product, cls).__new__(
-            cls, [values[field] for field in cls.__annotations]
+            cls,
+            [
+                values[field]
+                for field in cls.__annotations  # pylint: disable=protected-access
+            ],
         )
 
     __repr = True
@@ -315,7 +329,16 @@ class Product(ADTConstructor, tuple):
     __order = False
     __eq_succeeded = None
 
-    def __init_subclass__(cls, *, repr=None, eq=None, order=None, **kwargs):
+    # Both of these are for consistency with modules defined in the stdlib.
+    # BOOM!
+    def __init_subclass__(
+        cls,
+        *,
+        repr=None,  # pylint: disable=redefined-builtin
+        eq=None,  # pylint: disable=invalid-name
+        order=None,
+        **kwargs
+    ):
         super().__init_subclass__(**kwargs)
 
         if repr is not None:
