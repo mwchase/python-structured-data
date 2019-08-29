@@ -1,3 +1,5 @@
+import typing
+
 import pytest
 
 
@@ -11,6 +13,23 @@ def test_tuple(match):
     assert matchable.matches is not None
     assert not matchable(())
     assert matchable.matches is None
+
+
+def test_subclassing(match):
+    class NT(typing.NamedTuple):
+        fst: int
+        snd: str
+
+    tup = (1, "abc")
+    n_tup = NT(1, "abc")
+
+    t_matchable = match.Matchable(tup)
+    nt_matchable = match.Matchable(n_tup)
+
+    assert nt_matchable(tup)
+    assert nt_matchable(n_tup)
+    assert t_matchable(tup)
+    assert not t_matchable(n_tup)
 
 
 def test_adt(adt, match):
