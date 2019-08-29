@@ -1,3 +1,6 @@
+"""An internal function for dealing with ADT instances."""
+
+
 def unpack(instance: tuple) -> tuple:
     """Return the inside of any ADT instance.
 

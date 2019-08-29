@@ -1,3 +1,5 @@
+"""Methods to be added to ADT classes."""
+
 import inspect
 import typing
 import weakref
@@ -7,6 +9,7 @@ from ._unpack import unpack
 
 
 def sum_base(obj):
+    """Return the immediate base class of the type of a ``Sum`` instance."""
     return ADT_BASES.get(obj.__class__)
 
 
@@ -19,6 +22,7 @@ SUBCLASS_ORDER: typing.MutableMapping[
 
 
 def cant_modify(self, name):
+    """Prevent attempts to modify an attr of the given name."""
     class_repr = repr(self.__class__.__name__)
     name_repr = repr(name)
     if inspect.getattr_static(self, name, MISSING) is MISSING:
