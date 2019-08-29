@@ -195,8 +195,8 @@ def _product_args_from_annotations(
     return args
 
 
-def _conditional_update(obj, **kwargs):
-    for key, value in kwargs.items():
+def _conditional_update(obj, attrs_and_values):
+    for key, value in attrs_and_values.items():
         if value is not None:
             setattr(obj, key, value)
 
@@ -359,7 +359,7 @@ class Product(ADTConstructor, tuple):
         overrides.__eq = eq  # pylint: disable=protected-access
         overrides.__order = order  # pylint: disable=protected-access
 
-        _conditional_update(cls, **vars(overrides))
+        _conditional_update(cls, vars(overrides))
 
         _conditional_raise(
             cls.__order and not cls.__eq, ValueError, "eq must be true if order is true"
