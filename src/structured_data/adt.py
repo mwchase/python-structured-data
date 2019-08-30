@@ -201,6 +201,11 @@ def _conditional_update(obj, attrs_and_values):
             setattr(obj, key, value)
 
 
+def _ordering_options_are_valid(*, eq, order):
+    if order and not eq:
+        raise ValueError("eq must be true if order is true")
+
+
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -239,9 +244,7 @@ class Sum:
         super().__init_subclass__(**kwargs)
         if issubclass(cls, ADTConstructor):
             return
-        _conditional_raise(
-            order and not eq, ValueError, "eq must be true if order is true"
-        )
+        _ordering_options_are_valid(eq=eq, order=order)
 
         subclass_order: typing.List[typing.Type[_T]] = []
 
@@ -361,9 +364,7 @@ class Product(ADTConstructor, tuple):
 
         _conditional_update(cls, vars(overrides))
 
-        _conditional_raise(
-            cls.__order and not cls.__eq, ValueError, "eq must be true if order is true"
-        )
+        _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
         cls.__annotations = _product_args_from_annotations(cls)
         cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
