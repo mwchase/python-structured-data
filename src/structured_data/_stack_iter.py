@@ -2,46 +2,54 @@
 
 import typing
 
-# Name type variables like type variables.
-T = typing.TypeVar("T")  # pylint: disable=invalid-name
+Input = typing.TypeVar("Input")
+Output = typing.TypeVar("Output")
 
 
-class Action:
+class Action(typing.Generic[Input, Output]):
     """Abstract base class for reified stack iteration actions."""
-    def handle(self, to_process: typing.List[T]):
+
+    def handle(self, to_process: typing.List[Input]) -> typing.Iterator[Output]:
         """Yield a value or mutate the stack."""
         raise NotImplementedError
 
 
-class Yield(Action):
+class Yield(Action[Input, Output]):
     """Reified action for yielding an output value."""
-    def __init__(self, item) -> None:
+
+    def __init__(self, item: Output) -> None:
         self.item = item
 
-    def handle(self, to_process):
+    def handle(self, to_process: typing.List[Input]) -> typing.Iterator[Output]:
         """Yield out ``self.item``"""
         del to_process
         yield self.item
 
 
-class Extend(Action):
+class Extend(Action[Input, Output]):
     """Reified action for pushing to the stack."""
-    def __init__(self, iterable) -> None:
+
+    def __init__(self, iterable: typing.Iterable[Input]) -> None:
         self.iterable = iterable
 
-    def handle(self, to_process):
+    def handle(self, to_process: typing.List[Input]) -> typing.Iterator[Output]:
         """Extend the process list with ``iterable``, and yield nothing."""
         to_process.extend(self.iterable)
         yield from ()
 
 
-def handle(action: typing.Optional[Action], to_process):
+def handle(
+    action: typing.Optional[Action[Input, Output]], to_process
+) -> typing.Iterator[Output]:
     """If ``action`` is an ``Action``, delegate to its ``handle`` method."""
     if action is not None:
         yield from action.handle(to_process)
 
 
-def stack_iter(first: T, process: typing.Callable[[T], typing.Optional[Action]]):
+def stack_iter(
+    first: Input,
+    process: typing.Callable[[Input], typing.Optional[Action[Input, Output]]],
+) -> typing.Iterator[Output]:
     """Stack iterate over the initial value using the processing function.
 
     To "stack iterate" is to build a stack, starting with the initial value.
