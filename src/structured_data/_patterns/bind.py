@@ -24,7 +24,7 @@ class Bind(CompoundMatch, tuple):
     def __new__(cls, structure, kwargs):
         if not kwargs:
             return structure
-        not_in(kwargs, "_")
+        not_in(container=kwargs, item="_")
         return super(Bind, cls).__new__(cls, (structure, tuple(kwargs.items())))
 
     @property

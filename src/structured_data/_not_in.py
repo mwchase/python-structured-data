@@ -2,10 +2,10 @@
 
 import typing
 
-T = typing.TypeVar("T")  # pylint: disable=invalid-name
+Item = typing.TypeVar("Item")
 
 
-def not_in(container: typing.Container[T], name: T):
-    """Raise ValueError if ``name`` is in ``container``."""
-    if name in container:
+def not_in(*, container: typing.Container[Item], item: Item):
+    """Raise ValueError if ``item`` is in ``container``."""
+    if item in container:
         raise ValueError

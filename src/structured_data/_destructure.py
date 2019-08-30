@@ -139,7 +139,7 @@ class DestructurerList(tuple):
         """
         name_list: typing.List[str] = []
         for item in stack_iter(target, self.stack_iteration):
-            not_in(name_list, item.name)
+            not_in(container=name_list, item=item.name)
             name_list.append(item.name)
         return name_list
 

@@ -111,7 +111,7 @@ def _match(target, value) -> MatchDict:
     for local_target, local_value in stack_iter(
         (local_target, local_value), _stack_iteration
     ):
-        not_in(match_dict, local_target.name)
+        not_in(container=match_dict, item=local_target.name)
         match_dict[local_target.name] = local_value
     return match_dict
 
