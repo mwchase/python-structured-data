@@ -74,16 +74,23 @@ else:
     from ._ctor import Ctor
 
 
+# The locations that use this function should be rewritten to use one with a
+# clearer name.
+# Right now, this describes what the function does, not why it should be
+# called.
 def _conditional_raise(do_raise, exc_class, *args):
     if do_raise:
         raise exc_class(*args)
 
 
+# This is fine.
 def _name(cls: typing.Type[_T], function) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
 
 
+# This is mostly fine, though the list of classes is somewhat ad-hoc, to say
+# the least.
 def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
     for function in functions:
         name = _name(cls, function)
@@ -98,6 +105,8 @@ def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional
     return None
 
 
+# Maybe it would make more sense to pull the check logic out of this function,
+# and require it explicitly where this is currently used.
 def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
