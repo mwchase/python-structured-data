@@ -98,11 +98,11 @@ The match architecture allows you tell pull values out of a nested structure:
         print(matchable['c'])  # 'def'
         print(matchable['d'])  # 'ghi'
 
-The ``@`` operator allows binding both the outside and the inside of a structure.
-Indexing is forwarded to a ``matches`` attribute, which is ``None`` if the last match was not successful, and otherwise contains an instance of a custom mapping type, which allows building the matched values back up into simple structures.
+The subscript operator allows binding both the outside and the inside of a structure.
+Indexing a ``Matchable`` is forwarded to a ``matches`` attribute, which is ``None`` if the last match was not successful, and otherwise contains an instance of a custom mapping type, which allows building the matched values back up into simple structures.
 
-The ``adt`` decorator exists to create classes that do not necessarily have a single fixed format, but do have a fixed set of possible formats.
-This lowers the maintenance burden of writing functions that operate on values of an ``adt`` class, because the full list of cases to handle is directly in the class definition.
+The ``Sum`` base class exists to create classes that do not necessarily have a single fixed format, but do have a fixed set of possible formats.
+This lowers the maintenance burden of writing functions that operate on values of a ``Sum`` class, because the full list of cases to handle is directly in the class definition.
 
 Here are implementations of common algebraic data types in other languages:
 
@@ -122,6 +122,15 @@ Here are implementations of common algebraic data types in other languages:
 The ``data`` module provides classes based on these examples.
 
 * Free software: MIT license
+
+How Can I Help?
+===============
+
+Currently, this project has somewhat high quality metrics, though some of them have been higher.
+I am highly skeptical of this, because I've repeatedly given in to the temptation to code to the metrics.
+I can't trust the metrics, and I know the code well enough that I can't trust my own judgment to figure out which bits need to be improved and how.
+I need someone to review the code and identify problem spots based on what doesn't make sense to them.
+The issues are open.
 
 Should I Use This?
 ==================
