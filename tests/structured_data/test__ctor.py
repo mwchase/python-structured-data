@@ -1,3 +1,5 @@
+import typing
+
 import pytest
 
 
@@ -26,3 +28,10 @@ def test_ignore_gibberish(adt):
         Constructor: "7[55{.red$"  # noqa
 
     assert CanMake
+
+
+def test_ignore_classvar(adt):
+    class Empty(adt.Product):
+        class_var: typing.ClassVar[int] = 1
+
+    assert tuple.__getitem__(Empty(), slice(None)) == ()
