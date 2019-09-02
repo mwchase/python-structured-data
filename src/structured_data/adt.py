@@ -45,13 +45,9 @@ import inspect
 import sys
 import typing
 
-from ._adt_constructor import ADTConstructor
-from ._adt_constructor import make_constructor
-from ._ctor import annotation_is_classvar
-from ._ctor import get_args
-from ._prewritten_methods import SUBCLASS_ORDER
-from ._prewritten_methods import PrewrittenProductMethods
-from ._prewritten_methods import PrewrittenSumMethods
+from . import _adt_constructor
+from . import _ctor
+from . import _prewritten_methods
 
 _T = typing.TypeVar("_T")
 
@@ -189,7 +185,7 @@ def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.
     args: typing.Dict[str, typing.Tuple] = {}
     for superclass, key, value in _all_annotations(cls):
         _nillable_write(
-            args, key, get_args(value, vars(sys.modules[superclass.__module__]))
+            args, key, _ctor.get_args(value, vars(sys.modules[superclass.__module__]))
         )
     return args
 
@@ -199,7 +195,7 @@ def _product_args_from_annotations(
 ) -> typing.Dict[str, typing.Any]:
     args: typing.Dict[str, typing.Any] = {}
     for _, key, value in _all_annotations(cls):
-        if value == "None" or annotation_is_classvar(
+        if value == "None" or _ctor.annotation_is_classvar(
             value, vars(sys.modules[cls.__module__])
         ):
             value = None
@@ -234,7 +230,7 @@ class Sum:
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        if not issubclass(cls, ADTConstructor):
+        if not issubclass(cls, _adt_constructor.ADTConstructor):
             raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
@@ -249,34 +245,41 @@ class Sum:
         **kwargs
     ):
         super().__init_subclass__(**kwargs)
-        if issubclass(cls, ADTConstructor):
+        if issubclass(cls, _adt_constructor.ADTConstructor):
             return
         _ordering_options_are_valid(eq=eq, order=order)
 
         subclass_order: typing.List[typing.Type[_T]] = []
 
         for name, args in _sum_args_from_annotations(cls).items():
-            make_constructor(cls, name, args, subclass_order)
+            _adt_constructor.make_constructor(cls, name, args, subclass_order)
 
-        SUBCLASS_ORDER[cls] = tuple(subclass_order)
+        _prewritten_methods.SUBCLASS_ORDER[cls] = tuple(subclass_order)
 
-        cls.__init_subclass__ = PrewrittenSumMethods.__init_subclass__  # type: ignore
+        cls.__init_subclass__ = (
+            _prewritten_methods.PrewrittenSumMethods.__init_subclass__
+        )  # type: ignore
 
         _sum_new(cls, frozenset(subclass_order))
 
         _set_new_functions(
-            cls, PrewrittenSumMethods.__setattr__, PrewrittenSumMethods.__delattr__
+            cls,
+            _prewritten_methods.PrewrittenSumMethods.__setattr__,
+            _prewritten_methods.PrewrittenSumMethods.__delattr__,
         )
-        _set_new_functions(cls, PrewrittenSumMethods.__bool__)
+        _set_new_functions(cls, _prewritten_methods.PrewrittenSumMethods.__bool__)
 
-        _add_methods(cls, repr, PrewrittenSumMethods.__repr__)
+        _add_methods(cls, repr, _prewritten_methods.PrewrittenSumMethods.__repr__)
 
         equality_methods_were_set = _add_methods(
-            cls, eq, PrewrittenSumMethods.__eq__, PrewrittenSumMethods.__ne__
+            cls,
+            eq,
+            _prewritten_methods.PrewrittenSumMethods.__eq__,
+            _prewritten_methods.PrewrittenSumMethods.__ne__,
         )
 
         if equality_methods_were_set:
-            cls.__hash__ = PrewrittenSumMethods.__hash__
+            cls.__hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
 
         if order:
 
@@ -287,10 +290,10 @@ class Sum:
             )
             collision = _set_new_functions(
                 cls,
-                PrewrittenSumMethods.__lt__,
-                PrewrittenSumMethods.__le__,
-                PrewrittenSumMethods.__gt__,
-                PrewrittenSumMethods.__ge__,
+                _prewritten_methods.PrewrittenSumMethods.__lt__,
+                _prewritten_methods.PrewrittenSumMethods.__le__,
+                _prewritten_methods.PrewrittenSumMethods.__gt__,
+                _prewritten_methods.PrewrittenSumMethods.__ge__,
             )
             _conditional_raise(
                 collision,
@@ -302,7 +305,7 @@ class Sum:
             )
 
 
-class Product(ADTConstructor, tuple):
+class Product(_adt_constructor.ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
     Examines PEP 526 __annotations__ to determine fields.
@@ -395,7 +398,9 @@ class Product(ADTConstructor, tuple):
         cls.__eq_succeeded = False
         if cls.__eq:
             cls.__eq_succeeded = not _cant_set_new_functions(
-                cls, PrewrittenProductMethods.__eq__, PrewrittenProductMethods.__ne__
+                cls,
+                _prewritten_methods.PrewrittenProductMethods.__eq__,
+                _prewritten_methods.PrewrittenProductMethods.__ne__,
             )
 
         if order:
@@ -407,10 +412,10 @@ class Product(ADTConstructor, tuple):
             )
             collision = _cant_set_new_functions(
                 cls,
-                PrewrittenProductMethods.__lt__,
-                PrewrittenProductMethods.__le__,
-                PrewrittenProductMethods.__gt__,
-                PrewrittenProductMethods.__ge__,
+                _prewritten_methods.PrewrittenProductMethods.__lt__,
+                _prewritten_methods.PrewrittenProductMethods.__le__,
+                _prewritten_methods.PrewrittenProductMethods.__gt__,
+                _prewritten_methods.PrewrittenProductMethods.__ge__,
             )
             _conditional_raise(
                 collision,
@@ -433,20 +438,24 @@ class Product(ADTConstructor, tuple):
                 raise
             return tuple.__getitem__(self, index)
 
-    __setattr__ = PrewrittenProductMethods.__setattr__
-    __delattr__ = PrewrittenProductMethods.__delattr__
-    __bool__ = PrewrittenProductMethods.__bool__
+    __setattr__ = _prewritten_methods.PrewrittenProductMethods.__setattr__
+    __delattr__ = _prewritten_methods.PrewrittenProductMethods.__delattr__
+    __bool__ = _prewritten_methods.PrewrittenProductMethods.__bool__
 
     @property
     def __repr__(self):
         if self.__repr:
-            return PrewrittenProductMethods.__repr__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__repr__.__get__(
+                self, type(self)
+            )
         return super().__repr__
 
     @property
     def __hash__(self):
         if self.__eq_succeeded:
-            return PrewrittenProductMethods.__hash__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__hash__.__get__(
+                self, type(self)
+            )
         return super().__hash__
 
     @property
@@ -454,7 +463,9 @@ class Product(ADTConstructor, tuple):
         if self.__eq_succeeded:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__eq__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__eq__.__get__(
+                self, type(self)
+            )
         return super().__eq__
 
     @property
@@ -462,7 +473,9 @@ class Product(ADTConstructor, tuple):
         if self.__eq_succeeded:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__ne__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__ne__.__get__(
+                self, type(self)
+            )
         return super().__ne__
 
     @property
@@ -470,7 +483,9 @@ class Product(ADTConstructor, tuple):
         if self.__order:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__lt__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__lt__.__get__(
+                self, type(self)
+            )
         return super().__lt__
 
     @property
@@ -478,7 +493,9 @@ class Product(ADTConstructor, tuple):
         if self.__order:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__le__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__le__.__get__(
+                self, type(self)
+            )
         return super().__le__
 
     @property
@@ -486,7 +503,9 @@ class Product(ADTConstructor, tuple):
         if self.__order:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__gt__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__gt__.__get__(
+                self, type(self)
+            )
         return super().__gt__
 
     @property
@@ -494,7 +513,9 @@ class Product(ADTConstructor, tuple):
         if self.__order:
             # I think this is a Pylint bug, but I'm not sure how to reduce it.
             # pylint: disable=no-value-for-parameter
-            return PrewrittenProductMethods.__ge__.__get__(self, type(self))
+            return _prewritten_methods.PrewrittenProductMethods.__ge__.__get__(
+                self, type(self)
+            )
         return super().__ge__
 
 
