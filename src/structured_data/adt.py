@@ -147,7 +147,8 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
     new = _cls.__dict__.get("__new__", staticmethod(base))
 
     def __new__(cls, args):
-        _conditional_raise(cls not in subclasses, TypeError)
+        if cls not in subclasses:
+            raise TypeError
         return new.__get__(None, cls)(cls, args)
 
     _cls.__new__ = staticmethod(__new__)  # type: ignore
@@ -240,7 +241,8 @@ class Sum:
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        _conditional_raise(not issubclass(cls, ADTConstructor), TypeError)
+        if not issubclass(cls, ADTConstructor):
+            raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
     # Both of these are for consistency with modules defined in the stdlib.
