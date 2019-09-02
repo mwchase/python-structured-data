@@ -324,7 +324,7 @@ class _ProductMethod:
         return self
 
     def __set_name__(self, owner, name):
-        del owner
+        self.__objclass__ = owner
         self.name = name
 
     def __get__(self, instance, owner):
@@ -333,7 +333,7 @@ class _ProductMethod:
                 _prewritten_methods.PrewrittenProductMethods, self.name
             ).__get__(instance, owner)
         target = owner if instance is None else instance
-        return getattr(super(Product, target), self.name)
+        return getattr(super(self.__objclass__, target), self.name)
 
     def __set__(self, instance, value):
         # Don't care about this coverage
