@@ -315,6 +315,35 @@ class Sum:
             )
 
 
+class _ProductMethod:
+    name = None
+    field_check = None
+
+    def __getattr__(self, name):
+        self.field_check = name
+        return self
+
+    def __set_name__(self, owner, name):
+        del owner
+        self.name = name
+
+    def __get__(self, instance, owner):
+        if getattr(owner, self.field_check):
+            return getattr(
+                _prewritten_methods.PrewrittenProductMethods, self.name
+            ).__get__(instance, owner)
+        target = owner if instance is None else instance
+        return getattr(super(Product, target), self.name)
+
+    def __set__(self, instance, value):
+        # Don't care about this coverage
+        raise AttributeError  # pragma: nocover
+
+    def __delete__(self, instance):
+        # Don't care about this coverage
+        raise AttributeError  # pragma: nocover
+
+
 class Product(_adt_constructor.ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
@@ -422,81 +451,14 @@ class Product(_adt_constructor.ADTConstructor, tuple):
     __delattr__ = _prewritten_methods.PrewrittenProductMethods.__delattr__
     __bool__ = _prewritten_methods.PrewrittenProductMethods.__bool__
 
-    @property
-    def __repr__(self):
-        if self.__repr:
-            return _prewritten_methods.PrewrittenProductMethods.__repr__.__get__(
-                self, type(self)
-            )
-        return super().__repr__
-
-    @property
-    def __hash__(self):
-        if self.__eq_succeeded:
-            return _prewritten_methods.PrewrittenProductMethods.__hash__.__get__(
-                self, type(self)
-            )
-        return super().__hash__
-
-    @property
-    def __eq__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__eq_succeeded:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__eq__.__get__(
-                self, type(self)
-            )
-        return super().__eq__
-
-    @property
-    def __ne__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__eq_succeeded:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__ne__.__get__(
-                self, type(self)
-            )
-        return super().__ne__
-
-    @property
-    def __lt__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__order:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__lt__.__get__(
-                self, type(self)
-            )
-        return super().__lt__
-
-    @property
-    def __le__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__order:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__le__.__get__(
-                self, type(self)
-            )
-        return super().__le__
-
-    @property
-    def __gt__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__order:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__gt__.__get__(
-                self, type(self)
-            )
-        return super().__gt__
-
-    @property
-    def __ge__(self):  # pylint: disable=unexpected-special-method-signature
-        if self.__order:
-            # I think this is a Pylint bug, but I'm not sure how to reduce it.
-            # pylint: disable=no-value-for-parameter
-            return _prewritten_methods.PrewrittenProductMethods.__ge__.__get__(
-                self, type(self)
-            )
-        return super().__ge__
+    __repr__ = _ProductMethod().__repr
+    __hash__ = _ProductMethod().__eq_succeeded
+    __eq__ = _ProductMethod().__eq_succeeded
+    __ne__ = _ProductMethod().__eq_succeeded
+    __lt__ = _ProductMethod().__order
+    __le__ = _ProductMethod().__order
+    __gt__ = _ProductMethod().__order
+    __ge__ = _ProductMethod().__order
 
 
 __all__ = ["Ctor", "Product", "Sum"]
