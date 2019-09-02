@@ -33,5 +33,10 @@ def test_ignore_gibberish(adt):
 def test_ignore_classvar(adt):
     class Empty(adt.Product):
         class_var: typing.ClassVar[int] = 1
+        str_class_var: "typing.ClassVar[int]" = 2
+        empty: typing.ClassVar = 3
+        error: "Garbage" = 4  # noqa
+        error2: "7[55{.red$" = 5  # noqa
+        error3: "Garbage[int]" = 6  # noqa
 
-    assert tuple.__getitem__(Empty(), slice(None)) == ()
+    assert tuple.__getitem__(Empty(), slice(None)) == (4, 5, 6)
