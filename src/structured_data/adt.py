@@ -280,7 +280,6 @@ def _conditional_method(source):
 
 class _ConditionalMethod:
     name = None
-    field_check = None
 
     def __init__(self, source, field_check):
         self.source = source
