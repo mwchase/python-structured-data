@@ -43,7 +43,6 @@ Putting it together:
 
 import inspect
 import sys
-import types
 import typing
 
 from ._adt_constructor import ADTConstructor
@@ -208,12 +207,6 @@ def _product_args_from_annotations(
     return args
 
 
-def _conditional_update(obj, attrs_and_values):
-    for key, value in attrs_and_values.items():
-        if value is not None:
-            setattr(obj, key, value)
-
-
 def _ordering_options_are_valid(*, eq, order):
     if order and not eq:
         raise ValueError("eq must be true if order is true")
@@ -369,14 +362,12 @@ class Product(ADTConstructor, tuple):
     ):
         super().__init_subclass__(**kwargs)
 
-        overrides = types.SimpleNamespace()
-        # This is really gross, but it seems to work, and it reduces the
-        # cyclomatic complexity, so it must be good!
-        overrides.__repr = repr  # pylint: disable=protected-access
-        overrides.__eq = eq  # pylint: disable=protected-access
-        overrides.__order = order  # pylint: disable=protected-access
-
-        _conditional_update(cls, vars(overrides))
+        if repr is not None:
+            cls.__repr = repr
+        if eq is not None:
+            cls.__eq = eq
+        if order is not None:
+            cls.__order = order
 
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
