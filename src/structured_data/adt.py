@@ -214,6 +214,25 @@ def _set_ordering(*, can_set, setter, cls, source):
         )
 
 
+def _extract_defaults(*, cls, annotations):
+    defaults = {}
+    field_names = iter(reversed(tuple(annotations)))
+    for field in field_names:
+        default = getattr(cls, field, inspect.Parameter.empty)
+        if default is inspect.Parameter.empty:
+            break
+        defaults[field] = default
+    _conditional_raise(
+        any(
+            getattr(cls, field, inspect.Parameter.empty)
+            is not inspect.Parameter.empty
+            for field in field_names
+        ),
+        TypeError,
+    )
+    return defaults
+
+
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -370,21 +389,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         cls.__annotations = _product_args_from_annotations(cls)
         cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
 
-        cls.__defaults = {}
-        field_names = iter(reversed(tuple(cls.__annotations)))
-        for field in field_names:
-            default = getattr(cls, field, inspect.Parameter.empty)
-            if default is inspect.Parameter.empty:
-                break
-            cls.__defaults[field] = default
-        _conditional_raise(
-            any(
-                getattr(cls, field, inspect.Parameter.empty)
-                is not inspect.Parameter.empty
-                for field in field_names
-            ),
-            TypeError,
-        )
+        cls.__defaults = _extract_defaults(cls=cls, annotations=cls.__annotations)
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
