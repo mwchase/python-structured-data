@@ -208,9 +208,7 @@ def _ordering_options_are_valid(*, eq, order):
         raise ValueError("eq must be true if order is true")
 
 
-def _set_ordering(*, order, can_set, setter, cls, source):
-    if not order:
-        return
+def _set_ordering(*, can_set, setter, cls, source):
     if not can_set:
         raise ValueError("Can't add ordering methods if equality methods are provided.")
     collision = setter(cls, source.__lt__, source.__le__, source.__gt__, source.__ge__)
@@ -296,13 +294,13 @@ class Sum:
         if equality_methods_were_set:
             cls.__hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
 
-        _set_ordering(
-            order=order,
-            can_set=equality_methods_were_set,
-            setter=_set_new_functions,
-            cls=cls,
-            source=_prewritten_methods.PrewrittenSumMethods,
-        )
+        if order:
+            _set_ordering(
+                can_set=equality_methods_were_set,
+                setter=_set_new_functions,
+                cls=cls,
+                source=_prewritten_methods.PrewrittenSumMethods,
+            )
 
 
 class Product(_adt_constructor.ADTConstructor, tuple):
@@ -403,13 +401,13 @@ class Product(_adt_constructor.ADTConstructor, tuple):
                 _prewritten_methods.PrewrittenProductMethods.__ne__,
             )
 
-        _set_ordering(
-            order=cls.__order,
-            can_set=cls.__eq_succeeded,
-            setter=_cant_set_new_functions,
-            cls=cls,
-            source=_prewritten_methods.PrewrittenProductMethods,
-        )
+        if cls.__order:
+            _set_ordering(
+                can_set=cls.__eq_succeeded,
+                setter=_cant_set_new_functions,
+                cls=cls,
+                source=_prewritten_methods.PrewrittenProductMethods,
+            )
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
