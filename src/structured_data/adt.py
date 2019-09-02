@@ -128,13 +128,6 @@ def _nillable_write(dct: typing.Dict[_K, _V], key: _K, value: typing.Optional[_V
         dct[key] = value
 
 
-def _add_methods(cls: typing.Type[_T], do_set, *methods):
-    methods_were_set = False
-    if do_set:
-        methods_were_set = not _set_new_functions(cls, *methods)
-    return methods_were_set
-
-
 def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
@@ -282,14 +275,16 @@ class Sum:
         )
         _set_new_functions(cls, _prewritten_methods.PrewrittenSumMethods.__bool__)
 
-        _add_methods(cls, repr, _prewritten_methods.PrewrittenSumMethods.__repr__)
+        if repr:
+            _set_new_functions(cls, _prewritten_methods.PrewrittenSumMethods.__repr__)
 
-        equality_methods_were_set = _add_methods(
-            cls,
-            eq,
-            _prewritten_methods.PrewrittenSumMethods.__eq__,
-            _prewritten_methods.PrewrittenSumMethods.__ne__,
-        )
+        equality_methods_were_set = False
+        if eq:
+            equality_methods_were_set = not _set_new_functions(
+                cls,
+                _prewritten_methods.PrewrittenSumMethods.__eq__,
+                _prewritten_methods.PrewrittenSumMethods.__ne__,
+            )
 
         if equality_methods_were_set:
             cls.__hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
