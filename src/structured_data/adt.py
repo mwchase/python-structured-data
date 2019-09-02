@@ -203,17 +203,28 @@ def _set_ordering(*, can_set, setter, cls, source):
         )
 
 
-def _extract_defaults(*, cls, annotations):
-    defaults = {}
-    field_names = iter(reversed(tuple(annotations)))
+def _values_non_empty(cls, field_names):
     for field in field_names:
         default = getattr(cls, field, inspect.Parameter.empty)
         if default is inspect.Parameter.empty:
-            break
-        defaults[field] = default
+            return
+        yield (field, default)
+
+
+def _values_until_non_empty(cls, field_names):
     for field in field_names:
-        if getattr(cls, field, inspect.Parameter.empty) is not inspect.Parameter.empty:
-            raise TypeError
+        default = getattr(cls, field, inspect.Parameter.empty)
+        if default is not inspect.Parameter.empty:
+            yield
+
+
+def _extract_defaults(*, cls, annotations):
+    field_names = iter(reversed(tuple(annotations)))
+    defaults = {
+        field: default for (field, default) in _values_non_empty(cls, field_names)
+    }
+    for _ in _values_until_non_empty(cls, field_names):
+        raise TypeError
     return defaults
 
 
