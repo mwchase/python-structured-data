@@ -70,15 +70,6 @@ else:
     from ._ctor import Ctor
 
 
-# The locations that use this function should be rewritten to use one with a
-# clearer name.
-# Right now, this describes what the function does, not why it should be
-# called.
-def _conditional_raise(do_raise, exc_class, *args):
-    if do_raise:
-        raise exc_class(*args)
-
-
 # This is fine.
 def _name(cls: typing.Type[_T], function) -> str:
     """Return the name of a function accessed through a descriptor."""
@@ -101,8 +92,6 @@ def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional
     return None
 
 
-# Maybe it would make more sense to pull the check logic out of this function,
-# and require it explicitly where this is currently used.
 def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
@@ -336,7 +325,8 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        _conditional_raise(cls is Product, TypeError)
+        if cls is Product:
+            raise TypeError
         # Similar to https://github.com/PyCQA/pylint/issues/1802
         values = cls.__defaults.copy()  # pylint: disable=protected-access
         fields_iter = iter(cls.__fields)  # pylint: disable=protected-access
@@ -346,7 +336,8 @@ class Product(_adt_constructor.ADTConstructor, tuple):
             if field in values and field not in kwargs:
                 continue
             values[field] = kwargs.pop(field)
-        _conditional_raise(kwargs, TypeError, kwargs)
+        if kwargs:
+            raise TypeError(kwargs)
         return super(Product, cls).__new__(
             cls,
             [
