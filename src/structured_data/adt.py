@@ -220,9 +220,7 @@ def _values_until_non_empty(cls, field_names):
 
 def _extract_defaults(*, cls, annotations):
     field_names = iter(reversed(tuple(annotations)))
-    defaults = {
-        field: default for (field, default) in _values_non_empty(cls, field_names)
-    }
+    defaults = dict(_values_non_empty(cls, field_names))
     for _ in _values_until_non_empty(cls, field_names):
         raise TypeError
     return defaults
