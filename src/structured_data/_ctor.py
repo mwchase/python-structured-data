@@ -52,6 +52,15 @@ def _interpret_args_from_non_string(
         return None
 
 
+def _interpret_classvar_from_non_string(annotation: typing.Any) -> bool:
+    if annotation is typing.ClassVar:
+        return True
+    try:
+        return annotation.__origin__ is typing.ClassVar
+    except AttributeError:
+        return False
+
+
 def _parse_constructor(constructor: str) -> ast.Module:
     try:
         return ast.parse(constructor, mode="eval")
@@ -99,6 +108,23 @@ def _extract_tuple_ast(
     return _interpret_args_from_non_string(_checked_eval(constructor, global_ns))
 
 
+def _str_is_classvar(annotation: str, global_ns: typing.Dict[str, typing.Any]) -> bool:
+    annotation_ast = _parse_constructor(annotation)
+    value = NO_VALUE
+    if isinstance(annotation_ast.body, ast.Subscript) and isinstance(
+        annotation_ast.body.slice, ast.Index
+    ):
+        annotation_ast.body = annotation_ast.body.value
+        value = _checked_eval(
+            compile(annotation_ast, "<annotation>", "eval"), global_ns
+        )
+    if value is typing.ClassVar:
+        return True
+    if value is None:
+        return False
+    return _interpret_classvar_from_non_string(_checked_eval(annotation, global_ns))
+
+
 def get_args(
     constructor, global_ns: typing.Dict[str, typing.Any]
 ) -> typing.Optional[typing.Tuple]:
@@ -115,3 +141,12 @@ def get_args(
         except ValueError:
             return None
     return _interpret_args_from_non_string(constructor)
+
+
+def annotation_is_classvar(annotation, global_ns: typing.Dict[str, typing.Any]) -> bool:
+    if isinstance(annotation, str):
+        try:
+            return _str_is_classvar(annotation, global_ns)
+        except ValueError:
+            return False
+    return _interpret_classvar_from_non_string(annotation)

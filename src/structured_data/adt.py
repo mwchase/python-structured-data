@@ -48,6 +48,7 @@ import typing
 
 from ._adt_constructor import ADTConstructor
 from ._adt_constructor import make_constructor
+from ._ctor import annotation_is_classvar
 from ._ctor import get_args
 from ._prewritten_methods import SUBCLASS_ORDER
 from ._prewritten_methods import PrewrittenProductMethods
@@ -198,7 +199,9 @@ def _product_args_from_annotations(
 ) -> typing.Dict[str, typing.Any]:
     args: typing.Dict[str, typing.Any] = {}
     for _, key, value in _all_annotations(cls):
-        if value == "None":
+        if value == "None" or annotation_is_classvar(
+            value, vars(sys.modules[cls.__module__])
+        ):
             value = None
         _nillable_write(args, key, value)
     return args
