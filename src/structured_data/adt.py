@@ -208,6 +208,21 @@ def _ordering_options_are_valid(*, eq, order):
         raise ValueError("eq must be true if order is true")
 
 
+def _set_ordering(*, order, can_set, setter, cls, source):
+    if not order:
+        return
+    if not can_set:
+        raise ValueError("Can't add ordering methods if equality methods are provided.")
+    collision = setter(cls, source.__lt__, source.__le__, source.__gt__, source.__ge__)
+    if collision:
+        raise TypeError(
+            "Cannot overwrite attribute {collision} in class "
+            "{name}. Consider using functools.total_ordering".format(
+                collision=collision, name=cls.__name__
+            )
+        )
+
+
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -281,28 +296,13 @@ class Sum:
         if equality_methods_were_set:
             cls.__hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
 
-        if order:
-
-            _conditional_raise(
-                not equality_methods_were_set,
-                ValueError,
-                "Can't add ordering methods if equality methods are provided.",
-            )
-            collision = _set_new_functions(
-                cls,
-                _prewritten_methods.PrewrittenSumMethods.__lt__,
-                _prewritten_methods.PrewrittenSumMethods.__le__,
-                _prewritten_methods.PrewrittenSumMethods.__gt__,
-                _prewritten_methods.PrewrittenSumMethods.__ge__,
-            )
-            _conditional_raise(
-                collision,
-                TypeError,
-                "Cannot overwrite attribute {collision} in class "
-                "{name}. Consider using functools.total_ordering".format(
-                    collision=collision, name=cls.__name__
-                ),
-            )
+        _set_ordering(
+            order=order,
+            can_set=equality_methods_were_set,
+            setter=_set_new_functions,
+            cls=cls,
+            source=_prewritten_methods.PrewrittenSumMethods,
+        )
 
 
 class Product(_adt_constructor.ADTConstructor, tuple):
@@ -403,28 +403,13 @@ class Product(_adt_constructor.ADTConstructor, tuple):
                 _prewritten_methods.PrewrittenProductMethods.__ne__,
             )
 
-        if cls.__order:
-
-            _conditional_raise(
-                not cls.__eq_succeeded,
-                ValueError,
-                "Can't add ordering methods if equality methods are provided.",
-            )
-            collision = _cant_set_new_functions(
-                cls,
-                _prewritten_methods.PrewrittenProductMethods.__lt__,
-                _prewritten_methods.PrewrittenProductMethods.__le__,
-                _prewritten_methods.PrewrittenProductMethods.__gt__,
-                _prewritten_methods.PrewrittenProductMethods.__ge__,
-            )
-            _conditional_raise(
-                collision,
-                TypeError,
-                "Cannot overwrite attribute {collision} in class "
-                "{name}. Consider using functools.total_ordering".format(
-                    collision=collision, name=cls.__name__
-                ),
-            )
+        _set_ordering(
+            order=cls.__order,
+            can_set=cls.__eq_succeeded,
+            setter=_cant_set_new_functions,
+            cls=cls,
+            source=_prewritten_methods.PrewrittenProductMethods,
+        )
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
