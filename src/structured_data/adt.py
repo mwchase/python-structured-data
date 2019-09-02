@@ -219,8 +219,7 @@ def _extract_defaults(*, cls, annotations):
 
 def _unpack_args(*, args, kwargs, fields, values):
     fields_iter = iter(fields)
-    for arg, field in zip(args, fields_iter):
-        values[field] = arg
+    values.update({field: arg for (arg, field) in zip(args, fields_iter)})
     for field in fields_iter:
         if field in values and field not in kwargs:
             continue
