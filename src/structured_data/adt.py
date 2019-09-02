@@ -287,39 +287,33 @@ class Sum:
 
         _prewritten_methods.SUBCLASS_ORDER[cls] = tuple(subclass_order)
 
-        cls.__init_subclass__ = (
-            _prewritten_methods.PrewrittenSumMethods.__init_subclass__
-        )  # type: ignore
+        source = _prewritten_methods.PrewrittenSumMethods
+
+        cls.__init_subclass__ = source.__init_subclass__  # type: ignore
 
         _sum_new(cls, frozenset(subclass_order))
 
-        _set_new_functions(
-            cls,
-            _prewritten_methods.PrewrittenSumMethods.__setattr__,
-            _prewritten_methods.PrewrittenSumMethods.__delattr__,
-        )
-        _set_new_functions(cls, _prewritten_methods.PrewrittenSumMethods.__bool__)
+        _set_new_functions(cls, source.__setattr__, source.__delattr__)
+        _set_new_functions(cls, source.__bool__)
 
         if repr:
-            _set_new_functions(cls, _prewritten_methods.PrewrittenSumMethods.__repr__)
+            _set_new_functions(cls, source.__repr__)
 
         equality_methods_were_set = False
         if eq:
             equality_methods_were_set = not _set_new_functions(
-                cls,
-                _prewritten_methods.PrewrittenSumMethods.__eq__,
-                _prewritten_methods.PrewrittenSumMethods.__ne__,
+                cls, source.__eq__, source.__ne__
             )
 
         if equality_methods_were_set:
-            cls.__hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
+            cls.__hash__ = source.__hash__
 
         if order:
             _set_ordering(
                 can_set=equality_methods_were_set,
                 setter=_set_new_functions,
                 cls=cls,
-                source=_prewritten_methods.PrewrittenSumMethods,
+                source=source,
             )
 
 
@@ -398,12 +392,12 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
         _product_new(cls, cls.__annotations, cls.__defaults)
 
+        source = _prewritten_methods.PrewrittenProductMethods
+
         cls.__eq_succeeded = False
         if cls.__eq:
             cls.__eq_succeeded = not _cant_set_new_functions(
-                cls,
-                _prewritten_methods.PrewrittenProductMethods.__eq__,
-                _prewritten_methods.PrewrittenProductMethods.__ne__,
+                cls, source.__eq__, source.__ne__
             )
 
         if cls.__order:
@@ -411,7 +405,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
                 can_set=cls.__eq_succeeded,
                 setter=_cant_set_new_functions,
                 cls=cls,
-                source=_prewritten_methods.PrewrittenProductMethods,
+                source=source,
             )
 
     def __dir__(self):
