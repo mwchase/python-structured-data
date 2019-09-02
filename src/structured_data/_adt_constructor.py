@@ -7,6 +7,10 @@ import inspect
 import typing
 import weakref
 
+from . import _annotations
+
+_T = typing.TypeVar("_T")
+
 
 def _should_include(name, static):
     if name in SHADOWED_ATTRIBUTES and static is None:
@@ -108,6 +112,15 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
         return_annotation=_cls.__qualname__,
     )
     Constructor.__new__.__annotations__ = annotations
+
+
+def make_constructors(cls):
+    subclass_order: typing.List[typing.Type[_T]] = []
+
+    for name, args in _annotations._sum_args_from_annotations(cls).items():
+        make_constructor(cls, name, args, subclass_order)
+
+    return tuple(subclass_order)
 
 
 __all__ = ["ADTConstructor", "make_constructor"]

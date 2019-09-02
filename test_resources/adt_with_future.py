@@ -30,4 +30,11 @@ class Empty(adt.Sum):
     right_type = ()
 
 
+class Product(adt.Product):
+
+    fst: int
+    snd: str
+    blank: None
+
+
 SUM_CLASSES = [Basic, Tupled, Empty]

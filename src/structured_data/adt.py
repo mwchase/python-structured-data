@@ -42,11 +42,10 @@ Putting it together:
 """
 
 import inspect
-import sys
 import typing
 
 from . import _adt_constructor
-from . import _ctor
+from . import _annotations
 from . import _prewritten_methods
 
 _T = typing.TypeVar("_T")
@@ -106,17 +105,6 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
     return None
 
 
-_K = typing.TypeVar("_K")
-_V = typing.TypeVar("_V")
-
-
-def _nillable_write(dct: typing.Dict[_K, _V], key: _K, value: typing.Optional[_V]):
-    if value is None:
-        dct.pop(key, typing.cast(_V, None))
-    else:
-        dct[key] = value
-
-
 def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls, args):
         return super(_cls, cls).__new__(cls, args)
@@ -153,36 +141,6 @@ def _product_new(
         ]
     )
     _cls.__new__ = __new__
-
-
-def _all_annotations(
-    cls: typing.Type[_T]
-) -> typing.Iterator[typing.Tuple[typing.Type[_T], str, typing.Any]]:
-    for superclass in reversed(cls.__mro__):
-        for key, value in vars(superclass).get("__annotations__", {}).items():
-            yield (superclass, key, value)
-
-
-def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
-    args: typing.Dict[str, typing.Tuple] = {}
-    for superclass, key, value in _all_annotations(cls):
-        _nillable_write(
-            args, key, _ctor.get_args(value, vars(sys.modules[superclass.__module__]))
-        )
-    return args
-
-
-def _product_args_from_annotations(
-    cls: typing.Type[_T]
-) -> typing.Dict[str, typing.Any]:
-    args: typing.Dict[str, typing.Any] = {}
-    for superclass, key, value in _all_annotations(cls):
-        if value == "None" or _ctor.annotation_is_classvar(
-            value, vars(sys.modules[superclass.__module__])
-        ):
-            value = None
-        _nillable_write(args, key, value)
-    return args
 
 
 def _ordering_options_are_valid(*, eq, order):
@@ -278,18 +236,15 @@ class Sum:
             return
         _ordering_options_are_valid(eq=eq, order=order)
 
-        subclass_order: typing.List[typing.Type[_T]] = []
-
-        for name, args in _sum_args_from_annotations(cls).items():
-            _adt_constructor.make_constructor(cls, name, args, subclass_order)
-
-        _prewritten_methods.SUBCLASS_ORDER[cls] = tuple(subclass_order)
+        _prewritten_methods.SUBCLASS_ORDER[cls] = _adt_constructor.make_constructors(
+            cls
+        )
 
         source = _prewritten_methods.PrewrittenSumMethods
 
         cls.__init_subclass__ = source.__init_subclass__  # type: ignore
 
-        _sum_new(cls, frozenset(subclass_order))
+        _sum_new(cls, frozenset(_prewritten_methods.SUBCLASS_ORDER[cls]))
 
         _set_new_functions(cls, source.__setattr__, source.__delattr__)
         _set_new_functions(cls, source.__bool__)
@@ -413,7 +368,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
-        cls.__annotations = _product_args_from_annotations(cls)
+        cls.__annotations = _annotations._product_args_from_annotations(cls)
         cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
 
         cls.__defaults = _extract_defaults(cls=cls, annotations=cls.__annotations)
