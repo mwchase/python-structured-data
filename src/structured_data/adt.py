@@ -176,9 +176,9 @@ def _product_args_from_annotations(
     cls: typing.Type[_T]
 ) -> typing.Dict[str, typing.Any]:
     args: typing.Dict[str, typing.Any] = {}
-    for _, key, value in _all_annotations(cls):
+    for superclass, key, value in _all_annotations(cls):
         if value == "None" or _ctor.annotation_is_classvar(
-            value, vars(sys.modules[cls.__module__])
+            value, vars(sys.modules[superclass.__module__])
         ):
             value = None
         _nillable_write(args, key, value)
