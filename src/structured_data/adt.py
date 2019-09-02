@@ -403,7 +403,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
                 _prewritten_methods.PrewrittenProductMethods.__ne__,
             )
 
-        if order:
+        if cls.__order:
 
             _conditional_raise(
                 not cls.__eq_succeeded,
