@@ -315,9 +315,12 @@ class Sum:
             )
 
 
-class _ProductMethod:
+class _ConditionalMethod:
     name = None
     field_check = None
+
+    def __init__(self, source):
+        self.source = source
 
     def __getattr__(self, name):
         self.field_check = name
@@ -329,9 +332,7 @@ class _ProductMethod:
 
     def __get__(self, instance, owner):
         if getattr(owner, self.field_check):
-            return getattr(
-                _prewritten_methods.PrewrittenProductMethods, self.name
-            ).__get__(instance, owner)
+            return getattr(self.source, self.name).__get__(instance, owner)
         target = owner if instance is None else instance
         return getattr(super(self.__objclass__, target), self.name)
 
@@ -447,18 +448,22 @@ class Product(_adt_constructor.ADTConstructor, tuple):
                 raise
             return tuple.__getitem__(self, index)
 
-    __setattr__ = _prewritten_methods.PrewrittenProductMethods.__setattr__
-    __delattr__ = _prewritten_methods.PrewrittenProductMethods.__delattr__
-    __bool__ = _prewritten_methods.PrewrittenProductMethods.__bool__
+    source = _prewritten_methods.PrewrittenProductMethods
 
-    __repr__ = _ProductMethod().__repr
-    __hash__ = _ProductMethod().__eq_succeeded
-    __eq__ = _ProductMethod().__eq_succeeded
-    __ne__ = _ProductMethod().__eq_succeeded
-    __lt__ = _ProductMethod().__order
-    __le__ = _ProductMethod().__order
-    __gt__ = _ProductMethod().__order
-    __ge__ = _ProductMethod().__order
+    __setattr__ = source.__setattr__
+    __delattr__ = source.__delattr__
+    __bool__ = source.__bool__
+
+    __repr__ = _ConditionalMethod(source).__repr
+    __hash__ = _ConditionalMethod(source).__eq_succeeded
+    __eq__ = _ConditionalMethod(source).__eq_succeeded
+    __ne__ = _ConditionalMethod(source).__eq_succeeded
+    __lt__ = _ConditionalMethod(source).__order
+    __le__ = _ConditionalMethod(source).__order
+    __gt__ = _ConditionalMethod(source).__order
+    __ge__ = _ConditionalMethod(source).__order
+
+    del source
 
 
 __all__ = ["Ctor", "Product", "Sum"]
