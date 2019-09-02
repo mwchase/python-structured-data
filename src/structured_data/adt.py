@@ -222,14 +222,9 @@ def _extract_defaults(*, cls, annotations):
         if default is inspect.Parameter.empty:
             break
         defaults[field] = default
-    _conditional_raise(
-        any(
-            getattr(cls, field, inspect.Parameter.empty)
-            is not inspect.Parameter.empty
-            for field in field_names
-        ),
-        TypeError,
-    )
+    for field in field_names:
+        if getattr(cls, field, inspect.Parameter.empty) is not inspect.Parameter.empty:
+            raise TypeError
     return defaults
 
 
