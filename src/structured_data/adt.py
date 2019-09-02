@@ -217,6 +217,18 @@ def _extract_defaults(*, cls, annotations):
     return defaults
 
 
+def _unpack_args(*, args, kwargs, fields, values):
+    fields_iter = iter(fields)
+    for arg, field in zip(args, fields_iter):
+        values[field] = arg
+    for field in fields_iter:
+        if field in values and field not in kwargs:
+            continue
+        values[field] = kwargs.pop(field)
+    if kwargs:
+        raise TypeError(kwargs)
+
+
 class Sum:
     """Base class of classes with disjoint constructors.
 
@@ -327,17 +339,14 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         cls, *args = args
         if cls is Product:
             raise TypeError
-        # Similar to https://github.com/PyCQA/pylint/issues/1802
+        # Probably a result of not having positional-only args.
         values = cls.__defaults.copy()  # pylint: disable=protected-access
-        fields_iter = iter(cls.__fields)  # pylint: disable=protected-access
-        for arg, field in zip(args, fields_iter):
-            values[field] = arg
-        for field in fields_iter:
-            if field in values and field not in kwargs:
-                continue
-            values[field] = kwargs.pop(field)
-        if kwargs:
-            raise TypeError(kwargs)
+        _unpack_args(
+            args=args,
+            kwargs=kwargs,
+            fields=cls.__fields,  # pylint: disable=protected-access
+            values=values,
+        )
         return super(Product, cls).__new__(
             cls,
             [
