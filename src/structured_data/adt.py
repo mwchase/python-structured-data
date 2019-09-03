@@ -145,15 +145,21 @@ def _product_new(
     _cls.__new__ = __new__  # type: ignore
 
 
-def _ordering_options_are_valid(*, eq, order):  # pylint: disable=invalid-name
+def _ordering_options_are_valid(
+    *, eq: bool, order: bool  # pylint: disable=invalid-name
+):
     if order and not eq:
         raise ValueError("eq must be true if order is true")
 
 
-def _set_ordering(*, can_set, setter, cls, source):
+def _set_ordering(
+    *, can_set: bool, setter, cls: typing.Type[_T], source: typing.Type[_T]
+):
     if not can_set:
         raise ValueError("Can't add ordering methods if equality methods are provided.")
-    collision = setter(cls, source.__lt__, source.__le__, source.__gt__, source.__ge__)
+    collision = setter(
+        cls, source.__lt__, source.__le__, source.__gt__, source.__ge__  # type: ignore
+    )
     if collision:
         raise TypeError(
             "Cannot overwrite attribute {collision} in class "
@@ -163,7 +169,9 @@ def _set_ordering(*, can_set, setter, cls, source):
         )
 
 
-def _values_non_empty(cls, field_names):
+def _values_non_empty(
+    cls: typing.Type[_T], field_names: typing.Iterator[str]
+) -> typing.Iterator[typing.Tuple[str, typing.Any]]:
     for field in field_names:
         default = getattr(cls, field, inspect.Parameter.empty)
         if default is inspect.Parameter.empty:
@@ -171,14 +179,16 @@ def _values_non_empty(cls, field_names):
         yield (field, default)
 
 
-def _values_until_non_empty(cls, field_names):
+def _values_until_non_empty(
+    cls: typing.Type[_T], field_names: typing.Iterator[str]
+) -> typing.Iterator:
     for field in field_names:
         default = getattr(cls, field, inspect.Parameter.empty)
         if default is not inspect.Parameter.empty:
             yield
 
 
-def _extract_defaults(*, cls, annotations):
+def _extract_defaults(*, cls: typing.Type[_T], annotations: typing.Iterable[str]):
     field_names = iter(reversed(tuple(annotations)))
     defaults = dict(_values_non_empty(cls, field_names))
     for _ in _values_until_non_empty(cls, field_names):
@@ -186,7 +196,13 @@ def _extract_defaults(*, cls, annotations):
     return defaults
 
 
-def _unpack_args(*, args, kwargs, fields, values):
+def _unpack_args(
+    *,
+    args: typing.Tuple[typing.Any, ...],
+    kwargs: typing.Dict[str, typing.Any],
+    fields: typing.Iterable[str],
+    values: typing.Dict[str, typing.Any],
+):
     fields_iter = iter(fields)
     values.update({field: arg for (arg, field) in zip(args, fields_iter)})
     for field in fields_iter:
@@ -228,12 +244,12 @@ class Sum:
     def __init_subclass__(
         cls,
         *,
-        repr=True,  # pylint: disable=redefined-builtin
-        eq=True,  # pylint: disable=invalid-name
-        order=False,
-        **kwargs
+        repr: bool = True,  # pylint: disable=redefined-builtin
+        eq: bool = True,  # pylint: disable=invalid-name
+        order: bool = False,
+        **kwargs,
     ):
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__(**kwargs)  # type: ignore
         if issubclass(cls, _adt_constructor.ADTConstructor):
             return
         _ordering_options_are_valid(eq=eq, order=order)
@@ -261,7 +277,7 @@ class Sum:
             )
 
         if equality_methods_were_set:
-            cls.__hash__ = source.__hash__
+            cls.__hash__ = source.__hash__  # type: ignore
 
         if order:
             _set_ordering(
@@ -324,12 +340,12 @@ class Product(_adt_constructor.ADTConstructor, tuple):
     def __init_subclass__(
         cls,
         *,
-        repr=None,  # pylint: disable=redefined-builtin
-        eq=None,  # pylint: disable=invalid-name
-        order=None,
-        **kwargs
+        repr: typing.Optional[bool] = None,  # pylint: disable=redefined-builtin
+        eq: typing.Optional[bool] = None,  # pylint: disable=invalid-name
+        order: typing.Optional[bool] = None,
+        **kwargs,
     ):
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__(**kwargs)  # type: ignore
 
         if repr is not None:
             cls.__repr = repr

@@ -114,7 +114,7 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
     Constructor.__new__.__annotations__ = annotations
 
 
-def make_constructors(cls):
+def make_constructors(cls: typing.Type[_T]):
     """Return all of the constructors of the given class in definition order."""
     subclass_order: typing.List[typing.Type[_T]] = []
 
