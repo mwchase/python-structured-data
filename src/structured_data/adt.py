@@ -41,13 +41,12 @@ Putting it together:
 ['Third', 'Constructor']
 """
 
-import functools
 import inspect
 import typing
 
 from . import _adt_constructor
 from . import _annotations
-from . import _attribute_constructor
+from . import _conditional_method
 from . import _prewritten_methods
 
 _T = typing.TypeVar("_T")
@@ -272,38 +271,6 @@ class Sum:
             )
 
 
-def _conditional_method(source):
-    return _attribute_constructor.AttributeConstructor(
-        functools.partial(_ConditionalMethod, source)
-    )
-
-
-class _ConditionalMethod:
-    name = None
-
-    def __init__(self, source, field_check):
-        self.source = source
-        self.field_check = field_check
-
-    def __set_name__(self, owner, name):
-        self.__objclass__ = owner
-        self.name = name
-
-    def __get__(self, instance, owner):
-        if getattr(owner, self.field_check):
-            return getattr(self.source, self.name).__get__(instance, owner)
-        target = owner if instance is None else instance
-        return getattr(super(self.__objclass__, target), self.name)
-
-    def __set__(self, instance, value):
-        # Don't care about this coverage
-        raise AttributeError  # pragma: nocover
-
-    def __delete__(self, instance):
-        # Don't care about this coverage
-        raise AttributeError  # pragma: nocover
-
-
 class Product(_adt_constructor.ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
@@ -413,14 +380,14 @@ class Product(_adt_constructor.ADTConstructor, tuple):
     __delattr__ = source.__delattr__
     __bool__ = source.__bool__
 
-    __repr__ = _conditional_method(source).__repr
-    __hash__ = _conditional_method(source).__eq_succeeded
-    __eq__ = _conditional_method(source).__eq_succeeded
-    __ne__ = _conditional_method(source).__eq_succeeded
-    __lt__ = _conditional_method(source).__order
-    __le__ = _conditional_method(source).__order
-    __gt__ = _conditional_method(source).__order
-    __ge__ = _conditional_method(source).__order
+    __repr__ = _conditional_method.conditional_method(source).__repr
+    __hash__ = _conditional_method.conditional_method(source).__eq_succeeded
+    __eq__ = _conditional_method.conditional_method(source).__eq_succeeded
+    __ne__ = _conditional_method.conditional_method(source).__eq_succeeded
+    __lt__ = _conditional_method.conditional_method(source).__order
+    __le__ = _conditional_method.conditional_method(source).__order
+    __gt__ = _conditional_method.conditional_method(source).__order
+    __ge__ = _conditional_method.conditional_method(source).__order
 
     del source
 
