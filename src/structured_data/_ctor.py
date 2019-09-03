@@ -144,6 +144,13 @@ def get_args(
 
 
 def annotation_is_classvar(annotation, global_ns: typing.Dict[str, typing.Any]) -> bool:
+    """Given annotation value and module namespace, return whether it's a ClassVar.
+
+    The function first checks if the value is a string. If so, it tries to
+    parse it.
+    Otherwise, if the value is a ClassVar instance, it returns ``True``.
+    If not, it returns ``False``.
+    """
     if isinstance(annotation, str):
         try:
             return _str_is_classvar(annotation, global_ns)

@@ -1,9 +1,12 @@
+"""Utilities for conditionally proxying method access to another class."""
+
 import functools
 
 from . import _attribute_constructor
 
 
 class ConditionalMethod:
+    """Based on the value of the given attribute, forwards to the superclass or the source class."""
     name = None
     __objclass__ = None
 
@@ -31,6 +34,10 @@ class ConditionalMethod:
 
 
 def conditional_method(source):
+    """Given a source class, return an attribute constructor that makes ConditionalMethods
+
+    It is not recommended to reuse the return value of this function.
+    """
     return _attribute_constructor.AttributeConstructor(
         functools.partial(ConditionalMethod, source)
     )

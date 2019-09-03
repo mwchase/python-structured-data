@@ -1,3 +1,5 @@
+"""Helper functions for processing annotations."""
+
 import sys
 import typing
 
@@ -15,7 +17,8 @@ def _all_annotations(
             yield (superclass, key, value)
 
 
-def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
+def sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.Tuple]:
+    """Return the constructor data for Sum classes."""
     args: typing.Dict[str, typing.Tuple] = {}
     for superclass, key, value in _all_annotations(cls):
         _nillable_write.nillable_write(
@@ -24,9 +27,10 @@ def _sum_args_from_annotations(cls: typing.Type[_T]) -> typing.Dict[str, typing.
     return args
 
 
-def _product_args_from_annotations(
+def product_args_from_annotations(
     cls: typing.Type[_T]
 ) -> typing.Dict[str, typing.Any]:
+    """Return the field data for Product classes."""
     args: typing.Dict[str, typing.Any] = {}
     for superclass, key, value in _all_annotations(cls):
         if value == "None" or _ctor.annotation_is_classvar(

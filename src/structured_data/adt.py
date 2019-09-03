@@ -144,7 +144,7 @@ def _product_new(
     _cls.__new__ = __new__
 
 
-def _ordering_options_are_valid(*, eq, order):
+def _ordering_options_are_valid(*, eq, order):  # pylint: disable=invalid-name
     if order and not eq:
         raise ValueError("eq must be true if order is true")
 
@@ -339,7 +339,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
-        cls.__annotations = _annotations._product_args_from_annotations(cls)
+        cls.__annotations = _annotations.product_args_from_annotations(cls)
         cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
 
         cls.__defaults = _extract_defaults(cls=cls, annotations=cls.__annotations)
@@ -380,6 +380,7 @@ class Product(_adt_constructor.ADTConstructor, tuple):
     __delattr__ = source.__delattr__
     __bool__ = source.__bool__
 
+    # pylint: disable=protected-access
     __repr__ = _conditional_method.conditional_method(source).__repr
     __hash__ = _conditional_method.conditional_method(source).__eq_succeeded
     __eq__ = _conditional_method.conditional_method(source).__eq_succeeded
