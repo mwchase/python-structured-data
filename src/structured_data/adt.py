@@ -381,13 +381,10 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         return super().__dir__() + list(self.__fields)
 
     def __getattribute__(self, name):
-        try:
+        index = object.__getattribute__(self, "_Product__fields").get(name)
+        if index is None:
             return super().__getattribute__(name)
-        except AttributeError:
-            index = self.__fields.get(name)
-            if index is None:
-                raise
-            return tuple.__getitem__(self, index)
+        return tuple.__getitem__(self, index)
 
     source = _prewritten_methods.PrewrittenProductMethods
 
