@@ -61,9 +61,9 @@ def _interpret_classvar_from_non_string(annotation: typing.Any) -> bool:
         return False
 
 
-def _parse_constructor(constructor: str) -> ast.Module:
+def _parse_constructor(constructor: str) -> ast.Expression:
     try:
-        return ast.parse(constructor, mode="eval")
+        return typing.cast(ast.Expression, ast.parse(constructor, mode="eval"))
     except Exception:
         raise ValueError("parsing annotation failed")
 
