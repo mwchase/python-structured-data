@@ -129,7 +129,7 @@ def _product_new(
         cls, *args = args
         return super(_cls, cls).__new__(cls, *args, **kwargs)
 
-    __new__.__signature__ = inspect.signature(__new__).replace(
+    signature = inspect.signature(__new__).replace(
         parameters=[inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)]
         + [
             inspect.Parameter(
@@ -141,7 +141,8 @@ def _product_new(
             for (field, annotation) in annotations.items()
         ]
     )
-    _cls.__new__ = __new__
+    __new__.__signature__ = signature  # type: ignore
+    _cls.__new__ = __new__  # type: ignore
 
 
 def _ordering_options_are_valid(*, eq, order):  # pylint: disable=invalid-name
@@ -381,14 +382,20 @@ class Product(_adt_constructor.ADTConstructor, tuple):
     __bool__ = source.__bool__
 
     # pylint: disable=protected-access
-    __repr__ = _conditional_method.conditional_method(source).__repr
-    __hash__ = _conditional_method.conditional_method(source).__eq_succeeded
-    __eq__ = _conditional_method.conditional_method(source).__eq_succeeded
-    __ne__ = _conditional_method.conditional_method(source).__eq_succeeded
-    __lt__ = _conditional_method.conditional_method(source).__order
-    __le__ = _conditional_method.conditional_method(source).__order
-    __gt__ = _conditional_method.conditional_method(source).__order
-    __ge__ = _conditional_method.conditional_method(source).__order
+    __repr__ = _conditional_method.conditional_method(source).__repr  # type: ignore
+    __hash__ = _conditional_method.conditional_method(  # type: ignore
+        source
+    ).__eq_succeeded
+    __eq__ = _conditional_method.conditional_method(  # type: ignore
+        source
+    ).__eq_succeeded
+    __ne__ = _conditional_method.conditional_method(  # type: ignore
+        source
+    ).__eq_succeeded
+    __lt__ = _conditional_method.conditional_method(source).__order  # type: ignore
+    __le__ = _conditional_method.conditional_method(source).__order  # type: ignore
+    __gt__ = _conditional_method.conditional_method(source).__order  # type: ignore
+    __ge__ = _conditional_method.conditional_method(source).__order  # type: ignore
 
     del source
 

@@ -1,16 +1,19 @@
 """Utilities for conditionally proxying method access to another class."""
 
-import functools
+import typing
 
 from . import _attribute_constructor
 
+_T = typing.TypeVar("_T")
 
-class ConditionalMethod:
+
+class ConditionalMethod(typing.Generic[_T]):
     """Based on the value of the given attribute, forwards to the superclass or the source class."""
-    name = None
-    __objclass__ = None
 
-    def __init__(self, source, field_check):
+    name: str
+    __objclass__: typing.Type[_T]
+
+    def __init__(self, source: typing.Type[_T], field_check: str):
         self.source = source
         self.field_check = field_check
 
@@ -33,11 +36,18 @@ class ConditionalMethod:
         raise AttributeError  # pragma: nocover
 
 
-def conditional_method(source):
+def _manual_partial(source: typing.Type[_T]):
+    def wrapped(field_check: str):
+        return ConditionalMethod(source, field_check)
+
+    return wrapped
+
+
+def conditional_method(
+    source: typing.Type[_T]
+) -> _attribute_constructor.AttributeConstructor[ConditionalMethod[_T]]:
     """Given a source class, return an attribute constructor that makes ConditionalMethods
 
     It is not recommended to reuse the return value of this function.
     """
-    return _attribute_constructor.AttributeConstructor(
-        functools.partial(ConditionalMethod, source)
-    )
+    return _attribute_constructor.AttributeConstructor(_manual_partial(source))

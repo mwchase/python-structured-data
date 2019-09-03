@@ -15,7 +15,7 @@ class AttributeConstructor(typing.Generic[T]):
 
     __slots__ = ("__weakref__",)
 
-    def __init__(self, constructor: typing.Type[T]):
+    def __init__(self, constructor: typing.Callable[[str], T]):
         ATTRIBUTE_CONSTRUCTORS[self] = constructor
         ATTRIBUTE_CACHE[self] = {}
 
