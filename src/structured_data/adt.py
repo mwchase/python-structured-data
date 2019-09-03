@@ -71,14 +71,14 @@ else:
 
 
 # This is fine.
-def _name(cls: typing.Type[_T], function) -> str:
+def _name(cls: type, function) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
 
 
 # This is mostly fine, though the list of classes is somewhat ad-hoc, to say
 # the least.
-def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
+def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     for function in functions:
         name = _name(cls, function)
         existing = getattr(cls, name, None)
@@ -92,7 +92,7 @@ def _cant_set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional
     return None
 
 
-def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]:
+def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
     If any attributes are already defined, fail *before* setting any, and
@@ -107,12 +107,12 @@ def _set_new_functions(cls: typing.Type[_T], *functions) -> typing.Optional[str]
 
 
 def _sum_new(_cls: typing.Type[_T], subclasses):
-    def base(cls, args):
-        return super(_cls, cls).__new__(cls, args)
+    def base(cls: typing.Type[_T], args):
+        return super(_cls, cls).__new__(cls, args)  # type: ignore
 
     new = _cls.__dict__.get("__new__", staticmethod(base))
 
-    def __new__(cls, args):
+    def __new__(cls: typing.Type[_T], args):
         if cls not in subclasses:
             raise TypeError
         return new.__get__(None, cls)(cls, args)
@@ -152,9 +152,7 @@ def _ordering_options_are_valid(
         raise ValueError("eq must be true if order is true")
 
 
-def _set_ordering(
-    *, can_set: bool, setter, cls: typing.Type[_T], source: typing.Type[_T]
-):
+def _set_ordering(*, can_set: bool, setter, cls: type, source: type):
     if not can_set:
         raise ValueError("Can't add ordering methods if equality methods are provided.")
     collision = setter(
@@ -170,7 +168,7 @@ def _set_ordering(
 
 
 def _values_non_empty(
-    cls: typing.Type[_T], field_names: typing.Iterator[str]
+    cls: type, field_names: typing.Iterator[str]
 ) -> typing.Iterator[typing.Tuple[str, typing.Any]]:
     for field in field_names:
         default = getattr(cls, field, inspect.Parameter.empty)
@@ -180,7 +178,7 @@ def _values_non_empty(
 
 
 def _values_until_non_empty(
-    cls: typing.Type[_T], field_names: typing.Iterator[str]
+    cls: type, field_names: typing.Iterator[str]
 ) -> typing.Iterator:
     for field in field_names:
         default = getattr(cls, field, inspect.Parameter.empty)
@@ -188,7 +186,7 @@ def _values_until_non_empty(
             yield
 
 
-def _extract_defaults(*, cls: typing.Type[_T], annotations: typing.Iterable[str]):
+def _extract_defaults(*, cls: type, annotations: typing.Iterable[str]):
     field_names = iter(reversed(tuple(annotations)))
     defaults = dict(_values_non_empty(cls, field_names))
     for _ in _values_until_non_empty(cls, field_names):

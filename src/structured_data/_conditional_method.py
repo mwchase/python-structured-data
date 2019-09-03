@@ -13,30 +13,30 @@ class ConditionalMethod(typing.Generic[_T]):
     name: str
     __objclass__: typing.Type[_T]
 
-    def __init__(self, source: typing.Type[_T], field_check: str):
+    def __init__(self, source: type, field_check: str):
         self.source = source
         self.field_check = field_check
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, owner: typing.Type[_T], name: str):
         self.__objclass__ = owner
         self.name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: _T, owner: typing.Type[_T]):
         if getattr(owner, self.field_check):
             return getattr(self.source, self.name).__get__(instance, owner)
         target = owner if instance is None else instance
         return getattr(super(self.__objclass__, target), self.name)
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: _T, value):
         # Don't care about this coverage
         raise AttributeError  # pragma: nocover
 
-    def __delete__(self, instance):
+    def __delete__(self, instance: _T):
         # Don't care about this coverage
         raise AttributeError  # pragma: nocover
 
 
-def _manual_partial(source: typing.Type[_T]):
+def _manual_partial(source: type):
     def wrapped(field_check: str):
         return ConditionalMethod(source, field_check)
 
@@ -44,7 +44,7 @@ def _manual_partial(source: typing.Type[_T]):
 
 
 def conditional_method(
-    source: typing.Type[_T]
+    source: type
 ) -> _attribute_constructor.AttributeConstructor[ConditionalMethod[_T]]:
     """Given a source class, return an attribute constructor that makes ConditionalMethods
 
