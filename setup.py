@@ -23,7 +23,7 @@ def read(*names, **kwargs):
 
 setup(
     name="structured-data",
-    version="0.11.1",
+    version="0.12.0",
     license="MIT license",
     description="Code generators for immutable structured data, including algebraic data types, and functions to destructure them.",
     long_description="%s\n%s"
