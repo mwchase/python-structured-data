@@ -326,3 +326,16 @@ def test_cannot_init_sum(adt):
 def test_cannot_init_product(adt):
     with pytest.raises(TypeError):
         assert not adt.Product()
+
+
+def test_custom_product_new(adt):
+    class Product(adt.Product):
+        name: str
+        lst: typing.List[str]
+
+        def __new__(cls, name, lst=None):
+            if lst is None:
+                lst = []
+            return super().__new__(cls, name, lst)
+
+    assert Product("test") == Product("test", [])
