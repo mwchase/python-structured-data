@@ -338,4 +338,8 @@ def test_custom_product_new(adt):
                 lst = []
             return super().__new__(cls, name, lst)
 
+    class Subclass(Product):
+        lst: None
+
     assert Product("test") == Product("test", [])
+    assert tuple.__getitem__(Subclass("test"), slice(None)) == ("test",)
