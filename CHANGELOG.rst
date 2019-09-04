@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Product classes can make use of custom ``__new__``.
+
 0.12.0 (2019-09-03)
 -------------------
 
