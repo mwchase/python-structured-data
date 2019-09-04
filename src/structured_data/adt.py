@@ -110,7 +110,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls: typing.Type[_T], args):
         return super(_cls, cls).__new__(cls, args)  # type: ignore
 
-    new = _cls.__dict__.get("__new__", staticmethod(base))
+    new = vars(_cls).get("__new__", staticmethod(base))
 
     def __new__(cls: typing.Type[_T], args):
         if cls not in subclasses:
@@ -125,22 +125,33 @@ def _product_new(
     annotations: typing.Dict[str, typing.Any],
     defaults: typing.Dict[str, typing.Any],
 ):
-    def __new__(*args, **kwargs):
-        cls, *args = args
-        return super(_cls, cls).__new__(cls, *args, **kwargs)
+    if "__new__" in vars(_cls):
+        original_new = _cls.__new__
 
-    signature = inspect.signature(__new__).replace(
-        parameters=[inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)]
-        + [
-            inspect.Parameter(
-                field,
-                inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                annotation=annotation,
-                default=defaults.get(field, inspect.Parameter.empty),
-            )
-            for (field, annotation) in annotations.items()
-        ]
-    )
+        def __new__(*args, **kwargs):
+            cls, *args = args
+            if cls is _cls:
+                return original_new(cls, *args, **kwargs)
+            return super(_cls, cls).__new__(cls, *args, **kwargs)
+
+        signature = inspect.signature(original_new)
+    else:
+        def __new__(*args, **kwargs):
+            cls, *args = args
+            return super(_cls, cls).__new__(cls, *args, **kwargs)
+
+        signature = inspect.signature(__new__).replace(
+            parameters=[inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)]
+            + [
+                inspect.Parameter(
+                    field,
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    annotation=annotation,
+                    default=defaults.get(field, inspect.Parameter.empty),
+                )
+                for (field, annotation) in annotations.items()
+            ]
+        )
     __new__.__signature__ = signature  # type: ignore
     _cls.__new__ = __new__  # type: ignore
 
