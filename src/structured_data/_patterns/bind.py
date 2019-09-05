@@ -45,7 +45,8 @@ class Bind(CompoundMatch, tuple):
         Otherwise, return the corresponding bound values, followed by the
         original value.
         """
-        if value is self:
+        # Letting mutmut touch this line thoroughly locked things up.
+        if value is self:  # pragma: no mutate
             return [Pattern(name) for (name, _) in reversed(self.bindings)] + [
                 self.structure
             ]
