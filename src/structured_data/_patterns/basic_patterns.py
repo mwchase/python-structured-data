@@ -77,7 +77,8 @@ class AsPattern(CompoundMatch, tuple):
         was easy to implement.
         """
         if isinstance(value, AsPattern):
-            if value is self:
+            # Letting mutmut touch this line thoroughly locked things up.
+            if value is self:  # pragma: no mutate
                 return (self.structure, self.pattern)
             return (value.structure, value)
         return (value, value)
