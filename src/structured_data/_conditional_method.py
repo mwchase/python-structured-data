@@ -31,10 +31,6 @@ class ConditionalMethod(typing.Generic[_T]):
         # Don't care about this coverage
         raise AttributeError  # pragma: nocover
 
-    def __delete__(self, instance: _T):
-        # Don't care about this coverage
-        raise AttributeError  # pragma: nocover
-
 
 def _manual_partial(source: type):
     def wrapped(field_check: str):
