@@ -343,3 +343,16 @@ def test_custom_product_new(adt):
 
     assert Product("test") == Product("test", [])
     assert tuple.__getitem__(Subclass("test"), slice(None)) == ("test",)
+
+
+def test_unsetting(adt):
+    class Prod(adt.Product):
+        fst: int
+        snd: str
+
+        __lt__ = False
+
+    class Subclass(Prod, order=True):
+        __lt__ = adt.Product.__lt__
+
+    assert Subclass(3, "abc") > Subclass(2, "def")
