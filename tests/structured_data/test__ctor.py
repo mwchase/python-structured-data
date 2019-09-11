@@ -24,19 +24,36 @@ def test_ctor_cant_index_twice(adt):
 
 
 def test_ignore_gibberish(adt):
-    class CanMake(adt.Sum):
-        Constructor: "7[55{.red$"  # noqa
+    class Base:
+        pass
+
+    Base.__annotations__ = {"Constructor": "7[55{.red$"}
+
+    class CanMake(Base, adt.Sum):
+        pass
 
     assert CanMake
 
 
 def test_ignore_classvar(adt):
-    class Empty(adt.Product):
-        class_var: typing.ClassVar[int] = 1
-        str_class_var: "typing.ClassVar[int]" = 2
-        empty: typing.ClassVar = 3
-        error: "Garbage" = 4  # noqa
-        error2: "7[55{.red$" = 5  # noqa
-        error3: "Garbage[int]" = 6  # noqa
+    class Base:
+        class_var = 1
+        str_class_var = 2
+        empty = 3
+        error = 4
+        error2 = 5
+        error3 = 6
+
+    Base.__annotations__ = {
+        "class_var": typing.ClassVar[int],
+        "str_class_var": "typing.ClassVar[int]",
+        "empty": typing.ClassVar,
+        "error": "Garbage",
+        "error2": "7[55{.red$",
+        "error3": "Garbage[int]",
+    }
+
+    class Empty(Base, adt.Product):
+        pass
 
     assert tuple.__getitem__(Empty(), slice(None)) == (4, 5, 6)
