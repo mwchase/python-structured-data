@@ -13,12 +13,12 @@ E = typing.TypeVar("E")  # pylint: disable=invalid-name
 class Maybe(adt.Sum, typing.Generic[T]):
     """An ADT that wraps a value, or nothing."""
 
-    Just: adt.Ctor[T]
+    Just: adt.Ctor[T]  # type: ignore
     Nothing: adt.Ctor
 
 
 class Either(adt.Sum, typing.Generic[E, R]):
     """An ADT that wraps one type, or the other."""
 
-    Left: adt.Ctor[E]
-    Right: adt.Ctor[R]
+    Left: adt.Ctor[E]  # type: ignore
+    Right: adt.Ctor[R]  # type: ignore
