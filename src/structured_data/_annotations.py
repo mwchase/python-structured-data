@@ -1,5 +1,6 @@
 """Helper functions for processing annotations."""
 
+import inspect
 import sys
 import typing
 
@@ -29,7 +30,7 @@ def product_args_from_annotations(cls: type) -> typing.Dict[str, typing.Any]:
     for superclass, key, value in _all_annotations(cls):
         if value == "None" or _ctor.annotation_is_classvar(
             value, vars(sys.modules[superclass.__module__])
-        ):
+        ) or inspect.isdatadescriptor(inspect.getattr_static(cls, key)):
             value = None
         _nillable_write.nillable_write(args, key, value)
     return args
