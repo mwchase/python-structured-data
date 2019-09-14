@@ -152,14 +152,14 @@ def test_product_hash(product_class):
 
 def test_sum_cant_set(classes):
     with pytest.raises(AttributeError):
-        classes[1]().attr = None
+        classes[1]().an_attr = None
     with pytest.raises(AttributeError):
         classes[1]().__slots__ = None
 
 
 def test_product_cant_set(product_class):
     with pytest.raises(AttributeError):
-        product_class().attr = None
+        product_class().an_attr = None
     with pytest.raises(AttributeError):
         product_class().__slots__ = None
 
