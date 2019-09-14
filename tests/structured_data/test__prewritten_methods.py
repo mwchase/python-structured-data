@@ -151,26 +151,26 @@ def test_product_hash(product_class):
 
 
 def test_sum_cant_set(classes):
-    with pytest.raises(AttributeError):
-        classes[1]().an_attr = None
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError, match=" object has no attribute "):
+        classes[1]().attr = None
+    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
         classes[1]().__slots__ = None
 
 
 def test_product_cant_set(product_class):
-    with pytest.raises(AttributeError):
-        product_class().an_attr = None
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError, match=" object has no attribute "):
+        product_class().attr = None
+    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
         product_class().__slots__ = None
 
 
 def test_sum_cant_del(classes):
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError, match=" object has no attribute "):
         del classes[1]().attr
 
 
 def test_product_cant_del(product_class):
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError, match=" object has no attribute "):
         del product_class().attr
 
 
