@@ -154,6 +154,8 @@ def test_sum_cant_set(classes):
     with pytest.raises(AttributeError, match=" object has no attribute "):
         classes[1]().attr = None
     with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
+        classes[1]().an_attr = None
+    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
         classes[1]().__slots__ = None
 
 
