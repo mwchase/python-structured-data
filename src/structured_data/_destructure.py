@@ -13,16 +13,14 @@ from ._stack_iter import Yield
 from ._stack_iter import stack_iter
 from ._unpack import unpack
 
-_TYPE = type
-
 
 class Destructurer:
     """Abstract base class for destructuring third-party code."""
 
-    # Disabling this one because I *really want to*...
-    def __init_subclass__(cls, type, **kwargs):  # pylint: disable=redefined-builtin
+    def __init_subclass__(cls, **kwargs):
+        type_: type = kwargs.pop("type")
         super().__init_subclass__(**kwargs)
-        cls.type: _TYPE = type
+        cls.type: type = type_
 
     def __init__(self, target):
         self.target = target
