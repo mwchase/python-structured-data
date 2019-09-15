@@ -50,6 +50,7 @@ class Bind(CompoundMatch, tuple):
             return [Pattern(name) for (name, _) in reversed(self.bindings)] + [
                 self.structure
             ]
+        # Mutating this line does something evil to the bytecode cache.
         return [
             binding_value for (_, binding_value) in reversed(self.bindings)
         ] + [  # pragma: no mutate
