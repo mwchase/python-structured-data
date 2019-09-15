@@ -50,8 +50,8 @@ class Bind(CompoundMatch, tuple):
             return [Pattern(name) for (name, _) in reversed(self.bindings)] + [
                 self.structure
             ]
-        # I think the mutator found a hash collision in the generated .pyc files?
-        # Maybe if I put a comment here it'll change things.
-        return [binding_value for (_, binding_value) in reversed(self.bindings)] + [
+        return [
+            binding_value for (_, binding_value) in reversed(self.bindings)
+        ] + [  # pragma: no mutate
             value
         ]
