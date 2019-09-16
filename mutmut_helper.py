@@ -33,5 +33,7 @@ def cache_files(file_list):
                 yield os.path.join(cache_dir, cache_file)
 
 
-for cache_file in cache_files(backup_files(untracked_files())):
-    os.remove(cache_file)
+if __name__ == "__main__":
+    for cache_file in cache_files(backup_files(untracked_files())):
+        print(cache_file)
+        os.remove(cache_file)
