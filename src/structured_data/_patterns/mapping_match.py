@@ -143,7 +143,6 @@ class DictPattern(CompoundMatch, tuple):
             return (DictPattern(dict(remainder)), first_match[1])
         first_match = self.match_dict[0]
         try:
-            # Mutating this line does something evil to the bytecode cache.
-            return (value, value[first_match[0]])  # pragma: no mutate
+            return (value, value[first_match[0]])
         except KeyError:
             raise MatchFailure

@@ -59,8 +59,7 @@ class AsPattern(CompoundMatch, tuple):
     @property
     def structure(self):
         """Return the right-hand-side of the as-match."""
-        # Mutating this line does something evil to the bytecode cache.
-        return self[1]  # pragma: no mutate
+        return self[1]
 
     def destructure(self, value):
         """Return a tuple of sub-values to check.
