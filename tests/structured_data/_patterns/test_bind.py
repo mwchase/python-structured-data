@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_bind(match):
     bind = match.Bind(match.pat.a, b=2)
     assert match.names(bind) == ["a", "b"]
@@ -23,3 +26,8 @@ def test_no_collide(match):
         "world",
         "!",
     )
+
+
+def test_invalid_kwarg(match):
+    with pytest.raises(ValueError):
+        assert not match.Bind(match.pat.a, _=None)
