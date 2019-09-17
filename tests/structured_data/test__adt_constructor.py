@@ -8,7 +8,9 @@ def test_dir(sum_option_class):
 
 
 def test_cant_nest(sum_option_class):
-    with pytest.raises(AttributeError):
+    with pytest.raises(
+        AttributeError, match=r"^Can only access adt members through base class\.$"
+    ):
         assert not sum_option_class.Left.Left
 
 
