@@ -104,17 +104,19 @@ def test_product_lt(product_option_class):
         assert not (product_option_class(1, "abc") < product_option_class(1, "abc"))
     else:
         with pytest.raises(TypeError):
-            assert (product_option_class(1, "abc") < product_option_class(1, "abc"))
+            assert product_option_class(1, "abc") < product_option_class(1, "abc")
     with pytest.raises(TypeError):
         assert not product_option_class(1, "abc") < (True,)
 
 
 def test_product_le(product_option_class):
     if product_option_class.order:
-        assert (product_option_class(1, "abc") <= product_option_class(1, "abc"))
+        assert product_option_class(1, "abc") <= product_option_class(1, "abc")
     else:
         with pytest.raises(TypeError):
-            assert not (product_option_class(1, "abc") <= product_option_class(1, "abc"))
+            assert not (
+                product_option_class(1, "abc") <= product_option_class(1, "abc")
+            )
     with pytest.raises(TypeError):
         assert not product_option_class(1, "abc") <= (True,)
 
@@ -124,17 +126,19 @@ def test_product_gt(product_option_class):
         assert not (product_option_class(1, "abc") > product_option_class(1, "abc"))
     else:
         with pytest.raises(TypeError):
-            assert (product_option_class(1, "abc") > product_option_class(1, "abc"))
+            assert product_option_class(1, "abc") > product_option_class(1, "abc")
     with pytest.raises(TypeError):
         assert not product_option_class(1, "abc") > (True,)
 
 
 def test_product_ge(product_option_class):
     if product_option_class.order:
-        assert (product_option_class(1, "abc") >= product_option_class(1, "abc"))
+        assert product_option_class(1, "abc") >= product_option_class(1, "abc")
     else:
         with pytest.raises(TypeError):
-            assert not (product_option_class(1, "abc") >= product_option_class(1, "abc"))
+            assert not (
+                product_option_class(1, "abc") >= product_option_class(1, "abc")
+            )
     with pytest.raises(TypeError):
         assert not product_option_class(1, "abc") >= (True,)
 
@@ -167,7 +171,7 @@ def test_invalid_sum_options(adt):
 
     for repr_on in (False, True):
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^eq must be true if order is true$"):
             cant_make(repr=repr_on, eq=False, order=True)
 
 
@@ -178,7 +182,10 @@ def test_sum_cant_generate_order(adt):
 
     for repr_on in (False, True):
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="^Can't add ordering methods if equality methods are provided.$",
+        ):
             cant_make(repr=repr_on, eq=True, order=True)
 
 
@@ -203,7 +210,7 @@ def test_invalid_product_options(adt):
 
     for repr_on in (False, True):
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^eq must be true if order is true$"):
             cant_make(repr=repr_on, eq=False, order=True)
 
 
@@ -215,7 +222,10 @@ def test_product_cant_generate_order(adt):
 
     for repr_on in (False, True):
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="^Can't add ordering methods if equality methods are provided.$",
+        ):
             cant_make(repr=repr_on, eq=True, order=True)
 
 
