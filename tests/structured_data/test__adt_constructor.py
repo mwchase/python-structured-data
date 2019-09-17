@@ -5,6 +5,19 @@ def test_dir(sum_option_class):
     dir_result = dir(sum_option_class.Left(1))
     for method in ("__lt__", "__le__", "__gt__", "__ge__"):
         assert (method in dir_result) == sum_option_class.order
+    assert not {
+        "Left",
+        "Right",
+        "__add__",
+        "__contains__",
+        "__getitem__",
+        "__iter__",
+        "__len__",
+        "__mul__",
+        "__rmul__",
+        "count",
+        "index",
+    }.intersection(dir_result)
 
 
 def test_cant_nest(sum_option_class):
