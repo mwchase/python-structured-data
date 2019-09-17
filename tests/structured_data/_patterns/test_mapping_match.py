@@ -31,6 +31,7 @@ def test_dict(match):
     assert tuple(matchable.matches.items()) == (("d", 3), ("e", 1), ("f", 2))
     assert not matchable(match.DictPattern(dict(test=True)))
     assert matchable(match.DictPattern(dict(a=1)))
+    assert matchable(match.DictPattern(dict(a=1, b=2, c=3), exhaustive=True))
     assert not matchable(match.DictPattern(dict(a=1), exhaustive=True))
     assert not matchable(match.DictPattern(dict(a=1, b=2, c=3, test=True)))
 
