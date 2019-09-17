@@ -14,6 +14,7 @@ def test_must_be_identifier(match):
 def test_as(match):
     pat = match.pat.hello
     assert pat[match.pat._] is pat
+    assert pat[None] is not pat
     as_pat = pat[match.pat.world]
     assert as_pat.pattern is pat
     assert as_pat.structure is match.pat.world
