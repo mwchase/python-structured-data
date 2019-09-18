@@ -60,6 +60,7 @@ def adt_options():
 @pytest.fixture(
     scope="session",
     params=[
+        "NoOptionsSum",
         "AllFalseSum",
         "EqOnlySum",
         "MinimalOrderSum",
@@ -75,6 +76,7 @@ def sum_option_class(adt_options, request):
 @pytest.fixture(
     scope="session",
     params=[
+        "NoOptionsProduct",
         "AllFalseProduct",
         "EqOnlyProduct",
         "MinimalOrderProduct",
