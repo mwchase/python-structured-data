@@ -199,7 +199,10 @@ def test_sum_cant_overwrite_order(adt):
         class CantMake:
             __le__ = True
 
-        with pytest.raises(TypeError):
+        with pytest.raises(
+            TypeError,
+            match=r"^Cannot overwrite attribute __le__ in class CantMake\. Consider using functools.total_ordering$",
+        ):
             cant_make(repr=repr_on, eq=True, order=True)
 
 
@@ -240,7 +243,10 @@ def test_product_cant_overwrite_order(adt):
         class CantMake:
             __le__ = True
 
-        with pytest.raises(TypeError):
+        with pytest.raises(
+            TypeError,
+            match=r"^Cannot overwrite attribute __le__ in class CantMake\. Consider using functools.total_ordering$",
+        ):
             cant_make(repr=repr_on, eq=True, order=True)
 
 
