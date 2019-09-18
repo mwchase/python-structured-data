@@ -185,7 +185,7 @@ def test_product_bool(product_class):
 
 
 def test_sum_cant_subclass(classes):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="^Cannot further subclass the class "):
 
         class Test(classes[0]):
             pass
