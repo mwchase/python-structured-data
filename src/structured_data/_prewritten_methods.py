@@ -91,7 +91,7 @@ class PrewrittenSumMethods(CommonPrewrittenMethods):
     """Methods for subclasses of ``structured_data.adt.Sum``."""
 
     def __init_subclass__(cls, **kwargs):
-        raise TypeError
+        raise TypeError(f"Cannot further subclass the class {cls.__name__}")
 
     def __lt__(self, other):
         if other.__class__ is self.__class__:
