@@ -69,6 +69,13 @@ def test_product_valid_eq(product_option_class):
         assert product_option_class(1, "abc") != product_option_class(1, "abc")
 
 
+def test_sum_repr(sum_option_class):
+    if sum_option_class.repr:
+        assert repr(sum_option_class.Left(1)) == f"{sum_option_class.__name__}.Left(1)"
+    else:
+        assert repr(sum_option_class.Left(1)) == "(1,)"
+
+
 def test_product_repr(product_option_class):
     if product_option_class.repr:
         assert (
