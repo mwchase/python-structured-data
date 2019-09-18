@@ -339,9 +339,9 @@ class Product(_adt_constructor.ADTConstructor, tuple):
             ],
         )
 
-    __repr = True
-    __eq = True
-    __order = False
+    __repr: typing.ClassVar[bool] = True
+    __eq: typing.ClassVar[bool] = True
+    __order: typing.ClassVar[bool] = False
     __eq_succeeded = None
 
     # Both of these are for consistency with modules defined in the stdlib.
