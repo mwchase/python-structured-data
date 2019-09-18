@@ -279,6 +279,7 @@ def test_products_with_all_default(adt):
         snd: str = ""
 
     assert Product() == Product(snd="", fst=1)
+    assert Product(snd="abc") == Product(1, "abc")
 
 
 def test_products_with_bad_default(adt):
