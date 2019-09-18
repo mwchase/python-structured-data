@@ -3,6 +3,16 @@ import typing
 from structured_data import adt
 
 
+class NoOptionsSum(adt.Sum):
+
+    Left: adt.Ctor[int]
+    Right: adt.Ctor[str]
+
+    repr = True
+    eq = True
+    order = False
+
+
 class AllFalseSum(adt.Sum, repr=False, eq=False, order=False):
 
     Left: adt.Ctor[int]
@@ -61,6 +71,16 @@ class ReprAndOrderSum(adt.Sum, repr=True, eq=True, order=True):
     repr = True
     eq = True
     order = True
+
+
+class NoOptionsProduct(adt.Product):
+
+    fst: int
+    snd: str
+
+    repr = True
+    eq = True
+    order = False
 
 
 class AllFalseProduct(adt.Product, repr=False, eq=False, order=False):
@@ -175,6 +195,7 @@ CUSTOM_NEW_INSTANCES: typing.List[CustomNewSum] = []
 
 
 SUM_CLASSES = [
+    NoOptionsSum,
     AllFalseSum,
     EqOnlySum,
     MinimalOrderSum,
@@ -185,6 +206,7 @@ SUM_CLASSES = [
 
 
 PRODUCT_CLASSES = [
+    NoOptionsProduct,
     AllFalseProduct,
     EqOnlyProduct,
     MinimalOrderProduct,
