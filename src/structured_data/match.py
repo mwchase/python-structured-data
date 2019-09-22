@@ -162,6 +162,11 @@ class Matchable:
 pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
 
 
+def _decorate(matchers, structure, function):
+    matchers.append((structure, function))
+    return function
+
+
 class Descriptor:
     __wrapped__ = None
 
@@ -170,10 +175,6 @@ class Descriptor:
         if func is None:
             return new
         return functools.wraps(func)(new)
-
-    def _decorate(self, matchers, structure, function):
-        matchers.append((structure, function))
-        return function
 
 
 class Property(Descriptor):
@@ -250,17 +251,17 @@ class Property(Descriptor):
     def get_when(self, instance):
         structure = instance
         names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, self.get_matchers, structure)
+        return functools.partial(_decorate, self.get_matchers, structure)
 
     def set_when(self, instance, value):
         structure = (instance, value)
         names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, self.set_matchers, structure)
+        return functools.partial(_decorate, self.set_matchers, structure)
 
     def delete_when(self, instance):
         structure = instance
         names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, self.delete_matchers, structure)
+        return functools.partial(_decorate, self.delete_matchers, structure)
 
 
 class Function(Descriptor):
@@ -315,7 +316,7 @@ class Function(Descriptor):
     def when(self, kwargs):
         structure = DictPattern(kwargs, exhaustive=True)
         names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, self.matchers, structure)
+        return functools.partial(_decorate, self.matchers, structure)
 
 
 # This wraps a function that, for reasons, can't be called directly by the code
