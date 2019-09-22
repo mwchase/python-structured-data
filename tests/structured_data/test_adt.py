@@ -380,3 +380,49 @@ def test_unsetting(adt):
         __lt__ = adt.Product.__lt__
 
     assert Subclass(3, "abc") > Subclass(2, "def")
+
+
+def test_sum_property(adt):
+    class TestSum(adt.Sum):
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
+
+        @property
+        def prop(self):
+            pass
+
+    test_value = TestSum.Left(1)
+    assert test_value.prop is None
+    with pytest.raises(AttributeError):
+        test_value.prop = 1
+    with pytest.raises(AttributeError):
+        test_value.dne = 1
+    with pytest.raises(AttributeError):
+        test_value.Left = 1
+    with pytest.raises(AttributeError):
+        del test_value.prop
+    with pytest.raises(AttributeError):
+        del test_value.dne
+    with pytest.raises(AttributeError):
+        del test_value.Left
+
+
+def test_product_property(adt):
+    class TestProduct(adt.Product):
+        fst: int
+        snd: str
+
+        @property
+        def prop(self):
+            pass
+
+    test_value = TestProduct(1, "abc")
+    assert test_value.prop is None
+    with pytest.raises(AttributeError):
+        test_value.prop = 1
+    with pytest.raises(AttributeError):
+        test_value.dne = 1
+    with pytest.raises(AttributeError):
+        del test_value.prop
+    with pytest.raises(AttributeError):
+        del test_value.dne
