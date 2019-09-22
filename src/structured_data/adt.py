@@ -92,6 +92,20 @@ def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
+MISSING = object()
+
+
+def cant_modify(self, name):
+    """Prevent attempts to modify an attr of the given name."""
+    class_repr = repr(self.__class__.__name__)
+    name_repr = repr(name)
+    if inspect.getattr_static(self, name, MISSING) is MISSING:
+        format_msg = "{class_repr} object has no attribute {name_repr}"
+    else:
+        format_msg = "{class_repr} object attribute {name_repr} is read-only"
+    raise AttributeError(format_msg.format(class_repr=class_repr, name_repr=name_repr))
+
+
 def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
@@ -273,7 +287,6 @@ class Sum:
 
         _sum_new(cls, frozenset(_prewritten_methods.SUBCLASS_ORDER[cls]))
 
-        _set_new_functions(cls, source.__setattr__, source.__delattr__)
         _set_new_functions(cls, source.__bool__)
 
         if repr:
@@ -295,6 +308,16 @@ class Sum:
                 cls=cls,
                 source=source,
             )
+
+    def __setattr__(self, name, value):
+        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            super().__setattr__(name, value)
+        cant_modify(self, name)
+
+    def __delattr__(self, name):
+        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            super().__delattr__(name)
+        cant_modify(self, name)
 
 
 class Product(_adt_constructor.ADTConstructor, tuple):
@@ -397,10 +420,18 @@ class Product(_adt_constructor.ADTConstructor, tuple):
             return super().__getattribute__(name)
         return tuple.__getitem__(self, index)
 
+    def __setattr__(self, name, value):
+        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            super().__setattr__(name, value)
+        cant_modify(self, name)
+
+    def __delattr__(self, name):
+        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            super().__delattr__(name)
+        cant_modify(self, name)
+
     source = _prewritten_methods.PrewrittenProductMethods
 
-    __setattr__ = source.__setattr__
-    __delattr__ = source.__delattr__
     __bool__ = source.__bool__
 
     # pylint: disable=protected-access

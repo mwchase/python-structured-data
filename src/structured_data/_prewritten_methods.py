@@ -1,6 +1,5 @@
 """Methods to be added to ADT classes."""
 
-import inspect
 import typing
 import weakref
 
@@ -13,23 +12,9 @@ def sum_base(obj):
     return ADT_BASES.get(obj.__class__)
 
 
-MISSING = object()
-
-
 SUBCLASS_ORDER: typing.MutableMapping[
     type, typing.Tuple[type, ...]
 ] = weakref.WeakKeyDictionary()
-
-
-def cant_modify(self, name):
-    """Prevent attempts to modify an attr of the given name."""
-    class_repr = repr(self.__class__.__name__)
-    name_repr = repr(name)
-    if inspect.getattr_static(self, name, MISSING) is MISSING:
-        format_msg = "{class_repr} object has no attribute {name_repr}"
-    else:
-        format_msg = "{class_repr} object attribute {name_repr} is read-only"
-    raise AttributeError(format_msg.format(class_repr=class_repr, name_repr=name_repr))
 
 
 class CommonPrewrittenMethods:
@@ -52,12 +37,6 @@ class CommonPrewrittenMethods:
 
     def __hash__(self):
         return hash(unpack(self))
-
-    def __setattr__(self, name, value):
-        cant_modify(self, name)
-
-    def __delattr__(self, name):
-        cant_modify(self, name)
 
     def __bool__(self):
         return True

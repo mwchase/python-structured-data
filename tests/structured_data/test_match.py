@@ -206,6 +206,9 @@ def test_property(adt, match):
         def invert(self):
             raise ValueError
 
+    with pytest.raises(ValueError):
+        TestEither.Left(10).invert
+
     @TestEither.invert.get_when(TestEither.Left(match.pat.number))
     def negate(number):
         return TestEither.Left(-number)

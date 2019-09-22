@@ -15,8 +15,6 @@ def classes(_adt_constructor, _prewritten_methods):
         __gt__ = _prewritten_methods.PrewrittenSumMethods.__gt__
         __ge__ = _prewritten_methods.PrewrittenSumMethods.__ge__
         __hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
-        __setattr__ = _prewritten_methods.PrewrittenSumMethods.__setattr__
-        __delattr__ = _prewritten_methods.PrewrittenSumMethods.__delattr__
         __bool__ = _prewritten_methods.PrewrittenSumMethods.__bool__
 
     class Derived1(Base):
@@ -148,32 +146,6 @@ def test_sum_hash(classes):
 
 def test_product_hash(product_class):
     assert hash(product_class()) == hash(())
-
-
-def test_sum_cant_set(classes):
-    with pytest.raises(AttributeError, match=" object has no attribute "):
-        classes[1]().attr = None
-    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
-        classes[1]().an_attr = None
-    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
-        classes[1]().__slots__ = None
-
-
-def test_product_cant_set(product_class):
-    with pytest.raises(AttributeError, match=" object has no attribute "):
-        product_class().attr = None
-    with pytest.raises(AttributeError, match=" object attribute .* is read-only"):
-        product_class().__slots__ = None
-
-
-def test_sum_cant_del(classes):
-    with pytest.raises(AttributeError, match=" object has no attribute "):
-        del classes[1]().attr
-
-
-def test_product_cant_del(product_class):
-    with pytest.raises(AttributeError, match=" object has no attribute "):
-        del product_class().attr
 
 
 def test_sum_bool(classes):
