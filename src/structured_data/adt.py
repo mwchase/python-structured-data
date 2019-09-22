@@ -311,14 +311,14 @@ class Sum:
         return True
 
     def __setattr__(self, name, value):
-        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
-            super().__setattr__(name, value)
-        cant_modify(self, name)
+        if not inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            cant_modify(self, name)
+        super().__setattr__(name, value)
 
     def __delattr__(self, name):
-        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
-            super().__delattr__(name)
-        cant_modify(self, name)
+        if not inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            cant_modify(self, name)
+        super().__delattr__(name)
 
 
 class Product(_adt_constructor.ADTConstructor, tuple):
@@ -422,14 +422,14 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         return tuple.__getitem__(self, index)
 
     def __setattr__(self, name, value):
-        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
-            super().__setattr__(name, value)
-        cant_modify(self, name)
+        if not inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            cant_modify(self, name)
+        super().__setattr__(name, value)
 
     def __delattr__(self, name):
-        if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
-            super().__delattr__(name)
-        cant_modify(self, name)
+        if not inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
+            cant_modify(self, name)
+        super().__delattr__(name)
 
     def __bool__(self):
         return True

@@ -223,6 +223,8 @@ class Property(Descriptor):
         for (structure, function) in self.get_matchers:
             if matchable(structure):
                 return function(**matchable.matches)
+        if self.__wrapped__ is None:
+            raise ValueError(self)
         return self.__wrapped__(instance)
 
     def __set__(self, instance, value):
@@ -237,7 +239,7 @@ class Property(Descriptor):
 
     def __delete__(self, instance):
         matchable = Matchable(instance)
-        for (structure, function) in self.set_matchers:
+        for (structure, function) in self.delete_matchers:
             if matchable(structure):
                 function(**matchable.matches)
                 return
