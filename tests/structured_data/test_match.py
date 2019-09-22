@@ -150,3 +150,16 @@ def test_method(adt, match):
 
     assert TestEither.Left(10).invert() == TestEither.Left(-10)
     assert TestEither.Right("abc").invert() == TestEither.Right("cba")
+
+
+def test_trivial_match_function(match):
+    @match.function
+    def trivial(*trivial_args, **trivial_kwargs):
+        """Not a very interesting function."""
+
+    @trivial.when()
+    def passthrough(*args, **kwargs):
+        return args, kwargs
+
+    assert trivial() == ((), {})
+    assert trivial(1, a=2) == ((1,), {"a": 2})
