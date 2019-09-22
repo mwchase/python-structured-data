@@ -162,12 +162,13 @@ class Matchable:
 pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
 
 
-def _decorate(matchers, structure, function):
-    matchers.append((structure, function))
-    return function
+def _decorate(matchers, structure, func):
+    matchers.append((structure, func))
+    return func
 
 
 class Descriptor:
+    """Base class for decorator classes."""
     __wrapped__ = None
 
     def __new__(cls, func, *args, **kwargs):
@@ -178,6 +179,7 @@ class Descriptor:
 
 
 class Property(Descriptor):
+    """Decorator with value-based dispatch. Acts as a property."""
 
     fset = None
     fdel = None
@@ -185,14 +187,15 @@ class Property(Descriptor):
     protected = False
 
     def __new__(cls, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+        del fset, fdel, doc
         return super().__new__(cls, func, *args, **kwargs)
 
     def __init__(self, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+        del func
         super().__init__(*args, **kwargs)
         self.fset = fset
         self.fdel = fdel
-        if self.__doc__ is None:
-            self.__doc__ = doc
+        vars(self).setdefault("__doc__", doc)
         self.get_matchers = []
         self.set_matchers = []
         self.delete_matchers = []
@@ -209,30 +212,33 @@ class Property(Descriptor):
         super().__delattr__(name)
 
     def getter(self, getter):
+        """Return a copy of self with the getter replaced."""
         return Property(getter, self.fset, self.fdel, self.__doc__)
 
     def setter(self, setter):
+        """Return a copy of self with the setter replaced."""
         return Property(self.__wrapped__, setter, self.fdel, self.__doc__)
 
     def deleter(self, deleter):
+        """Return a copy of self with the deleter replaced."""
         return Property(self.__wrapped__, self.fset, deleter, self.__doc__)
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
         matchable = Matchable(instance)
-        for (structure, function) in self.get_matchers:
+        for (structure, func) in self.get_matchers:
             if matchable(structure):
-                return function(**matchable.matches)
+                return func(**matchable.matches)
         if self.__wrapped__ is None:
             raise ValueError(self)
         return self.__wrapped__(instance)
 
     def __set__(self, instance, value):
         matchable = Matchable((instance, value))
-        for (structure, function) in self.set_matchers:
+        for (structure, func) in self.set_matchers:
             if matchable(structure):
-                function(**matchable.matches)
+                func(**matchable.matches)
                 return
         if self.fset is None:
             raise ValueError((instance, value))
@@ -240,33 +246,38 @@ class Property(Descriptor):
 
     def __delete__(self, instance):
         matchable = Matchable(instance)
-        for (structure, function) in self.delete_matchers:
+        for (structure, func) in self.delete_matchers:
             if matchable(structure):
-                function(**matchable.matches)
+                func(**matchable.matches)
                 return
         if self.fdel is None:
             raise ValueError(instance)
         self.fdel(instance)
 
     def get_when(self, instance):
+        """Add a binding to the getter."""
         structure = instance
         names(structure)  # Raise ValueError if there are duplicates
         return functools.partial(_decorate, self.get_matchers, structure)
 
     def set_when(self, instance, value):
+        """Add a binding to the setter."""
         structure = (instance, value)
         names(structure)  # Raise ValueError if there are duplicates
         return functools.partial(_decorate, self.set_matchers, structure)
 
     def delete_when(self, instance):
+        """Add a binding to the deleter."""
         structure = instance
         names(structure)  # Raise ValueError if there are duplicates
         return functools.partial(_decorate, self.delete_matchers, structure)
 
 
 class Function(Descriptor):
+    """Decorator with value-based dispatch. Acts as a function."""
 
     def __init__(self, func, *args, **kwargs):
+        del func
         super().__init__(*args, **kwargs)
         self.matchers = []
 
@@ -297,23 +308,24 @@ class Function(Descriptor):
                 bound_kwargs = values.pop(parameter.name)
 
         matchable = Matchable(values)
-        for structure, function in self.matchers:
+        for structure, func in self.matchers:
             if matchable(structure):
-                for k, v in matchable.matches.items():
-                    if k in bound_kwargs:
+                for key, value in matchable.matches.items():
+                    if key in bound_kwargs:
                         raise TypeError
-                    bound_kwargs[k] = v
-                function_sig = inspect.signature(function)
+                    bound_kwargs[key] = value
+                function_sig = inspect.signature(func)
                 function_args = function_sig.bind(**bound_kwargs)
                 for parameter in function_sig.parameters.values():
                     if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
                         function_args.arguments[parameter.name] = bound_args
                 function_args.apply_defaults()
-                return function(*function_args.args, **function_args.kwargs)
+                return func(*function_args.args, **function_args.kwargs)
         raise ValueError(values)
 
     @pep_570_when
     def when(self, kwargs):
+        """Add a binding for this function."""
         structure = DictPattern(kwargs, exhaustive=True)
         names(structure)  # Raise ValueError if there are duplicates
         return functools.partial(_decorate, self.matchers, structure)
@@ -322,6 +334,10 @@ class Function(Descriptor):
 # This wraps a function that, for reasons, can't be called directly by the code
 # The function body should probably just be a docstring.
 def function(_func=None, *, positional_until=0):
+    """Convert a function to dispatch by value.
+
+    The original function is not called when the dispatch function is invoked.
+    """
     def wrap(func):
         signature = inspect.signature(func)
         new_parameters = []
@@ -345,10 +361,11 @@ def function(_func=None, *, positional_until=0):
 
 
 def decorate_in_order(*args):
-    def decorator(function):
+    """Apply decorators in the order they're passed to the function."""
+    def decorator(func):
         for arg in args:
-            function = arg(function)
-        return function
+            func = arg(func)
+        return func
 
     return decorator
 
