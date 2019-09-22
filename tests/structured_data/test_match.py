@@ -87,3 +87,45 @@ def test_products(adt, match):
 
     assert not tuple_matchable(Base(1))
     assert not tuple_matchable(Subclass(1))
+
+
+def test_decorate_in_order(match):
+    def constant(func):
+        del func
+        return 0
+
+    def double(func):
+        return func, func
+
+    @double
+    @constant
+    def normal():
+        """Dummy function"""
+
+    @match.decorate_in_order(constant, double)
+    def with_helper():
+        """Dummy function"""
+
+    assert normal == with_helper
+
+
+def test_function(match):
+    @match.function
+    def function(a, b):
+        """Wrapped test function."""
+
+    @function.when(a=3, b=match.pat.b)
+    def return_b(b):
+        return b
+
+    @function.when(b=2, a=match.pat.a)
+    def return_a(a):
+        return a
+
+    @function.when(a=match.pat.a, b=match.pat.b)
+    def multiply(a, b):
+        return a * b
+
+    assert function(3, 2) == 2
+    assert function(4, 2) == 4
+    assert function(4, 4) == 16

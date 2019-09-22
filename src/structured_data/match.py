@@ -15,6 +15,8 @@ Given a value to destructure, called ``value``:
 from __future__ import annotations
 
 import collections
+import functools
+import inspect
 import typing
 
 from ._attribute_constructor import AttributeConstructor
@@ -26,6 +28,7 @@ from ._patterns.basic_patterns import Pattern
 from ._patterns.bind import Bind
 from ._patterns.mapping_match import AttrPattern
 from ._patterns.mapping_match import DictPattern
+from ._pep_570_when import pep_570_when
 from ._stack_iter import Action
 from ._stack_iter import Extend
 from ._stack_iter import Yield
@@ -159,6 +162,98 @@ class Matchable:
 pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
 
 
+class Function:
+    __wrapped__ = None
+
+    def __new__(cls, func, *args, **kwargs):
+        return functools.wraps(func)(super().__new__(cls, *args, **kwargs))
+
+    def __init__(self, func, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.matchers = []
+
+    def __call__(*args, **kwargs):
+        # Okay, so, this is a convoluted mess.
+        # First, we extract self from the beginning of the argument list
+        self, *args = args
+        # Then we figure out what signature we're giving the outside world.
+        signature = inspect.signature(self)
+        # The signature lets us regularize the call and apply any defaults
+        bound_arguments = signature.bind(*args, **kwargs)
+        bound_arguments.apply_defaults()
+
+        # Extract the *args and **kwargs, if any.
+        # These are never used in the matching, just passed to the underlying function
+        bound_args = ()
+        bound_kwargs = {}
+        values = bound_arguments.arguments.copy()
+        for parameter in signature.parameters.values():
+            if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+                bound_args = values.pop(parameter.name)
+            if parameter.kind is inspect.Parameter.VAR_KEYWORD:
+                bound_kwargs = values.pop(parameter.name)
+
+        matchable = Matchable(values)
+        for structure, function in self.matchers:
+            if matchable(structure):
+                for k, v in matchable.matches.items():
+                    if k in bound_kwargs:
+                        raise TypeError
+                    bound_kwargs[k] = v
+                function_sig = inspect.signature(function)
+                function_args = function_sig.bind(**bound_kwargs)
+                for parameter in function_sig.parameters.values():
+                    if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+                        function_args.arguments[parameter.name] = bound_args
+                function_args.apply_defaults()
+                return function(*function_args.args, **function_args.kwargs)
+        raise ValueError(values)
+
+    def _decorate(self, structure, function):
+        self.matchers.append((structure, function))
+        return function
+
+    @pep_570_when
+    def when(self, kwargs):
+        structure = DictPattern(kwargs, exhaustive=True)
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, structure)
+
+
+# This wraps a function that, for reasons, can't be called directly by the code
+# The function body should probably just be a docstring.
+def function(_func=None, *, positional_until=0):
+    def wrap(func):
+        signature = inspect.signature(func)
+        new_parameters = []
+        for index, parameter in enumerate(signature.parameters.values()):
+            if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
+                raise ValueError("Signature already contains positional-only arguments")
+            if index < positional_until:
+                if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                    raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
+                parameter = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
+            new_parameters.append(parameter)
+        new_signature = signature.replace(parameters=new_parameters)
+        if new_signature != signature:
+            func.__signature__ = new_signature
+        return Function(func)
+
+    if _func is None:
+        return wrap
+
+    return wrap(_func)
+
+
+def decorate_in_order(*args):
+    def decorator(function):
+        for arg in args:
+            function = arg(function)
+        return function
+
+    return decorator
+
+
 __all__ = [
     "AttrPattern",
     "Bind",
@@ -166,6 +261,8 @@ __all__ = [
     "MatchDict",
     "Matchable",
     "Pattern",
+    "decorate_in_order",
+    "function",
     "names",
     "pat",
 ]
