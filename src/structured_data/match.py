@@ -172,6 +172,11 @@ class Function:
         super().__init__(*args, **kwargs)
         self.matchers = []
 
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return functools.partial(self, instance)
+
     def __call__(*args, **kwargs):
         # Okay, so, this is a convoluted mess.
         # First, we extract self from the beginning of the argument list

@@ -129,3 +129,24 @@ def test_function(match):
     assert function(3, 2) == 2
     assert function(4, 2) == 4
     assert function(4, 4) == 16
+
+
+def test_method(adt, match):
+    class TestEither(adt.Sum):
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
+
+        @match.function(positional_until=1)
+        def invert(self):
+            """Reverse the the object according to some criteria."""
+
+    @TestEither.invert.when(self=TestEither.Left(match.pat.number))
+    def negate(number):
+        return TestEither.Left(-number)
+
+    @TestEither.invert.when(self=TestEither.Right(match.pat.string))
+    def reverse(string):
+        return TestEither.Right(string[::-1])
+
+    assert TestEither.Left(10).invert() == TestEither.Left(-10)
+    assert TestEither.Right("abc").invert() == TestEither.Right("cba")
