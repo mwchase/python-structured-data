@@ -186,6 +186,7 @@ class _DocWrapper:
 
     @classmethod
     def wrap_class(cls, klass):
+        """Wrapp a classes docstring to conceal it from instances."""
         klass.__doc__ = cls(klass.__doc__)
         return klass
 
