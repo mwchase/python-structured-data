@@ -5,6 +5,15 @@ Changelog
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- ``match.function`` and ``match.Property`` decorators for Haskell-style function definitions.
+
+Fixed
+~~~~~
+- Accessing data descriptors on ``Sum`` and ``Product`` instances.
+
 0.12.1 (2019-09-04)
 -------------------
 
