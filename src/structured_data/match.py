@@ -173,11 +173,35 @@ class Descriptor:
 
     def __new__(cls, func, *args, **kwargs):
         new = super().__new__(cls, *args, **kwargs)
+        new.__doc__ = None
         if func is None:
             return new
         return functools.wraps(func)(new)
 
 
+class _DocWrapper:
+
+    def __init__(self, doc=None):
+        self.doc = doc
+
+    @classmethod
+    def wrap_class(cls, klass):
+        klass.__doc__ = cls(klass.__doc__)
+        return klass
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self.doc
+        return vars(instance).get("__doc__")
+
+    def __set__(self, instance, value):
+        vars(instance)["__doc__"] = value
+
+    def __delete__(self, instance):
+        vars(instance).pop("__doc__", None)
+
+
+@_DocWrapper.wrap_class
 class Property(Descriptor):
     """Decorator with value-based dispatch. Acts as a property."""
 
@@ -195,7 +219,8 @@ class Property(Descriptor):
         super().__init__(*args, **kwargs)
         self.fset = fset
         self.fdel = fdel
-        vars(self).setdefault("__doc__", doc)
+        if doc is not None:
+            self.__doc__ = doc
         self.get_matchers = []
         self.set_matchers = []
         self.delete_matchers = []
