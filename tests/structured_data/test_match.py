@@ -195,3 +195,30 @@ def test_match_function_errors(match):
 
     with pytest.raises(TypeError):
         takes_kwargs(1, kwarg=1)
+
+
+def test_property(adt, match):
+    class TestEither(adt.Sum):
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
+
+        @match.Property
+        def invert(self):
+            raise ValueError
+
+    @TestEither.invert.get_when(TestEither.Left(match.pat.number))
+    def negate(number):
+        return TestEither.Left(-number)
+
+    @TestEither.invert.get_when(TestEither.Right(match.pat.string))
+    def reverse(string):
+        return TestEither.Right(string[::-1])
+
+    assert TestEither.Left(10).invert == TestEither.Left(-10)
+    assert TestEither.Right("abc").invert == TestEither.Right("cba")
+
+    with pytest.raises(ValueError):
+        TestEither.Left(10).invert = 0
+
+    with pytest.raises(ValueError):
+        del TestEither.Left(10).invert

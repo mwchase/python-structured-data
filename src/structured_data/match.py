@@ -166,18 +166,106 @@ class Descriptor:
     __wrapped__ = None
 
     def __new__(cls, func, *args, **kwargs):
-        return functools.wraps(func)(super().__new__(cls, *args, **kwargs))
+        new = super().__new__(cls, *args, **kwargs)
+        if func is None:
+            return new
+        return functools.wraps(func)(new)
+
+    def _decorate(self, matchers, structure, function):
+        matchers.append((structure, function))
+        return function
+
+
+class Property(Descriptor):
+
+    fset = None
+    fdel = None
+
+    protected = False
+
+    def __new__(cls, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+        return super().__new__(cls, func, *args, **kwargs)
+
+    def __init__(self, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fset = fset
+        self.fdel = fdel
+        if self.__doc__ is None:
+            self.__doc__ = doc
+        self.get_matchers = []
+        self.set_matchers = []
+        self.delete_matchers = []
+        self.protected = True
+
+    def __setattr__(self, name, value):
+        if self.protected and name != "__doc__":
+            raise AttributeError
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name):
+        if self.protected and name != "__doc__":
+            raise AttributeError
+        super().__delattr__(name)
+
+    def getter(self, getter):
+        return Property(getter, self.fset, self.fdel, self.__doc__)
+
+    def setter(self, setter):
+        return Property(self.__wrapped__, setter, self.fdel, self.__doc__)
+
+    def deleter(self, deleter):
+        return Property(self.__wrapped__, self.fset, deleter, self.__doc__)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        matchable = Matchable(instance)
+        for (structure, function) in self.get_matchers:
+            if matchable(structure):
+                return function(**matchable.matches)
+        return self.__wrapped__(instance)
+
+    def __set__(self, instance, value):
+        matchable = Matchable((instance, value))
+        for (structure, function) in self.set_matchers:
+            if matchable(structure):
+                function(**matchable.matches)
+                return
+        if self.fset is None:
+            raise ValueError((instance, value))
+        self.fset(instance, value)
+
+    def __delete__(self, instance):
+        matchable = Matchable(instance)
+        for (structure, function) in self.set_matchers:
+            if matchable(structure):
+                function(**matchable.matches)
+                return
+        if self.fdel is None:
+            raise ValueError(instance)
+        self.fdel(instance)
+
+    def get_when(self, instance):
+        structure = instance
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, self.get_matchers, structure)
+
+    def set_when(self, instance, value):
+        structure = (instance, value)
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, self.set_matchers, structure)
+
+    def delete_when(self, instance):
+        structure = instance
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, self.delete_matchers, structure)
+
+
+class Function(Descriptor):
 
     def __init__(self, func, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.matchers = []
-
-    def _decorate(self, structure, function):
-        self.matchers.append((structure, function))
-        return function
-
-
-class Function(Descriptor):
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -225,7 +313,7 @@ class Function(Descriptor):
     def when(self, kwargs):
         structure = DictPattern(kwargs, exhaustive=True)
         names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, structure)
+        return functools.partial(self._decorate, self.matchers, structure)
 
 
 # This wraps a function that, for reasons, can't be called directly by the code
@@ -269,6 +357,7 @@ __all__ = [
     "MatchDict",
     "Matchable",
     "Pattern",
+    "Property",
     "decorate_in_order",
     "function",
     "names",
