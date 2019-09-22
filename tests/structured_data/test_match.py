@@ -163,3 +163,35 @@ def test_trivial_match_function(match):
 
     assert trivial() == ((), {})
     assert trivial(1, a=2) == ((1,), {"a": 2})
+
+
+def test_match_function_errors(match):
+    def double_dip(arg):
+        """Nothing interesting."""
+
+    wrapper = match.function(positional_until=1)
+    wrapper(double_dip)
+    with pytest.raises(ValueError):
+        wrapper(double_dip)
+
+    def wrong_shape(*args):
+        """Still nothing interesting."""
+
+    with pytest.raises(ValueError):
+        wrapper(wrong_shape)
+
+    @match.function
+    def takes_kwargs(arg_to_function, **kwargs):
+        """Ignore me."""
+
+    with pytest.raises(ValueError):
+        takes_kwargs(None)
+
+    @takes_kwargs.when(arg_to_function=match.pat.kwarg)
+    def impl(kwarg, **kwargs):
+        return kwarg, kwargs
+
+    assert takes_kwargs(1, a=2) == (1, {"a": 2})
+
+    with pytest.raises(TypeError):
+        takes_kwargs(1, kwarg=1)
