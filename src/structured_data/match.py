@@ -162,7 +162,7 @@ class Matchable:
 pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
 
 
-class Function:
+class Descriptor:
     __wrapped__ = None
 
     def __new__(cls, func, *args, **kwargs):
@@ -171,6 +171,19 @@ class Function:
     def __init__(self, func, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.matchers = []
+
+    def _decorate(self, structure, function):
+        self.matchers.append((structure, function))
+        return function
+
+    @pep_570_when
+    def when(self, kwargs):
+        structure = DictPattern(kwargs, exhaustive=True)
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, structure)
+
+
+class Function(Descriptor):
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -213,16 +226,6 @@ class Function:
                 function_args.apply_defaults()
                 return function(*function_args.args, **function_args.kwargs)
         raise ValueError(values)
-
-    def _decorate(self, structure, function):
-        self.matchers.append((structure, function))
-        return function
-
-    @pep_570_when
-    def when(self, kwargs):
-        structure = DictPattern(kwargs, exhaustive=True)
-        names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, structure)
 
 
 # This wraps a function that, for reasons, can't be called directly by the code
