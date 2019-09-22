@@ -176,12 +176,6 @@ class Descriptor:
         self.matchers.append((structure, function))
         return function
 
-    @pep_570_when
-    def when(self, kwargs):
-        structure = DictPattern(kwargs, exhaustive=True)
-        names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(self._decorate, structure)
-
 
 class Function(Descriptor):
 
@@ -226,6 +220,12 @@ class Function(Descriptor):
                 function_args.apply_defaults()
                 return function(*function_args.args, **function_args.kwargs)
         raise ValueError(values)
+
+    @pep_570_when
+    def when(self, kwargs):
+        structure = DictPattern(kwargs, exhaustive=True)
+        names(structure)  # Raise ValueError if there are duplicates
+        return functools.partial(self._decorate, structure)
 
 
 # This wraps a function that, for reasons, can't be called directly by the code
