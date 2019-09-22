@@ -287,8 +287,6 @@ class Sum:
 
         _sum_new(cls, frozenset(_prewritten_methods.SUBCLASS_ORDER[cls]))
 
-        _set_new_functions(cls, source.__bool__)
-
         if repr:
             _set_new_functions(cls, source.__repr__)
 
@@ -308,6 +306,9 @@ class Sum:
                 cls=cls,
                 source=source,
             )
+
+    def __bool__(self):
+        return True
 
     def __setattr__(self, name, value):
         if inspect.isdatadescriptor(inspect.getattr_static(self, name, MISSING)):
@@ -430,9 +431,10 @@ class Product(_adt_constructor.ADTConstructor, tuple):
             super().__delattr__(name)
         cant_modify(self, name)
 
-    source = _prewritten_methods.PrewrittenProductMethods
+    def __bool__(self):
+        return True
 
-    __bool__ = source.__bool__
+    source = _prewritten_methods.PrewrittenProductMethods
 
     # pylint: disable=protected-access
     __repr__ = _conditional_method.conditional_method(source).__repr  # type: ignore

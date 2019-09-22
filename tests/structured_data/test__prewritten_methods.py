@@ -15,7 +15,6 @@ def classes(_adt_constructor, _prewritten_methods):
         __gt__ = _prewritten_methods.PrewrittenSumMethods.__gt__
         __ge__ = _prewritten_methods.PrewrittenSumMethods.__ge__
         __hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
-        __bool__ = _prewritten_methods.PrewrittenSumMethods.__bool__
 
     class Derived1(Base):
 
@@ -51,9 +50,6 @@ def product_class(_prewritten_methods):
         __gt__ = _prewritten_methods.PrewrittenProductMethods.__gt__
         __ge__ = _prewritten_methods.PrewrittenProductMethods.__ge__
         __hash__ = _prewritten_methods.PrewrittenProductMethods.__hash__
-        __setattr__ = _prewritten_methods.PrewrittenProductMethods.__setattr__
-        __delattr__ = _prewritten_methods.PrewrittenProductMethods.__delattr__
-        __bool__ = _prewritten_methods.PrewrittenProductMethods.__bool__
 
     return Product
 
@@ -148,14 +144,6 @@ def test_product_hash(product_class):
     assert hash(product_class()) == hash(())
 
 
-def test_sum_bool(classes):
-    assert classes[1]()
-
-
-def test_product_bool(product_class):
-    assert product_class()
-
-
 def test_sum_cant_subclass(classes):
     with pytest.raises(TypeError, match="^Cannot further subclass the class "):
 
@@ -168,4 +156,4 @@ def test_product_can_subclass(product_class):
         __slots__ = ()
 
     assert Test
-    assert Test()
+    assert Test() is not None

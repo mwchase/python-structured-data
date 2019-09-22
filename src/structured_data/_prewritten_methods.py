@@ -38,9 +38,6 @@ class CommonPrewrittenMethods:
     def __hash__(self):
         return hash(unpack(self))
 
-    def __bool__(self):
-        return True
-
 
 class PrewrittenProductMethods(CommonPrewrittenMethods):
     """Methods for subclasses of ``structured_data.adt.Product``."""
