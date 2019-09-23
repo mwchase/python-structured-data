@@ -311,7 +311,7 @@ class Property(Descriptor):
         return functools.partial(_decorate, self.delete_matchers, structure)
 
 
-def _dispatch(func, matches, bound_args, bound_kwargs, values):
+def _dispatch(func, matches, bound_args, bound_kwargs):
     for key, value in matches.items():
         if key in bound_kwargs:
             raise TypeError
@@ -367,7 +367,7 @@ class Function(Descriptor):
         matchable = Matchable(values)
         for structure, func in self.matchers:
             if matchable(structure):
-                return _dispatch(func, matchable.matches, bound_args, bound_kwargs, values)
+                return _dispatch(func, matchable.matches, bound_args, bound_kwargs)
         raise ValueError(values)
 
     @pep_570_when
