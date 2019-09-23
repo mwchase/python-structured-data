@@ -311,6 +311,20 @@ class Property(Descriptor):
         return functools.partial(_decorate, self.delete_matchers, structure)
 
 
+def _dispatch(func, matches, bound_args, bound_kwargs, values):
+    for key, value in matches.items():
+        if key in bound_kwargs:
+            raise TypeError
+        bound_kwargs[key] = value
+    function_sig = inspect.signature(func)
+    function_args = function_sig.bind(**bound_kwargs)
+    for parameter in function_sig.parameters.values():
+        if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+            function_args.arguments[parameter.name] = bound_args
+    function_args.apply_defaults()
+    return func(*function_args.args, **function_args.kwargs)
+
+
 class Function(Descriptor):
     """Decorator with value-based dispatch. Acts as a function."""
 
@@ -324,10 +338,7 @@ class Function(Descriptor):
             return self
         return functools.partial(self, instance)
 
-    def __call__(*args, **kwargs):
-        # Okay, so, this is a convoluted mess.
-        # First, we extract self from the beginning of the argument list
-        self, *args = args
+    def _bound_and_values(self, args, kwargs):
         # Then we figure out what signature we're giving the outside world.
         signature = inspect.signature(self)
         # The signature lets us regularize the call and apply any defaults
@@ -344,21 +355,19 @@ class Function(Descriptor):
                 bound_args = values.pop(parameter.name)
             if parameter.kind is inspect.Parameter.VAR_KEYWORD:
                 bound_kwargs = values.pop(parameter.name)
+        return bound_args, bound_kwargs, values
+
+    def __call__(*args, **kwargs):
+        # Okay, so, this is a convoluted mess.
+        # First, we extract self from the beginning of the argument list
+        self, *args = args
+
+        bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
 
         matchable = Matchable(values)
         for structure, func in self.matchers:
             if matchable(structure):
-                for key, value in matchable.matches.items():
-                    if key in bound_kwargs:
-                        raise TypeError
-                    bound_kwargs[key] = value
-                function_sig = inspect.signature(func)
-                function_args = function_sig.bind(**bound_kwargs)
-                for parameter in function_sig.parameters.values():
-                    if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
-                        function_args.arguments[parameter.name] = bound_args
-                function_args.apply_defaults()
-                return func(*function_args.args, **function_args.kwargs)
+                return _dispatch(func, matchable.matches, bound_args, bound_kwargs, values)
         raise ValueError(values)
 
     @pep_570_when
