@@ -150,6 +150,7 @@ def _product_new(
 
         signature = inspect.signature(original_new)
     else:
+
         def __new__(*args, **kwargs):
             cls, *args = args
             return super(_cls, cls).__new__(cls, *args, **kwargs)
@@ -177,9 +178,12 @@ def _ordering_options_are_valid(
         raise ValueError("eq must be true if order is true")
 
 
-def _set_ordering(*, can_set: bool, setter, cls: type, source: type):
+def _can_set_ordering(*, can_set: bool):
     if not can_set:
         raise ValueError("Can't add ordering methods if equality methods are provided.")
+
+
+def _set_ordering(*, setter, cls: type, source: type):
     collision = setter(
         cls, source.__lt__, source.__le__, source.__gt__, source.__ge__  # type: ignore
     )
@@ -300,12 +304,8 @@ class Sum:
             cls.__hash__ = source.__hash__  # type: ignore
 
         if order:
-            _set_ordering(
-                can_set=equality_methods_were_set,
-                setter=_set_new_functions,
-                cls=cls,
-                source=source,
-            )
+            _can_set_ordering(can_set=equality_methods_were_set)
+            _set_ordering(setter=_set_new_functions, cls=cls, source=source)
 
     def __bool__(self):
         return True
@@ -405,12 +405,8 @@ class Product(_adt_constructor.ADTConstructor, tuple):
             )
 
         if cls.__order:
-            _set_ordering(
-                can_set=cls.__eq_succeeded,
-                setter=_cant_set_new_functions,
-                cls=cls,
-                source=source,
-            )
+            _can_set_ordering(can_set=cls.__eq_succeeded)
+            _set_ordering(setter=_cant_set_new_functions, cls=cls, source=source)
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
