@@ -294,11 +294,9 @@ class Sum:
         if repr:
             _set_new_functions(cls, source.__repr__)
 
-        equality_methods_were_set = False
-        if eq:
-            equality_methods_were_set = not _set_new_functions(
-                cls, source.__eq__, source.__ne__
-            )
+        equality_methods_were_set = eq and not _set_new_functions(
+            cls, source.__eq__, source.__ne__
+        )
 
         if equality_methods_were_set:
             cls.__hash__ = source.__hash__  # type: ignore
@@ -398,11 +396,9 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
         source = _prewritten_methods.PrewrittenProductMethods
 
-        cls.__eq_succeeded = False
-        if cls.__eq:
-            cls.__eq_succeeded = not _cant_set_new_functions(
-                cls, source.__eq__, source.__ne__
-            )
+        cls.__eq_succeeded = cls.__eq and not _cant_set_new_functions(
+            cls, source.__eq__, source.__ne__
+        )
 
         if cls.__order:
             _can_set_ordering(can_set=cls.__eq_succeeded)
