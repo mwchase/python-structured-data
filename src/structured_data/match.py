@@ -369,6 +369,22 @@ class Function(Descriptor):
         return functools.partial(_decorate, self.matchers, structure)
 
 
+def _make_args_positional(func, positional_until):
+    signature = inspect.signature(func)
+    new_parameters = []
+    for index, parameter in enumerate(signature.parameters.values()):
+        if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
+            raise ValueError("Signature already contains positional-only arguments")
+        if index < positional_until:
+            if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
+            parameter = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
+        new_parameters.append(parameter)
+    new_signature = signature.replace(parameters=new_parameters)
+    if new_signature != signature:
+        func.__signature__ = new_signature
+
+
 # This wraps a function that, for reasons, can't be called directly by the code
 # The function body should probably just be a docstring.
 def function(_func=None, *, positional_until=0):
@@ -377,19 +393,7 @@ def function(_func=None, *, positional_until=0):
     The original function is not called when the dispatch function is invoked.
     """
     def wrap(func):
-        signature = inspect.signature(func)
-        new_parameters = []
-        for index, parameter in enumerate(signature.parameters.values()):
-            if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
-                raise ValueError("Signature already contains positional-only arguments")
-            if index < positional_until:
-                if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                    raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
-                parameter = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
-            new_parameters.append(parameter)
-        new_signature = signature.replace(parameters=new_parameters)
-        if new_signature != signature:
-            func.__signature__ = new_signature
+        _make_args_positional(func, positional_until)
         return Function(func)
 
     if _func is None:
