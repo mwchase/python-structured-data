@@ -239,15 +239,27 @@ class Property(Descriptor):
 
     def getter(self, getter):
         """Return a copy of self with the getter replaced."""
-        return Property(getter, self.fset, self.fdel, self.__doc__)
+        new = Property(getter, self.fset, self.fdel, self.__doc__)
+        new.get_matchers.extend(self.get_matchers)
+        new.set_matchers.extend(self.set_matchers)
+        new.delete_matchers.extend(self.delete_matchers)
+        return new
 
     def setter(self, setter):
         """Return a copy of self with the setter replaced."""
-        return Property(self.__wrapped__, setter, self.fdel, self.__doc__)
+        new = Property(self.__wrapped__, setter, self.fdel, self.__doc__)
+        new.get_matchers.extend(self.get_matchers)
+        new.set_matchers.extend(self.set_matchers)
+        new.delete_matchers.extend(self.delete_matchers)
+        return new
 
     def deleter(self, deleter):
         """Return a copy of self with the deleter replaced."""
-        return Property(self.__wrapped__, self.fset, deleter, self.__doc__)
+        new = Property(self.__wrapped__, self.fset, deleter, self.__doc__)
+        new.get_matchers.extend(self.get_matchers)
+        new.set_matchers.extend(self.set_matchers)
+        new.delete_matchers.extend(self.delete_matchers)
+        return new
 
     def __get__(self, instance, owner):
         if instance is None:
