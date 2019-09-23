@@ -373,7 +373,7 @@ def _make_args_positional(func, positional_until):
     signature = inspect.signature(func)
     new_parameters = []
     for index, parameter in enumerate(signature.parameters.values()):
-        if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
+        if positional_until and parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
             raise ValueError("Signature already contains positional-only arguments")
         if index < positional_until:
             if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
