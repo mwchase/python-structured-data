@@ -134,11 +134,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
     _cls.__new__ = staticmethod(__new__)  # type: ignore
 
 
-def _product_new(
-    _cls: typing.Type[_T],
-    annotations: typing.Dict[str, typing.Any],
-    defaults: typing.Dict[str, typing.Any],
-):
+def _product_new(_cls: typing.Type[_T], _signature):
     if "__new__" in vars(_cls):
         original_new = _cls.__new__
 
@@ -155,17 +151,9 @@ def _product_new(
             cls, *args = args
             return super(_cls, cls).__new__(cls, *args, **kwargs)
 
-        signature = inspect.signature(__new__).replace(
+        signature = _signature.replace(
             parameters=[inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)]
-            + [
-                inspect.Parameter(
-                    field,
-                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                    annotation=annotation,
-                    default=defaults.get(field, inspect.Parameter.empty),
-                )
-                for (field, annotation) in annotations.items()
-            ]
+            + list(_signature.parameters.values())
         )
     __new__.__signature__ = signature  # type: ignore
     _cls.__new__ = __new__  # type: ignore
@@ -194,50 +182,6 @@ def _set_ordering(*, setter, cls: type, source: type):
                 collision=collision, name=cls.__name__
             )
         )
-
-
-def _values_non_empty(
-    cls: type, field_names: typing.Iterator[str]
-) -> typing.Iterator[typing.Tuple[str, typing.Any]]:
-    for field in field_names:
-        default = getattr(cls, field, inspect.Parameter.empty)
-        if default is inspect.Parameter.empty:
-            return
-        yield (field, default)
-
-
-def _values_until_non_empty(
-    cls: type, field_names: typing.Iterator[str]
-) -> typing.Iterator:
-    for field in field_names:
-        default = getattr(cls, field, inspect.Parameter.empty)
-        if default is not inspect.Parameter.empty:
-            yield
-
-
-def _extract_defaults(*, cls: type, annotations: typing.Iterable[str]):
-    field_names = iter(reversed(tuple(annotations)))
-    defaults = dict(_values_non_empty(cls, field_names))
-    for _ in _values_until_non_empty(cls, field_names):
-        raise TypeError
-    return defaults
-
-
-def _unpack_args(
-    *,
-    args: typing.Tuple[typing.Any, ...],
-    kwargs: typing.Dict[str, typing.Any],
-    fields: typing.Iterable[str],
-    values: typing.Dict[str, typing.Any],
-):
-    fields_iter = iter(fields)
-    values.update({field: arg for (arg, field) in zip(args, fields_iter)})
-    for field in fields_iter:
-        if field in values and field not in kwargs:
-            continue
-        values[field] = kwargs.pop(field)
-    if kwargs:
-        raise TypeError(kwargs)
 
 
 class Sum:
@@ -346,20 +290,11 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         if cls is Product:
             raise TypeError
         # Probably a result of not having positional-only args.
-        values = cls.__defaults.copy()  # pylint: disable=protected-access
-        _unpack_args(
-            args=args,
-            kwargs=kwargs,
-            fields=cls.__fields,  # pylint: disable=protected-access
-            values=values,
-        )
-        return super(Product, cls).__new__(
-            cls,
-            [
-                values[field]
-                for field in cls.__fields  # pylint: disable=protected-access
-            ],
-        )
+        bound_arguments = cls.__signature.bind(
+            *args, **kwargs
+        )  # pylint: disable=protected-access
+        bound_arguments.apply_defaults()
+        return super(Product, cls).__new__(cls, bound_arguments.arguments.values())
 
     __repr: typing.ClassVar[bool] = True
     __eq: typing.ClassVar[bool] = True
@@ -387,12 +322,23 @@ class Product(_adt_constructor.ADTConstructor, tuple):
 
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
-        cls.__annotations = _annotations.product_args_from_annotations(cls)
-        cls.__fields = {field: index for (index, field) in enumerate(cls.__annotations)}
+        annotations = _annotations.product_args_from_annotations(cls)
+        params = [
+            inspect.Parameter(
+                name,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                default=getattr(cls, name, inspect.Parameter.empty),
+                annotation=annotation,
+            )
+            for (name, annotation) in annotations.items()
+        ]
+        try:
+            cls.__signature = inspect.Signature(parameters=params, return_annotation=cls)
+        except ValueError:
+            raise TypeError
+        cls.__fields = {field: index for (index, field) in enumerate(annotations)}
 
-        cls.__defaults = _extract_defaults(cls=cls, annotations=cls.__annotations)
-
-        _product_new(cls, cls.__annotations, cls.__defaults)
+        _product_new(cls, cls.__signature)
 
         source = _prewritten_methods.PrewrittenProductMethods
 
