@@ -19,25 +19,22 @@ import functools
 import inspect
 import typing
 
-from ._attribute_constructor import AttributeConstructor
-from ._destructure import DESTRUCTURERS
-from ._match_failure import MatchFailure
-from ._not_in import not_in
+from . import _attribute_constructor
+from . import _destructure
+from . import _match_failure
+from . import _not_in
+from . import _pep_570_when
+from . import _stack_iter
 from ._patterns.basic_patterns import DISCARD
 from ._patterns.basic_patterns import Pattern
 from ._patterns.bind import Bind
 from ._patterns.mapping_match import AttrPattern
 from ._patterns.mapping_match import DictPattern
-from ._pep_570_when import pep_570_when
-from ._stack_iter import Action
-from ._stack_iter import Extend
-from ._stack_iter import Yield
-from ._stack_iter import stack_iter
 
 
 def names(target) -> typing.List[str]:
     """Return every name bound by a target."""
-    return DESTRUCTURERS.names(target)
+    return _destructure.DESTRUCTURERS.names(target)
 
 
 def _as_name(key):
@@ -93,17 +90,17 @@ class MatchDict(collections.abc.MutableMapping):
         return len(self.data)
 
 
-def _stack_iteration(item) -> typing.Optional[Action]:
+def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
     target, value = item
     if target is DISCARD:
         return None
     if isinstance(target, Pattern):
-        return Yield(item)
-    destructurer = DESTRUCTURERS.get_destructurer(target)
+        return _stack_iter.Yield(item)
+    destructurer = _destructure.DESTRUCTURERS.get_destructurer(target)
     if destructurer:
-        return Extend(zip(destructurer(target), destructurer(value)))
+        return _stack_iter.Extend(zip(destructurer(target), destructurer(value)))
     if target != value:
-        raise MatchFailure
+        raise _match_failure.MatchFailure
     return None
 
 
@@ -111,10 +108,10 @@ def _match(target, value) -> MatchDict:
     local_target = target
     local_value = value
     match_dict = MatchDict()
-    for local_target, local_value in stack_iter(
+    for local_target, local_value in _stack_iter.stack_iter(
         (local_target, local_value), _stack_iteration
     ):
-        not_in(container=match_dict, item=local_target.name)
+        _not_in.not_in(container=match_dict, item=local_target.name)
         match_dict[local_target.name] = local_value
     return match_dict
 
@@ -142,7 +139,7 @@ class Matchable:
         """Match against target, generating a set of bindings."""
         try:
             self.matches = _match(target, self.value)
-        except MatchFailure:
+        except _match_failure.MatchFailure:
             self.matches = None
         return self
 
@@ -159,7 +156,9 @@ class Matchable:
 
 
 # In lower-case for aesthetics.
-pat = AttributeConstructor(Pattern)  # pylint: disable=invalid-name
+pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-name
+    Pattern
+)
 
 
 def _decorate(matchers, structure, func):
@@ -169,6 +168,7 @@ def _decorate(matchers, structure, func):
 
 class Descriptor:
     """Base class for decorator classes."""
+
     __wrapped__ = None
 
     def __new__(cls, func, *args, **kwargs):
@@ -180,7 +180,6 @@ class Descriptor:
 
 
 class _DocWrapper:
-
     def __init__(self, doc=None):
         self.doc = doc
 
@@ -370,7 +369,7 @@ class Function(Descriptor):
                 return _dispatch(func, matchable.matches, bound_args, bound_kwargs)
         raise ValueError(values)
 
-    @pep_570_when
+    @_pep_570_when.pep_570_when
     def when(self, kwargs):
         """Add a binding for this function."""
         structure = DictPattern(kwargs, exhaustive=True)
@@ -401,6 +400,7 @@ def function(_func=None, *, positional_until=0):
 
     The original function is not called when the dispatch function is invoked.
     """
+
     def wrap(func):
         _make_args_positional(func, positional_until)
         return Function(func)
@@ -413,6 +413,7 @@ def function(_func=None, *, positional_until=0):
 
 def decorate_in_order(*args):
     """Apply decorators in the order they're passed to the function."""
+
     def decorator(func):
         for arg in args:
             func = arg(func)
