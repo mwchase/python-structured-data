@@ -320,6 +320,8 @@ class Product(_adt_constructor.ADTConstructor, tuple):
         if order is not None:
             cls.__order = order
 
+        del repr, eq, order
+
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
         annotations = _annotations.product_args_from_annotations(cls)
