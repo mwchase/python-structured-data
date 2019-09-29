@@ -1,7 +1,6 @@
 import functools
 import inspect
 
-from .. import _destructure
 from .. import _matchable
 from .. import _pep_570_when
 from .._patterns import mapping_match
@@ -75,6 +74,6 @@ class Function(common.Descriptor):
     @_pep_570_when.pep_570_when
     def when(self, kwargs):
         """Add a binding for this function."""
-        structure = mapping_match.DictPattern(kwargs, exhaustive=True)
-        _destructure.names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(common.decorate, self.matchers, structure)
+        return common.decorate(
+            self.matchers, mapping_match.DictPattern(kwargs, exhaustive=True)
+        )

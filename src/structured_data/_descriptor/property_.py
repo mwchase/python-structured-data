@@ -1,6 +1,3 @@
-import functools
-
-from .. import _destructure
 from .. import _doc_wrapper
 from .. import _matchable
 from . import common
@@ -98,18 +95,12 @@ class Property(common.Descriptor):
 
     def get_when(self, instance):
         """Add a binding to the getter."""
-        structure = instance
-        _destructure.names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(common.decorate, self.get_matchers, structure)
+        return common.decorate(self.get_matchers, instance)
 
     def set_when(self, instance, value):
         """Add a binding to the setter."""
-        structure = (instance, value)
-        _destructure.names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(common.decorate, self.set_matchers, structure)
+        return common.decorate(self.set_matchers, (instance, value))
 
     def delete_when(self, instance):
         """Add a binding to the deleter."""
-        structure = instance
-        _destructure.names(structure)  # Raise ValueError if there are duplicates
-        return functools.partial(common.decorate, self.delete_matchers, structure)
+        return common.decorate(self.delete_matchers, instance)
