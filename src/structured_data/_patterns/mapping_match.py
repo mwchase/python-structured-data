@@ -28,7 +28,9 @@ class AttrPattern(CompoundMatch, tuple):
 
     @pep_570_when
     def __new__(cls, kwargs) -> "AttrPattern":
-        return super(AttrPattern, cls).__new__(cls, (tuple(kwargs.items()),))
+        return super(AttrPattern, cls).__new__(
+            cls, (tuple(kwargs.items()),)  # type: ignore
+        )
 
     @property
     def match_dict(self):
@@ -94,7 +96,9 @@ class DictPattern(CompoundMatch, tuple):
     __slots__ = ()
 
     def __new__(cls, match_dict, *, exhaustive=False) -> "DictPattern":
-        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
+        return super().__new__(
+            cls, (tuple(match_dict.items()), exhaustive)  # type: ignore
+        )
 
     @property
     def match_dict(self):

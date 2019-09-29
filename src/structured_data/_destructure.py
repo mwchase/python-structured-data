@@ -17,10 +17,12 @@ from ._unpack import unpack
 class Destructurer:
     """Abstract base class for destructuring third-party code."""
 
-    def __init_subclass__(cls, **kwargs):
+    type: typing.ClassVar[type]
+
+    def __init_subclass__(cls, **kwargs) -> None:
         type_: type = kwargs.pop("type")
-        super().__init_subclass__(**kwargs)
-        cls.type: type = type_
+        super().__init_subclass__(**kwargs)  # type: ignore
+        cls.type = type_
 
     def __init__(self, target):
         self.target = target

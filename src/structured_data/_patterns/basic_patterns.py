@@ -30,7 +30,7 @@ class Pattern(tuple):
             raise ValueError
         if keyword.iskeyword(name):
             raise ValueError
-        return super().__new__(cls, (sys.intern(name),))
+        return super().__new__(cls, (sys.intern(name),))  # type: ignore
 
     @property
     def name(self) -> str:
@@ -46,10 +46,12 @@ class AsPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, pattern: Pattern, structure) -> typing.Union[Pattern, AsPattern]:
+    def __new__(  # type: ignore
+        cls, pattern: Pattern, structure
+    ) -> typing.Union[Pattern, AsPattern]:
         if structure is DISCARD:
             return pattern
-        return super().__new__(cls, (pattern, structure))
+        return super().__new__(cls, (pattern, structure))  # type: ignore
 
     @property
     def pattern(self) -> Pattern:
