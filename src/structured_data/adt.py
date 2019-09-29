@@ -44,9 +44,9 @@ Putting it together:
 import inspect
 import typing
 
-from . import _annotations
 from . import _conditional_method
 from . import _prewritten_methods
+from ._adt import annotations
 from ._adt import constructor
 
 _T = typing.TypeVar("_T")
@@ -324,7 +324,7 @@ class Product(constructor.ADTConstructor, tuple):
 
         _ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
-        annotations = _annotations.product_args_from_annotations(cls)
+        annotations_ = annotations.product_args_from_annotations(cls)
         params = [
             inspect.Parameter(
                 name,
@@ -332,13 +332,13 @@ class Product(constructor.ADTConstructor, tuple):
                 default=getattr(cls, name, inspect.Parameter.empty),
                 annotation=annotation,
             )
-            for (name, annotation) in annotations.items()
+            for (name, annotation) in annotations_.items()
         ]
         try:
             cls.__signature = inspect.Signature(parameters=params, return_annotation=cls)
         except ValueError:
             raise TypeError
-        cls.__fields = {field: index for (index, field) in enumerate(annotations)}
+        cls.__fields = {field: index for (index, field) in enumerate(annotations_)}
 
         _product_new(cls, cls.__signature)
 

@@ -3,8 +3,8 @@
 import sys
 import typing
 
-from . import _ctor
-from . import _nillable_write
+from .. import _ctor
+from .. import _nillable_write
 
 
 def _all_annotations(cls: type) -> typing.Iterator[typing.Tuple[type, str, typing.Any]]:

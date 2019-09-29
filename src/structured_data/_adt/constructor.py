@@ -7,7 +7,7 @@ import inspect
 import typing
 import weakref
 
-from .. import _annotations
+from . import annotations
 
 _T = typing.TypeVar("_T")
 
@@ -100,25 +100,25 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
     setattr(_cls, name, SumMember(Constructor))
     subclass_order.append(Constructor)
 
-    annotations = {f"_{index}": arg for (index, arg) in enumerate(args)}
+    annotations_ = {f"_{index}": arg for (index, arg) in enumerate(args)}
     parameters = [
         inspect.Parameter(name, inspect.Parameter.POSITIONAL_ONLY, annotation=arg)
-        for (name, arg) in annotations.items()
+        for (name, arg) in annotations_.items()
     ]
-    annotations["return"] = _cls.__qualname__
+    annotations_["return"] = _cls.__qualname__
 
     Constructor.__new__.__signature__ = inspect.Signature(  # type: ignore
         [inspect.Parameter("cls", inspect.Parameter.POSITIONAL_ONLY)] + parameters,
         return_annotation=_cls.__qualname__,
     )
-    Constructor.__new__.__annotations__ = annotations
+    Constructor.__new__.__annotations__ = annotations_
 
 
 def make_constructors(cls: typing.Type[_T]):
     """Return all of the constructors of the given class in definition order."""
     subclass_order: typing.List[typing.Type[_T]] = []
 
-    for name, args in _annotations.sum_args_from_annotations(cls).items():
+    for name, args in annotations.sum_args_from_annotations(cls).items():
         make_constructor(cls, name, args, subclass_order)
 
     return tuple(subclass_order)
