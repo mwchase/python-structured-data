@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def classes(_adt_constructor, _prewritten_methods):
+def classes(adt__constructor, _prewritten_methods):
     class Base(tuple):
 
         __slots__ = ()
@@ -29,7 +29,7 @@ def classes(_adt_constructor, _prewritten_methods):
     Base.__init_subclass__ = _prewritten_methods.PrewrittenSumMethods.__init_subclass__
 
     for cls in (Derived1, Derived2):
-        _adt_constructor.ADT_BASES[cls] = Base
+        adt__constructor.ADT_BASES[cls] = Base
 
     _prewritten_methods.SUBCLASS_ORDER[Base] = (Derived1, Derived2)
 

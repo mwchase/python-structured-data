@@ -3,7 +3,7 @@
 import typing
 import weakref
 
-from ._adt_constructor import ADT_BASES
+from ._adt.constructor import ADT_BASES
 from ._unpack import unpack
 
 

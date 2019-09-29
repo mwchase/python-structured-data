@@ -23,10 +23,10 @@ def _prewritten_methods():
 
 
 @pytest.fixture(scope="session")
-def _adt_constructor():
-    from structured_data import _adt_constructor
+def adt__constructor():
+    import structured_data._adt.constructor
 
-    return _adt_constructor
+    return structured_data._adt.constructor
 
 
 @pytest.fixture(scope="session")

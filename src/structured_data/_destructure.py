@@ -2,7 +2,7 @@
 
 import typing
 
-from ._adt_constructor import ADTConstructor
+from ._adt.constructor import ADTConstructor
 from ._match_failure import MatchFailure
 from ._not_in import not_in
 from ._patterns.basic_patterns import Pattern

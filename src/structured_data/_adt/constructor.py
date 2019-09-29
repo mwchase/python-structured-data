@@ -7,7 +7,7 @@ import inspect
 import typing
 import weakref
 
-from . import _annotations
+from .. import _annotations
 
 _T = typing.TypeVar("_T")
 

@@ -44,10 +44,10 @@ Putting it together:
 import inspect
 import typing
 
-from . import _adt_constructor
 from . import _annotations
 from . import _conditional_method
 from . import _prewritten_methods
+from ._adt import constructor
 
 _T = typing.TypeVar("_T")
 
@@ -206,7 +206,7 @@ class Sum:
 
     def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
         cls, *args = args
-        if not issubclass(cls, _adt_constructor.ADTConstructor):
+        if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)
 
@@ -221,11 +221,11 @@ class Sum:
         **kwargs,
     ):
         super().__init_subclass__(**kwargs)  # type: ignore
-        if issubclass(cls, _adt_constructor.ADTConstructor):
+        if issubclass(cls, constructor.ADTConstructor):
             return
         _ordering_options_are_valid(eq=eq, order=order)
 
-        _prewritten_methods.SUBCLASS_ORDER[cls] = _adt_constructor.make_constructors(
+        _prewritten_methods.SUBCLASS_ORDER[cls] = constructor.make_constructors(
             cls
         )
 
@@ -263,7 +263,7 @@ class Sum:
         super().__delattr__(name)
 
 
-class Product(_adt_constructor.ADTConstructor, tuple):
+class Product(constructor.ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
     Examines PEP 526 __annotations__ to determine fields.
