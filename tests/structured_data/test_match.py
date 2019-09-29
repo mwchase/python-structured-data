@@ -1,57 +1,6 @@
 import pytest
 
 
-def test_matching(adt, match):
-    class TestClass(adt.Sum):
-        StrPair: adt.Ctor[str, str]
-
-    matchable = match.Matchable(((1, 2), TestClass.StrPair("a", "b")))
-    assert not matchable(((match.pat._, 4), match.pat._))
-    assert matchable.matches is None
-    with pytest.raises(ValueError):
-        assert not matchable[None]
-    structure = match.Bind(
-        (match.pat.tup[1, match.pat.a], TestClass.StrPair(match.pat.b, match.pat.c)),
-        bound=5,
-    )
-    assert matchable(structure)
-    assert matchable.matches == dict(tup=(1, 2), a=2, b="a", c="b", bound=5)
-    assert matchable[match.pat.a, match.pat.b, match.pat.c, match.pat.tup] == (
-        2,
-        "a",
-        "b",
-        (1, 2),
-    )
-    assert list(matchable.matches) == [
-        "tup",
-        "a",
-        "b",
-        "c",
-        "bound",
-    ]  # Should preserve ordering.
-    assert match.names(structure) == ["tup", "a", "b", "c", "bound"]
-    assert matchable[dict(hello=match.pat.a, world=match.pat.b)] == dict(
-        hello=2, world="a"
-    )
-
-
-def test_map_interface(match):
-    matchable = match.Matchable((1, 2, 3, 4))
-    matchable((match.pat.a, match.pat._, match.pat._, match.pat.b))
-    assert len(matchable.matches) == 2
-    with pytest.raises(KeyError):
-        assert not matchable[None]
-
-    matchable.matches[match.pat.c] = 7
-    del matchable.matches[match.pat.c]
-
-    with pytest.raises(TypeError):
-        matchable.matches[None] = None
-
-    with pytest.raises(KeyError):
-        del matchable.matches[None]
-
-
 def test_different_length_tuples(match):
     assert not match.Matchable((1,))((1, 1))
 
@@ -62,7 +11,11 @@ def test_different_constructors(adt, match):
         Right: adt.Ctor[str]
 
     matchable = match.Matchable(TestClass.Left(5))
+    assert matchable(TestClass.Left(match.pat._))
     assert not matchable(TestClass.Right("abc"))
+    assert matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not matchable[None]
 
 
 def test_products(adt, match):
@@ -81,12 +34,30 @@ def test_products(adt, match):
 
     assert not base_matchable(Subclass(1))
     assert not subclass_matchable(Base(1))
+    assert base_matchable.matches is None
+    assert subclass_matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not base_matchable[None]
+    with pytest.raises(ValueError):
+        assert not subclass_matchable[None]
 
     assert not base_matchable((1,))
     assert not subclass_matchable((1,))
+    assert base_matchable.matches is None
+    assert subclass_matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not base_matchable[None]
+    with pytest.raises(ValueError):
+        assert not subclass_matchable[None]
 
     assert not tuple_matchable(Base(1))
+    assert tuple_matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not tuple_matchable[None]
     assert not tuple_matchable(Subclass(1))
+    assert tuple_matchable.matches is None
+    with pytest.raises(ValueError):
+        assert not tuple_matchable[None]
 
 
 def test_decorate_in_order(match):
