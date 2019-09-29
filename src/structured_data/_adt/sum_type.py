@@ -10,6 +10,11 @@ from . import product_type
 _T = typing.TypeVar("_T")
 
 
+def _conditional_call(call: bool, func, *args):
+    if call:
+        func(*args)
+
+
 def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
@@ -87,8 +92,7 @@ class Sum:
 
         _sum_new(cls, frozenset(prewritten_methods.SUBCLASS_ORDER[cls]))
 
-        if repr:
-            _set_new_functions(cls, source.__repr__)
+        _conditional_call(repr, _set_new_functions, cls, source.__repr__)
 
         equality_methods_were_set = eq and not _set_new_functions(
             cls, source.__eq__, source.__ne__
