@@ -1,7 +1,7 @@
 """A pattern to bind external values to a match."""
 
-from .._not_in import not_in
-from .._pep_570_when import pep_570_when
+from ..._not_in import not_in
+from ..._pep_570_when import pep_570_when
 from .basic_patterns import Pattern
 from .compound_match import CompoundMatch
 

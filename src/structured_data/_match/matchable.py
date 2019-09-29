@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import typing
 
-from . import _match_dict
-from . import _match_failure
+from . import match_dict
+from . import match_failure
 
 
 class Matchable:
@@ -19,7 +19,7 @@ class Matchable:
     """
 
     value: typing.Any
-    matches: typing.Optional[_match_dict.MatchDict]
+    matches: typing.Optional[match_dict.MatchDict]
 
     def __init__(self, value: typing.Any):
         self.value = value
@@ -28,8 +28,8 @@ class Matchable:
     def match(self, target) -> Matchable:
         """Match against target, generating a set of bindings."""
         try:
-            self.matches = _match_dict.match(target, self.value)
-        except _match_failure.MatchFailure:
+            self.matches = match_dict.match(target, self.value)
+        except match_failure.MatchFailure:
             self.matches = None
         return self
 

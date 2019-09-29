@@ -1,10 +1,10 @@
 import functools
 
-from .. import _destructure
+from .. import destructure
 
 
 def decorate(matchers, structure):
-    _destructure.names(structure)  # Raise ValueError if there are duplicates
+    destructure.names(structure)  # Raise ValueError if there are duplicates
 
     def decorator(func):
         matchers.append((structure, func))

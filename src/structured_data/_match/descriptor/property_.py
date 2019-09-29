@@ -1,5 +1,5 @@
-from .. import _doc_wrapper
-from .. import _matchable
+from ... import _doc_wrapper
+from .. import matchable
 from . import common
 
 
@@ -65,29 +65,29 @@ class Property(common.Descriptor):
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        matchable = _matchable.Matchable(instance)
+        matchable_ = matchable.Matchable(instance)
         for (structure, func) in self.get_matchers:
-            if matchable(structure):
-                return func(**matchable.matches)
+            if matchable_(structure):
+                return func(**matchable_.matches)
         if self.__wrapped__ is None:
             raise ValueError(self)
         return self.__wrapped__(instance)
 
     def __set__(self, instance, value):
-        matchable = _matchable.Matchable((instance, value))
+        matchable_ = matchable.Matchable((instance, value))
         for (structure, func) in self.set_matchers:
-            if matchable(structure):
-                func(**matchable.matches)
+            if matchable_(structure):
+                func(**matchable_.matches)
                 return
         if self.fset is None:
             raise ValueError((instance, value))
         self.fset(instance, value)
 
     def __delete__(self, instance):
-        matchable = _matchable.Matchable(instance)
+        matchable_ = matchable.Matchable(instance)
         for (structure, func) in self.delete_matchers:
-            if matchable(structure):
-                func(**matchable.matches)
+            if matchable_(structure):
+                func(**matchable_.matches)
                 return
         if self.fdel is None:
             raise ValueError(instance)

@@ -3,11 +3,11 @@ from __future__ import annotations
 import collections
 import typing
 
-from . import _destructure
-from . import _match_failure
-from . import _not_in
-from . import _stack_iter
-from ._patterns import basic_patterns
+from .. import _not_in
+from .. import _stack_iter
+from . import destructure
+from . import match_failure
+from .patterns import basic_patterns
 
 
 def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
@@ -16,11 +16,11 @@ def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
         return None
     if isinstance(target, basic_patterns.Pattern):
         return _stack_iter.Yield(item)
-    destructurer = _destructure.DESTRUCTURERS.get_destructurer(target)
+    destructurer = destructure.DESTRUCTURERS.get_destructurer(target)
     if destructurer:
         return _stack_iter.Extend(zip(destructurer(target), destructurer(value)))
     if target != value:
-        raise _match_failure.MatchFailure
+        raise match_failure.MatchFailure
     return None
 
 

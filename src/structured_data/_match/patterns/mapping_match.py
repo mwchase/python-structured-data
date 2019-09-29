@@ -2,8 +2,8 @@
 
 import typing
 
-from .._match_failure import MatchFailure
-from .._pep_570_when import pep_570_when
+from ..._pep_570_when import pep_570_when
+from ..match_failure import MatchFailure
 from .compound_match import CompoundMatch
 
 

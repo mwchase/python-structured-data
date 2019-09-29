@@ -2,16 +2,13 @@
 
 import typing
 
-from ._adt.constructor import ADTConstructor
-from ._match_failure import MatchFailure
-from ._not_in import not_in
-from ._patterns.basic_patterns import Pattern
-from ._patterns.compound_match import CompoundMatch
-from ._stack_iter import Action
-from ._stack_iter import Extend
-from ._stack_iter import Yield
-from ._stack_iter import stack_iter
-from ._unpack import unpack
+from .. import _stack_iter
+from .._adt.constructor import ADTConstructor
+from .._not_in import not_in
+from .._unpack import unpack
+from .match_failure import MatchFailure
+from .patterns.basic_patterns import Pattern
+from .patterns.compound_match import CompoundMatch
 
 
 class Destructurer:
@@ -126,11 +123,11 @@ class DestructurerList(tuple):
         if destructurer:
             yield from destructurer(item)
 
-    def stack_iteration(self, item) -> Action:
+    def stack_iteration(self, item) -> _stack_iter.Action:
         """If ``item`` is a ``Pattern``, yield its name. Otherwise, recurse."""
         if isinstance(item, Pattern):
-            return Yield(item)
-        return Extend(self.destructure(item))
+            return _stack_iter.Yield(item)
+        return _stack_iter.Extend(self.destructure(item))
 
     def names(self, target) -> typing.List[str]:
         """Return a list of names bound by the given structure.
@@ -138,7 +135,7 @@ class DestructurerList(tuple):
         Raise ValueError if there are duplicate names.
         """
         name_list: typing.List[str] = []
-        for item in stack_iter(target, self.stack_iteration):
+        for item in _stack_iter.stack_iter(target, self.stack_iteration):
             not_in(container=name_list, item=item.name)
             name_list.append(item.name)
         return name_list

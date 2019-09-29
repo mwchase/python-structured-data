@@ -1,9 +1,9 @@
 import functools
 import inspect
 
-from .. import _matchable
-from .. import _pep_570_when
-from .._patterns import mapping_match
+from ... import _pep_570_when
+from .. import matchable
+from ..patterns import mapping_match
 from . import common
 
 
@@ -65,10 +65,10 @@ class Function(common.Descriptor):
 
         bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
 
-        matchable = _matchable.Matchable(values)
+        matchable_ = matchable.Matchable(values)
         for structure, func in self.matchers:
-            if matchable(structure):
-                return _dispatch(func, matchable.matches, bound_args, bound_kwargs)
+            if matchable_(structure):
+                return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
         raise ValueError(values)
 
     @_pep_570_when.pep_570_when

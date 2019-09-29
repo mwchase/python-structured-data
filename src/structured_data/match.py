@@ -17,15 +17,15 @@ from __future__ import annotations
 import inspect
 
 from . import _attribute_constructor
-from ._descriptor import function as function_
-from ._descriptor.property_ import Property
-from ._destructure import names
-from ._match_dict import MatchDict
-from ._matchable import Matchable
-from ._patterns.basic_patterns import Pattern
-from ._patterns.bind import Bind
-from ._patterns.mapping_match import AttrPattern
-from ._patterns.mapping_match import DictPattern
+from ._match.descriptor import function as function_
+from ._match.descriptor.property_ import Property
+from ._match.destructure import names
+from ._match.match_dict import MatchDict
+from ._match.matchable import Matchable
+from ._match.patterns.basic_patterns import Pattern
+from ._match.patterns.bind import Bind
+from ._match.patterns.mapping_match import AttrPattern
+from ._match.patterns.mapping_match import DictPattern
 
 # In lower-case for aesthetics.
 pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-name
