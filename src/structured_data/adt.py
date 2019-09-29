@@ -67,7 +67,7 @@ if typing.TYPE_CHECKING:  # pragma: nocover
 
 
 else:
-    from ._ctor import Ctor
+    from ._adt.ctor import Ctor
 
 
 # This is fine.
