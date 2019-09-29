@@ -145,3 +145,8 @@ class DestructurerList(tuple):
 
 
 DESTRUCTURERS = DestructurerList.custom()
+
+
+def names(target) -> typing.List[str]:
+    """Return every name bound by a target."""
+    return DESTRUCTURERS.names(target)
