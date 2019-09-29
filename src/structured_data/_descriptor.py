@@ -135,6 +135,12 @@ class Property(Descriptor):
         return functools.partial(_decorate, self.delete_matchers, structure)
 
 
+def _varargs(signature):
+    for parameter in signature.parameters.values():
+        if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+            yield parameter
+
+
 def _dispatch(func, matches, bound_args, bound_kwargs):
     for key, value in matches.items():
         if key in bound_kwargs:
@@ -142,9 +148,8 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
         bound_kwargs[key] = value
     function_sig = inspect.signature(func)
     function_args = function_sig.bind(**bound_kwargs)
-    for parameter in function_sig.parameters.values():
-        if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
-            function_args.arguments[parameter.name] = bound_args
+    for parameter in _varargs(function_sig):
+        function_args.arguments[parameter.name] = bound_args
     function_args.apply_defaults()
     return func(*function_args.args, **function_args.kwargs)
 
