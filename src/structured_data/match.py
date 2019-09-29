@@ -35,15 +35,13 @@ pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-na
 
 def _make_args_positional(func, positional_until):
     signature = inspect.signature(func)
-    new_parameters = []
-    for index, parameter in enumerate(signature.parameters.values()):
-        if positional_until and parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
+    new_parameters = list(signature.parameters.values())
+    for index, parameter in enumerate(new_parameters[:positional_until]):
+        if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
             raise ValueError("Signature already contains positional-only arguments")
-        if index < positional_until:
-            if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
-            parameter = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
-        new_parameters.append(parameter)
+        if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
+            raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
+        new_parameters[index] = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
     new_signature = signature.replace(parameters=new_parameters)
     if new_signature != signature:
         func.__signature__ = new_signature
