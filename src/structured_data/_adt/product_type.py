@@ -93,6 +93,15 @@ class Product(constructor.ADTConstructor, tuple):
     __order: typing.ClassVar[bool] = False
     __eq_succeeded = None
 
+    @classmethod
+    def __clear_nones(cls) -> None:
+        if cls.__repr is None:
+            del cls.__repr
+        if cls.__eq is None:
+            del cls.__eq
+        if cls.__order is None:
+            del cls.__order
+
     # Both of these are for consistency with modules defined in the stdlib.
     # BOOM!
     def __init_subclass__(
@@ -105,14 +114,12 @@ class Product(constructor.ADTConstructor, tuple):
     ):
         super().__init_subclass__(**kwargs)  # type: ignore
 
-        if repr is not None:
-            cls.__repr = repr
-        if eq is not None:
-            cls.__eq = eq
-        if order is not None:
-            cls.__order = order
+        cls.__repr = repr  # type: ignore
+        cls.__eq = eq  # type: ignore
+        cls.__order = order  # type: ignore
 
         del repr, eq, order
+        cls.__clear_nones()
 
         ordering._ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
