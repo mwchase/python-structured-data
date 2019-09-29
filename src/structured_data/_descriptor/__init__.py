@@ -1,11 +1,11 @@
 import functools
 import inspect
 
-from . import _destructure
-from . import _doc_wrapper
-from . import _matchable
-from . import _pep_570_when
-from ._patterns import mapping_match
+from .. import _destructure
+from .. import _doc_wrapper
+from .. import _matchable
+from .. import _pep_570_when
+from .._patterns import mapping_match
 
 
 def _decorate(matchers, structure, func):
