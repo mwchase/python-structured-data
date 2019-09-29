@@ -17,8 +17,8 @@ from __future__ import annotations
 import inspect
 
 from . import _attribute_constructor
-from . import _descriptor
-from ._descriptor import Property
+from ._descriptor import function as function_
+from ._descriptor.property_ import Property
 from ._destructure import names
 from ._match_dict import MatchDict
 from ._matchable import Matchable
@@ -61,7 +61,7 @@ def function(_func=None, *, positional_until=0):
 
     def wrap(func):
         _make_args_positional(func, positional_until)
-        return _descriptor.Function(func)
+        return function_.Function(func)
 
     if _func is None:
         return wrap

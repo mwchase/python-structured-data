@@ -1,0 +1,19 @@
+import functools
+
+
+def decorate(matchers, structure, func):
+    matchers.append((structure, func))
+    return func
+
+
+class Descriptor:
+    """Base class for decorator classes."""
+
+    __wrapped__ = None
+
+    def __new__(cls, func, *args, **kwargs):
+        new = super().__new__(cls, *args, **kwargs)
+        new.__doc__ = None
+        if func is None:
+            return new
+        return functools.wraps(func)(new)
