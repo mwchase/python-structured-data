@@ -20,12 +20,10 @@ import typing
 
 from . import _attribute_constructor
 from . import _destructure
+from . import _match_dict
 from . import _match_failure
-from . import _not_in
 from . import _pep_570_when
-from . import _stack_iter
 from ._match_dict import MatchDict
-from ._patterns.basic_patterns import DISCARD
 from ._patterns.basic_patterns import Pattern
 from ._patterns.bind import Bind
 from ._patterns.mapping_match import AttrPattern
@@ -35,32 +33,6 @@ from ._patterns.mapping_match import DictPattern
 def names(target) -> typing.List[str]:
     """Return every name bound by a target."""
     return _destructure.DESTRUCTURERS.names(target)
-
-
-def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
-    target, value = item
-    if target is DISCARD:
-        return None
-    if isinstance(target, Pattern):
-        return _stack_iter.Yield(item)
-    destructurer = _destructure.DESTRUCTURERS.get_destructurer(target)
-    if destructurer:
-        return _stack_iter.Extend(zip(destructurer(target), destructurer(value)))
-    if target != value:
-        raise _match_failure.MatchFailure
-    return None
-
-
-def _match(target, value) -> MatchDict:
-    local_target = target
-    local_value = value
-    match_dict = MatchDict()
-    for local_target, local_value in _stack_iter.stack_iter(
-        (local_target, local_value), _stack_iteration
-    ):
-        _not_in.not_in(container=match_dict, item=local_target.name)
-        match_dict[local_target.name] = local_value
-    return match_dict
 
 
 class Matchable:
@@ -85,7 +57,7 @@ class Matchable:
     def match(self, target) -> Matchable:
         """Match against target, generating a set of bindings."""
         try:
-            self.matches = _match(target, self.value)
+            self.matches = _match_dict.match(target, self.value)
         except _match_failure.MatchFailure:
             self.matches = None
         return self

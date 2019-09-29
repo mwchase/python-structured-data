@@ -1,11 +1,43 @@
+from __future__ import annotations
+
 import collections
 import typing
 
-from ._patterns.basic_patterns import Pattern
+from . import _destructure
+from . import _match_failure
+from . import _not_in
+from . import _stack_iter
+from ._patterns import basic_patterns
+
+
+def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
+    target, value = item
+    if target is basic_patterns.DISCARD:
+        return None
+    if isinstance(target, basic_patterns.Pattern):
+        return _stack_iter.Yield(item)
+    destructurer = _destructure.DESTRUCTURERS.get_destructurer(target)
+    if destructurer:
+        return _stack_iter.Extend(zip(destructurer(target), destructurer(value)))
+    if target != value:
+        raise _match_failure.MatchFailure
+    return None
+
+
+def match(target, value) -> MatchDict:
+    local_target = target
+    local_value = value
+    match_dict = MatchDict()
+    for local_target, local_value in _stack_iter.stack_iter(
+        (local_target, local_value), _stack_iteration
+    ):
+        _not_in.not_in(container=match_dict, item=local_target.name)
+        match_dict[local_target.name] = local_value
+    return match_dict
 
 
 def _as_name(key):
-    if isinstance(key, Pattern):
+    if isinstance(key, basic_patterns.Pattern):
         return key.name
     return key
 

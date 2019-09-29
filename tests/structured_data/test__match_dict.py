@@ -6,6 +6,8 @@ def test_matching(adt, match):
         StrPair: adt.Ctor[str, str]
 
     matchable = match.Matchable(((1, 2), TestClass.StrPair("a", "b")))
+    assert not matchable(((match.pat._, 4), match.pat._))
+    assert matchable.matches is None
     structure = match.Bind(
         (match.pat.tup[1, match.pat.a], TestClass.StrPair(match.pat.b, match.pat.c)),
         bound=5,
