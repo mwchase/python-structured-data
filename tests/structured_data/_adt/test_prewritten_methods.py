@@ -2,19 +2,19 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def classes(adt__constructor, _prewritten_methods):
+def classes(adt__constructor, adt__prewritten_methods):
     class Base(tuple):
 
         __slots__ = ()
 
-        __repr__ = _prewritten_methods.PrewrittenSumMethods.__repr__
-        __eq__ = _prewritten_methods.PrewrittenSumMethods.__eq__
-        __ne__ = _prewritten_methods.PrewrittenSumMethods.__ne__
-        __lt__ = _prewritten_methods.PrewrittenSumMethods.__lt__
-        __le__ = _prewritten_methods.PrewrittenSumMethods.__le__
-        __gt__ = _prewritten_methods.PrewrittenSumMethods.__gt__
-        __ge__ = _prewritten_methods.PrewrittenSumMethods.__ge__
-        __hash__ = _prewritten_methods.PrewrittenSumMethods.__hash__
+        __repr__ = adt__prewritten_methods.PrewrittenSumMethods.__repr__
+        __eq__ = adt__prewritten_methods.PrewrittenSumMethods.__eq__
+        __ne__ = adt__prewritten_methods.PrewrittenSumMethods.__ne__
+        __lt__ = adt__prewritten_methods.PrewrittenSumMethods.__lt__
+        __le__ = adt__prewritten_methods.PrewrittenSumMethods.__le__
+        __gt__ = adt__prewritten_methods.PrewrittenSumMethods.__gt__
+        __ge__ = adt__prewritten_methods.PrewrittenSumMethods.__ge__
+        __hash__ = adt__prewritten_methods.PrewrittenSumMethods.__hash__
 
     class Derived1(Base):
 
@@ -26,30 +26,32 @@ def classes(adt__constructor, _prewritten_methods):
 
         __slots__ = ()
 
-    Base.__init_subclass__ = _prewritten_methods.PrewrittenSumMethods.__init_subclass__
+    Base.__init_subclass__ = (
+        adt__prewritten_methods.PrewrittenSumMethods.__init_subclass__
+    )
 
     for cls in (Derived1, Derived2):
         adt__constructor.ADT_BASES[cls] = Base
 
-    _prewritten_methods.SUBCLASS_ORDER[Base] = (Derived1, Derived2)
+    adt__prewritten_methods.SUBCLASS_ORDER[Base] = (Derived1, Derived2)
 
     return Base, Derived1, Derived2
 
 
 @pytest.fixture(scope="session")
-def product_class(_prewritten_methods):
+def product_class(adt__prewritten_methods):
     class Product(tuple):
 
         __slots__ = ()
 
-        __repr__ = _prewritten_methods.PrewrittenProductMethods.__repr__
-        __eq__ = _prewritten_methods.PrewrittenProductMethods.__eq__
-        __ne__ = _prewritten_methods.PrewrittenProductMethods.__ne__
-        __lt__ = _prewritten_methods.PrewrittenProductMethods.__lt__
-        __le__ = _prewritten_methods.PrewrittenProductMethods.__le__
-        __gt__ = _prewritten_methods.PrewrittenProductMethods.__gt__
-        __ge__ = _prewritten_methods.PrewrittenProductMethods.__ge__
-        __hash__ = _prewritten_methods.PrewrittenProductMethods.__hash__
+        __repr__ = adt__prewritten_methods.PrewrittenProductMethods.__repr__
+        __eq__ = adt__prewritten_methods.PrewrittenProductMethods.__eq__
+        __ne__ = adt__prewritten_methods.PrewrittenProductMethods.__ne__
+        __lt__ = adt__prewritten_methods.PrewrittenProductMethods.__lt__
+        __le__ = adt__prewritten_methods.PrewrittenProductMethods.__le__
+        __gt__ = adt__prewritten_methods.PrewrittenProductMethods.__gt__
+        __ge__ = adt__prewritten_methods.PrewrittenProductMethods.__ge__
+        __hash__ = adt__prewritten_methods.PrewrittenProductMethods.__hash__
 
     return Product
 

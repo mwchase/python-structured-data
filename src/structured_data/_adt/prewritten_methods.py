@@ -3,8 +3,8 @@
 import typing
 import weakref
 
-from ._adt.constructor import ADT_BASES
-from ._unpack import unpack
+from .._unpack import unpack
+from .constructor import ADT_BASES
 
 
 def sum_base(obj):

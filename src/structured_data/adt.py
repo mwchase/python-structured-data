@@ -45,9 +45,9 @@ import inspect
 import typing
 
 from . import _conditional_method
-from . import _prewritten_methods
 from ._adt import annotations
 from ._adt import constructor
+from ._adt import prewritten_methods
 
 _T = typing.TypeVar("_T")
 
@@ -225,15 +225,15 @@ class Sum:
             return
         _ordering_options_are_valid(eq=eq, order=order)
 
-        _prewritten_methods.SUBCLASS_ORDER[cls] = constructor.make_constructors(
+        prewritten_methods.SUBCLASS_ORDER[cls] = constructor.make_constructors(
             cls
         )
 
-        source = _prewritten_methods.PrewrittenSumMethods
+        source = prewritten_methods.PrewrittenSumMethods
 
         cls.__init_subclass__ = source.__init_subclass__  # type: ignore
 
-        _sum_new(cls, frozenset(_prewritten_methods.SUBCLASS_ORDER[cls]))
+        _sum_new(cls, frozenset(prewritten_methods.SUBCLASS_ORDER[cls]))
 
         if repr:
             _set_new_functions(cls, source.__repr__)
@@ -342,7 +342,7 @@ class Product(constructor.ADTConstructor, tuple):
 
         _product_new(cls, cls.__signature)
 
-        source = _prewritten_methods.PrewrittenProductMethods
+        source = prewritten_methods.PrewrittenProductMethods
 
         cls.__eq_succeeded = cls.__eq and not _cant_set_new_functions(
             cls, source.__eq__, source.__ne__
@@ -374,7 +374,7 @@ class Product(constructor.ADTConstructor, tuple):
     def __bool__(self):
         return True
 
-    source = _prewritten_methods.PrewrittenProductMethods
+    source = prewritten_methods.PrewrittenProductMethods
 
     # pylint: disable=protected-access
     __repr__ = _conditional_method.conditional_method(source).__repr  # type: ignore

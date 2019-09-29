@@ -16,10 +16,10 @@ def match():
 
 
 @pytest.fixture(scope="session")
-def _prewritten_methods():
-    from structured_data import _prewritten_methods
+def adt__prewritten_methods():
+    import structured_data._adt.prewritten_methods
 
-    return _prewritten_methods
+    return structured_data._adt.prewritten_methods
 
 
 @pytest.fixture(scope="session")
