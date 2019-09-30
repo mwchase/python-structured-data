@@ -12,7 +12,7 @@ Overview
     * - tests
       - | |travis| |appveyor| |requires|
         | |codecov|
-        | |codacy| |codebeat| |codeclimate| |scrutinizer|
+        | |codacy| |codebeat| |codeclimate| |scrutinizer| |codefactor|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -51,6 +51,10 @@ Overview
 .. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
     :target: https://scrutinizer-ci.com/g/mwchase/python-structured-data/?branch=master
     :alt: Scrutinizer Code Quality Status
+
+.. |codefactor| image:: https://www.codefactor.io/repository/github/mwchase/python-structured-data/badge
+   :target: https://www.codefactor.io/repository/github/mwchase/python-structured-data
+   :alt: CodeFactor
 
 .. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
     :alt: PyPI Package latest release
