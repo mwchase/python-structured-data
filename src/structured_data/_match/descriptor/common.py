@@ -9,6 +9,7 @@ def decorate(matchers, structure):
     def decorator(func):
         matchers.append((structure, func))
         return func
+
     return decorator
 
 

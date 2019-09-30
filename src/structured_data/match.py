@@ -45,7 +45,9 @@ def _make_args_positional(func, positional_until):
     new_parameters = list(signature.parameters.values())
     for index, parameter in enumerate(new_parameters[:positional_until]):
         _can_overwrite_kind(parameter)
-        new_parameters[index] = parameter.replace(kind=inspect.Parameter.POSITIONAL_ONLY)
+        new_parameters[index] = parameter.replace(
+            kind=inspect.Parameter.POSITIONAL_ONLY
+        )
     new_signature = signature.replace(parameters=new_parameters)
     if new_signature != signature:
         func.__signature__ = new_signature

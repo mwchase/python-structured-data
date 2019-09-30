@@ -60,6 +60,7 @@ for _attribute in SHADOWED_ATTRIBUTES:
 
 class SumMember:
     """Accessor for Sum subclass constructor, only accessible from the base."""
+
     def __init__(self, subcls: type):
         self.subcls = subcls
 
