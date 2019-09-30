@@ -114,15 +114,13 @@ def test_sum_gt(classes):
     assert not (classes[1]() > classes[1]())
     assert not (classes[1]() > classes[2]())
     with pytest.raises(TypeError):
-        # TODO: wait, what?
-        assert not not (classes[1]() > (True,))
+        assert classes[1]() > (True,)
 
 
 def test_product_gt(product_class):
     assert not (product_class() > product_class())
     with pytest.raises(TypeError):
-        # TODO: wait, what?
-        assert not not (product_class() > (True,))
+        assert product_class() > (True,)
 
 
 def test_sum_ge(classes):
