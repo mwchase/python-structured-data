@@ -1,3 +1,6 @@
+"""Helpers for reasoning about ordering methods."""
+
+
 def _ordering_options_are_valid(
     *, eq: bool, order: bool  # pylint: disable=invalid-name
 ):
