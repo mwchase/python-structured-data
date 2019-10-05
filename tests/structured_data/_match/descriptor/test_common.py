@@ -102,3 +102,12 @@ def test_property_advanced(adt, match):
     special.prop = 5
     with pytest.raises(IndexError):
         del special.prop
+
+
+def test_cant_use_matchers():
+    from structured_data._match.descriptor import common
+
+    matchers = common.Descriptor._matchers
+
+    with pytest.raises(NotImplementedError):
+        assert not matchers(None)
