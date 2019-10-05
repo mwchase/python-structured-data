@@ -30,15 +30,12 @@ def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
-# By the way, this is for https://github.com/python/mypy/issues/7580
-# When that's fixed, this can be inlined.
-def _superclass(scope_class, subclass):
-    return super(scope_class, subclass)
-
-
 def _sum_new(_cls: typing.Type[_T], subclasses):
     def base(cls: typing.Type[_T], args):
-        return _superclass(_cls, cls).__new__(cls, args)  # type: ignore
+        # By the way, this is for https://github.com/python/mypy/issues/7580
+        # When that's fixed, this can be made a one-liner again.
+        superclass = super(_cls, cls)
+        return superclass.__new__(cls, args)  # type: ignore
 
     new = vars(_cls).get("__new__", staticmethod(base))
 
