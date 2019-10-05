@@ -157,20 +157,16 @@ class Product(constructor.ADTConstructor, tuple):
             cls, source.__eq__, source.__ne__
         )
 
-        collision = (
-            cls.__order
-            and ordering._can_set_ordering(can_set=cls.__eq_succeeded)
-            and _cant_set_new_functions(
-                cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
-            )
-        )
-        if collision:
-            raise TypeError(
-                "Cannot overwrite attribute {collision} in class "
-                "{name}. Consider using functools.total_ordering".format(
-                    collision=collision, name=cls.__name__
+        ordering.raise_for_collision(
+            (
+                cls.__order
+                and ordering._can_set_ordering(can_set=cls.__eq_succeeded)
+                and _cant_set_new_functions(
+                    cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
                 )
-            )
+            ),
+            cls.__name__,
+        )
 
         common.for_class(cls)
 
