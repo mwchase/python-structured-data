@@ -56,6 +56,24 @@ def _product_new(_cls: typing.Type[_T], _signature):
     _cls.__new__ = __new__  # type: ignore
 
 
+def _product_signature(
+    annotations: typing.Dict[str, typing.Any], cls
+) -> inspect.Signature:
+    params = [
+        inspect.Parameter(
+            name,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            default=getattr(cls, name, inspect.Parameter.empty),
+            annotation=annotation,
+        )
+        for (name, annotation) in annotations.items()
+    ]
+    try:
+        return inspect.Signature(parameters=params, return_annotation=cls)
+    except ValueError:
+        raise TypeError
+
+
 class Product(constructor.ADTConstructor, tuple):
     """Base class of classes with typed fields.
 
@@ -125,21 +143,7 @@ class Product(constructor.ADTConstructor, tuple):
         ordering._ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
         annotations_ = annotations.product_args_from_annotations(cls)
-        params = [
-            inspect.Parameter(
-                name,
-                inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                default=getattr(cls, name, inspect.Parameter.empty),
-                annotation=annotation,
-            )
-            for (name, annotation) in annotations_.items()
-        ]
-        try:
-            cls.__signature = inspect.Signature(
-                parameters=params, return_annotation=cls
-            )
-        except ValueError:
-            raise TypeError
+        cls.__signature = _product_signature(annotations_, cls)
         cls.__fields = {field: index for (index, field) in enumerate(annotations_)}
 
         _product_new(cls, cls.__signature)
