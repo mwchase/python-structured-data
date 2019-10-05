@@ -1,6 +1,7 @@
 import functools
 import inspect
 
+from ... import _class_placeholder
 from ... import _pep_570_when
 from .. import matchable
 from ..patterns import mapping_match
@@ -33,6 +34,9 @@ class Function(common.Descriptor):
         del func
         super().__init__(*args, **kwargs)
         self.matchers = []
+
+    def _matchers(self):
+        yield self.matchers
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -74,6 +78,29 @@ class Function(common.Descriptor):
     @_pep_570_when.pep_570_when
     def when(self, kwargs):
         """Add a binding for this function."""
-        return common.decorate(
-            self.matchers, mapping_match.DictPattern(kwargs, exhaustive=True)
-        )
+        return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
+
+
+def _kwarg_structure(kwargs):
+    return mapping_match.DictPattern(kwargs, exhaustive=True)
+
+
+def _placeholder_kwargs(kwargs):
+    if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
+
+        @_class_placeholder.placeholder
+        def _placeholder(cls):
+            return _kwarg_structure(
+                {
+                    name: (
+                        kwarg(cls)
+                        if _class_placeholder.is_placeholder(kwarg)
+                        else kwarg
+                    )
+                    for (name, kwarg) in kwargs.items()
+                }
+            )
+
+        return _placeholder
+
+    return _kwarg_structure(kwargs)
