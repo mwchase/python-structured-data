@@ -30,6 +30,8 @@ def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
+# By the way, this is for https://github.com/python/mypy/issues/7580
+# When that's fixed, this can be inlined.
 def _superclass(scope_class, subclass):
     return super(scope_class, subclass)
 
