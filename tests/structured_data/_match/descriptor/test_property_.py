@@ -59,6 +59,10 @@ def test_property_advanced(adt, match):
         def __set_5():
             pass
 
+        @prop.set_when(special, special)
+        def __set_double_special():
+            pass
+
         @prop.set_when(match.pat._, special)
         def __set_as_special():
             pass
@@ -84,6 +88,10 @@ def test_property_advanced(adt, match):
     special.prop = 5
     with pytest.raises(IndexError):
         del special.prop
+
+    TestEither.Right("abc").prop = special
+    with pytest.raises(KeyError):
+        del TestEither.Right("abc").prop
 
     special.prop = special
     with pytest.raises(IndexError):
