@@ -5,6 +5,11 @@ Changelog
 Unreleased
 ----------
 
+Changed
+~~~~~~~
+
+- Data descriptors in Product subclasses blank any associated annotations.
+
 0.13.0 (2019-09-29)
 -------------------
 
