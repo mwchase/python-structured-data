@@ -77,6 +77,10 @@ def test_property_advanced(adt, match):
         def prop(self):
             del values[self]
 
+        @prop.set_when(match.pat._, 5)
+        def __set_5():
+            pass
+
         @prop.set_when(special, match.pat.value)
         def __set_special(value):
             special_values.append(value)
@@ -94,3 +98,7 @@ def test_property_advanced(adt, match):
     special.prop = 2
     del special.prop
     del special.prop
+
+    special.prop = 5
+    with pytest.raises(IndexError):
+        del special.prop
