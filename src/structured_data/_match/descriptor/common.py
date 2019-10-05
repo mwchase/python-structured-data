@@ -32,15 +32,21 @@ class Descriptor:
             return new
         return functools.wraps(func)(new)
 
-    def _matchers(self) -> typing.Iterator[typing.List[typing.Tuple[typing.Any, typing.Callable]]]:
+    def _matchers(
+        self
+    ) -> typing.Iterator[typing.List[typing.Tuple[typing.Any, typing.Callable]]]:
         raise NotImplementedError
 
     def for_class(self, cls: type) -> None:
         for matchers in self._matchers():
-            for index, (structure_, func) in enumerate(matchers[:]):
-                if _class_placeholder.is_placeholder(structure_):
-                    structure = structure_(cls)
-                    matchers[index] = (structure, func)
+            matchers[:] = [
+                (
+                    (structure(cls), func)
+                    if _class_placeholder.is_placeholder(structure)
+                    else (structure, func)
+                )
+                for (structure, func) in matchers
+            ]
 
 
 def for_class(cls: type) -> None:
