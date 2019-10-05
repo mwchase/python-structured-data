@@ -209,3 +209,21 @@ def test_product_property(adt):
         del test_value.prop
     with pytest.raises(AttributeError):
         del test_value.dne
+
+
+def test_product_cant_overwrite_order(adt):
+    def cant_make(**kwargs):
+        class CantMake(adt.Product, **kwargs):
+            value: int
+            __le__ = True
+
+    for repr_on in (False, True):
+
+        class CantMake:
+            __le__ = True
+
+        with pytest.raises(
+            TypeError,
+            match=r"^Cannot overwrite attribute __le__ in class CantMake\. Consider using functools.total_ordering$",
+        ):
+            cant_make(repr=repr_on, eq=True, order=True)
