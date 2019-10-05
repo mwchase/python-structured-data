@@ -28,11 +28,6 @@ class Property(common.Descriptor):
         self.delete_matchers = []
         self.protected = True
 
-    def _matchers(self):
-        yield self.get_matchers
-        yield self.set_matchers
-        yield self.delete_matchers
-
     def __setattr__(self, name, value):
         if self.protected and name != "__doc__":
             raise AttributeError

@@ -34,9 +34,6 @@ class Function(common.Descriptor):
         super().__init__(*args, **kwargs)
         self.matchers = []
 
-    def _matchers(self):
-        yield self.matchers
-
     def __get__(self, instance, owner):
         if instance is None:
             return self
