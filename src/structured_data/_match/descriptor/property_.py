@@ -145,7 +145,7 @@ _PLACEHOLDERS = {
 
 def _placeholder_tuple2(fst, snd):
     _placeholder = _PLACEHOLDERS.get(
-        _class_placeholder.is_placeholder(fst), _class_placeholder.is_placeholder(snd)
+        (_class_placeholder.is_placeholder(fst), _class_placeholder.is_placeholder(snd))
     )
     if _placeholder:
         return _placeholder(fst, snd)
