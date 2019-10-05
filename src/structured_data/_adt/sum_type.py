@@ -2,6 +2,7 @@ import inspect
 import typing
 
 from .. import _cant_modify
+from .._match.descriptor import common
 from . import constructor
 from . import ordering
 from . import prewritten_methods
@@ -104,6 +105,8 @@ class Sum:
         if order:
             ordering._can_set_ordering(can_set=equality_methods_were_set)
             ordering._set_ordering(setter=_set_new_functions, cls=cls, source=source)
+
+        common.for_class(cls)
 
     def __bool__(self):
         return True

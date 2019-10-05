@@ -1,3 +1,4 @@
+from ... import _class_placeholder
 from ... import _doc_wrapper
 from .. import matchable
 from . import common
@@ -27,6 +28,11 @@ class Property(common.Descriptor):
         self.set_matchers = []
         self.delete_matchers = []
         self.protected = True
+
+    def _matchers(self):
+        yield self.get_matchers
+        yield self.set_matchers
+        yield self.delete_matchers
 
     def __setattr__(self, name, value):
         if self.protected and name != "__doc__":
@@ -99,8 +105,48 @@ class Property(common.Descriptor):
 
     def set_when(self, instance, value):
         """Add a binding to the setter."""
-        return common.decorate(self.set_matchers, (instance, value))
+        return common.decorate(self.set_matchers, _placeholder_tuple2(instance, value))
 
     def delete_when(self, instance):
         """Add a binding to the deleter."""
         return common.decorate(self.delete_matchers, instance)
+
+
+def _fst_placeholder(fst, snd):
+    @_class_placeholder.placeholder
+    def _placeholder(cls):
+        return (fst(cls), snd)
+
+    return _placeholder
+
+
+def _snd_placeholder(fst, snd):
+    @_class_placeholder.placeholder
+    def _placeholder(cls):
+        return (fst, snd(cls))
+
+    return _placeholder
+
+
+def _both_placeholder(fst, snd):
+    @_class_placeholder.placeholder
+    def _placeholder(cls):
+        return (fst(cls), snd(cls))
+
+    return _placeholder
+
+
+_PLACEHOLDERS = {
+    (True, False): _fst_placeholder,
+    (False, True): _snd_placeholder,
+    (True, True): _both_placeholder,
+}
+
+
+def _placeholder_tuple2(fst, snd):
+    _placeholder = _PLACEHOLDERS.get(
+        (_class_placeholder.is_placeholder(fst), _class_placeholder.is_placeholder(snd))
+    )
+    if _placeholder:
+        return _placeholder(fst, snd)
+    return (fst, snd)

@@ -37,6 +37,10 @@ def test_property_advanced(adt, match):
     values = {}
     special_values = []
 
+    @match.placeholder
+    def special(cls):
+        return cls.Left(10)
+
     class TestEither(adt.Sum):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
@@ -51,15 +55,27 @@ def test_property_advanced(adt, match):
         def prop(self):
             del values[self]
 
+        @prop.set_when(match.pat._, 5)
+        def __set_5():
+            pass
+
+        @prop.set_when(special, special)
+        def __set_double_special():
+            pass
+
+        @prop.set_when(match.pat._, special)
+        def __set_as_special():
+            pass
+
+        @prop.set_when(special, match.pat.value)
+        def __set_special(value):
+            special_values.append(value)
+
+        @prop.delete_when(special)
+        def __delete_special():
+            special_values.pop()
+
     special = TestEither.Left(10)
-
-    @TestEither.prop.set_when(special, match.pat.value)
-    def set_special(value):
-        special_values.append(value)
-
-    @TestEither.prop.delete_when(special)
-    def delete_special():
-        special_values.pop()
 
     TestEither.Right("abc").prop = 1
     del TestEither.Right("abc").prop
@@ -68,6 +84,18 @@ def test_property_advanced(adt, match):
     special.prop = 2
     del special.prop
     del special.prop
+
+    special.prop = 5
+    with pytest.raises(IndexError):
+        del special.prop
+
+    TestEither.Right("abc").prop = special
+    with pytest.raises(KeyError):
+        del TestEither.Right("abc").prop
+
+    special.prop = special
+    with pytest.raises(IndexError):
+        del special.prop
 
 
 def test_property_fallback(match):

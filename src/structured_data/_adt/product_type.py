@@ -3,6 +3,7 @@ import typing
 
 from .. import _cant_modify
 from .. import _conditional_method
+from .._match.descriptor import common
 from . import annotations
 from . import constructor
 from . import ordering
@@ -154,6 +155,8 @@ class Product(constructor.ADTConstructor, tuple):
             ordering._set_ordering(
                 setter=_cant_set_new_functions, cls=cls, source=source
             )
+
+        common.for_class(cls)
 
     def __dir__(self):
         return super().__dir__() + list(self.__fields)
