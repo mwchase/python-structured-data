@@ -112,6 +112,9 @@ class Product(constructor.ADTConstructor, tuple):
     __order: typing.ClassVar[bool] = False
     __eq_succeeded = None
 
+    __signature: typing.ClassVar[inspect.Signature]
+    __fields: typing.ClassVar[typing.Dict[str, int]]
+
     @classmethod
     def __clear_nones(cls) -> None:
         if cls.__repr is None:
