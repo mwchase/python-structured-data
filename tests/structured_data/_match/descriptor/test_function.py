@@ -96,3 +96,14 @@ def test_match_function_errors(match):
 
     with pytest.raises(TypeError):
         takes_kwargs(1, kwarg=1)
+
+    @match.function
+    def not_enough(arg):
+        """This has an argument. Failing to provide a binding for it should fail."""
+
+    @not_enough.when()
+    def bad_match():
+        """This shouldn't match."""
+
+    with pytest.raises(ValueError):
+        assert not_enough(None)
