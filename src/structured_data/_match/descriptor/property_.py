@@ -1,15 +1,21 @@
+import typing
+
 from ... import _class_placeholder
 from ... import _doc_wrapper
 from .. import matchable
 from . import common
 
 
+OptionalSetter = typing.Optional[typing.Callable[[typing.Any, typing.Any], None]]
+OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
+
+
 @_doc_wrapper.DocWrapper.wrap_class
 class Property(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a property."""
 
-    fset = None
-    fdel = None
+    fset: OptionalSetter = None
+    fdel: OptionalDeleter = None
 
     protected = False
 
