@@ -61,7 +61,7 @@ def test_property_advanced(adt, match):
 
         @prop.set_when(special, special)
         def __set_double_special():
-            pass
+            special_values.extend([None, None])
 
         @prop.set_when(match.pat._, special)
         def __set_as_special():
@@ -94,8 +94,8 @@ def test_property_advanced(adt, match):
         del TestEither.Right("abc").prop
 
     special.prop = special
-    with pytest.raises(IndexError):
-        del special.prop
+    del special.prop
+    del special.prop
 
 
 def test_property_fallback(match):
