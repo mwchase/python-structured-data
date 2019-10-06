@@ -97,6 +97,9 @@ def test_property_advanced(adt, match):
     del special.prop
     del special.prop
 
+    with pytest.raises(ValueError):
+        assert not TestEither.prop.set_when(match.pat.a, match.pat.a)
+
 
 def test_property_fallback(match):
     class Test:
