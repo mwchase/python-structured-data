@@ -5,7 +5,6 @@ from ... import _doc_wrapper
 from .. import matchable
 from . import common
 
-
 OptionalSetter = typing.Optional[typing.Callable[[typing.Any, typing.Any], None]]
 OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
 

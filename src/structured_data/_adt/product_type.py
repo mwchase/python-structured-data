@@ -31,7 +31,8 @@ def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
-def _product_new(_cls: typing.Type[_T], _signature):
+def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
+    signature: inspect.Signature
     if "__new__" in vars(_cls):
         original_new = _cls.__new__
 
