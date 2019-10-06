@@ -109,6 +109,13 @@ def test_cannot_init_sum(adt):
         assert not adt.Sum()
 
 
+def test_sum_cant_subclass(sum_option_class):
+    with pytest.raises(TypeError, match="^Cannot further subclass the class "):
+
+        class Test(sum_option_class):
+            pass
+
+
 def test_sum_property(adt):
     class TestSum(adt.Sum):
         Left: adt.Ctor[int]
