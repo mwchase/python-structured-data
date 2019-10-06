@@ -83,13 +83,17 @@ def test_match_function_errors(match):
 
     wrapper = match.function(positional_until=1)
     wrapper(double_dip)
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match=r"^Signature already contains positional-only arguments$"
+    ):
         wrapper(double_dip)
 
     def wrong_shape(*args):
         """Still nothing interesting."""
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match=r"^Cannot overwrite non-POSITIONAL_OR_KEYWORD kind$"
+    ):
         wrapper(wrong_shape)
 
     @match.function
