@@ -25,14 +25,12 @@ def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
 
 
 def match(target, value) -> MatchDict:
-    local_target = target
-    local_value = value
     match_dict = MatchDict()
-    for local_target, local_value in _stack_iter.stack_iter(
-        (local_target, local_value), _stack_iteration
+    for pattern, local_value in _stack_iter.stack_iter(
+        (target, value), _stack_iteration
     ):
-        _not_in.not_in(container=match_dict, item=local_target.name)
-        match_dict[local_target.name] = local_value
+        _not_in.not_in(container=match_dict, item=pattern.name)
+        match_dict[pattern.name] = local_value
     return match_dict
 
 
