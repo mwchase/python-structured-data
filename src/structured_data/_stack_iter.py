@@ -39,7 +39,7 @@ class Extend(Action[Input, Output]):
 
 
 def handle(
-    action: typing.Optional[Action[Input, Output]], to_process
+    action: typing.Optional[Action[Input, Output]], to_process: typing.List[Input]
 ) -> typing.Iterator[Output]:
     """If ``action`` is an ``Action``, delegate to its ``handle`` method."""
     if action is not None:
