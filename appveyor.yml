@@ -6,50 +6,42 @@ environment:
   global:
     WITH_COMPILER: 'cmd /E:ON /V:ON /C .\ci\appveyor-with-compiler.cmd'
   matrix:
-    - TOXENV: check,mypy
-      TOXPYTHON: C:\Python37\python.exe
+    - NOXSESSION: check,mypy
       PYTHON_HOME: C:\Python37
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '32'
-    - TOXENV: '3.7-cover,codecov,report'
-      TOXPYTHON: C:\Python37\python.exe
+    - NOXSESSION: 'cover-3.7,codecov,report'
       PYTHON_HOME: C:\Python37
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '32'
-    - TOXENV: '3.7-cover,codecov,report'
-      TOXPYTHON: C:\Python37-x64\python.exe
+    - NOXSESSION: 'cover-3.7,codecov,report'
       WINDOWS_SDK_VERSION: v7.1
       PYTHON_HOME: C:\Python37-x64
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '64'
 
-    - TOXENV: '3.7-nocov'
-      TOXPYTHON: C:\Python37\python.exe
+    - NOXSESSION: 'nocov-3.7'
       PYTHON_HOME: C:\Python37
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '32'
-    - TOXENV: '3.7-nocov'
-      TOXPYTHON: C:\Python37-x64\python.exe
+    - NOXSESSION: 'nocov-3.7'
       WINDOWS_SDK_VERSION: v7.1
       PYTHON_HOME: C:\Python37-x64
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '64'
 
 init:
-  - ps: echo $env:TOXENV
+  - ps: echo $env:NOXSESSION
   - ps: ls C:\Python*
 install:
   - python -u ci\appveyor-bootstrap.py
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'
   - '%PYTHON_HOME%\Scripts\pip --version'
-  - '%PYTHON_HOME%\Scripts\tox --version'
+  - '%PYTHON_HOME%\Scripts\nox --version'
 test_script:
-  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
+  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\nox'
 
-on_failure:
-  - ps: dir "env:"
-  - ps: get-content .tox\*\log\*
 artifacts:
   - path: dist\*
 

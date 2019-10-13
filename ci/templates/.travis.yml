@@ -8,14 +8,14 @@ env:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
     - SEGFAULT_SIGNALS=all
   matrix:
-    - TOXENV=check,mypy
-    - TOXENV=docs
+    - NOXSESSION=check,mypy
+    - NOXSESSION=docs
 matrix:
   include:
-{%- for env, config in tox_environments|dictsort %}{{ '' }}
+{%- for env, config in nox_environments|dictsort %}{{ '' }}
     - python: '{{ '{0[0]}-5.4'.format(env.split('-')) if env.startswith('pypy') else env.split('-')[0] }}'
       env:
-        - TOXENV={{ env }}{% if config.cover %},codecov,report{% endif -%}
+        - NOXSESSION={{ env }}{% if config.cover %},codecov,report{% endif -%}
 {% endfor %}
 
 before_install:
@@ -23,16 +23,13 @@ before_install:
   - uname -a
   - lsb_release -a
 install:
-  - pip install tox
+  - pip install nox
   - virtualenv --version
   - easy_install --version
   - pip --version
-  - tox --version
+  - nox --version
 script:
-  - tox -v
-after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
+  - nox -v
 notifications:
   email:
     on_success: never
