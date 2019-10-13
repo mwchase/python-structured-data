@@ -13,7 +13,7 @@ env:
 matrix:
   include:
 {%- for env, config in nox_environments|dictsort %}{{ '' }}
-    - python: '{{ '{0[0]}-5.4'.format(env.split('-')) if env.startswith('pypy') else env.split('-')[0] }}'
+    - python: '{{ '{0[1]}-5.4'.format(env.split('-')) if ('pypy' in env) else env.split('-')[1] }}'
       env:
         - NOXSESSION={{ env }}{% if config.cover %},codecov,report{% endif -%}
 {% endfor %}

@@ -12,10 +12,10 @@ env:
     - NOXSESSION=docs
 matrix:
   include:
-    - python: 'cover'
+    - python: '3.7'
       env:
         - NOXSESSION=cover-3.7,codecov,report
-    - python: 'nocov'
+    - python: '3.7'
       env:
         - NOXSESSION=nocov-3.7
 before_install:
