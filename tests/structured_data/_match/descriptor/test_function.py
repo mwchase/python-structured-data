@@ -36,7 +36,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method(positional_until=1)
+        @match.method
         def invert(self):
             """Reverse the the object according to some criteria."""
 
@@ -51,6 +51,12 @@ def test_method(adt, match):
     assert TestEither.Left(10).invert() == TestEither.Left(-10)
     assert TestEither.Right("abc").invert() == TestEither.Right("cba")
     assert TestEither.invert(TestEither.Left(5)) == TestEither.Left(-5)
+
+    assert not hasattr(TestEither.Left.invert, "when")
+    assert TestEither.Left.invert(TestEither.Right("abc")) == TestEither.Right("cba")
+    assert TestEither.Right.invert.__get__(
+        TestEither.Left(7), TestEither.Left
+    )() == TestEither.Left(-7)
 
 
 def test_trivial_match_function(match):

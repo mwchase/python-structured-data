@@ -77,12 +77,32 @@ class Function(common.Descriptor):
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
+class MethodProxy:
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(*args, **kwargs):
+        self, *args = args
+        return self.func(*args, **kwargs)
+
+    def __get__(self, instance, owner):
+        return self.func.__get__(instance, owner)
+
+
 class Method(Function):
     """Decorator with value-based dispatch. Acts as a method."""
 
+    owner: type
+
+    def __set_name__(self, owner, name):
+        self.owner = owner
+
     def __get__(self, instance, owner):
         if instance is None:
-            return self
+            if owner is self.owner:
+                return self
+            return MethodProxy(self)
         return functools.partial(self, instance)
 
 
