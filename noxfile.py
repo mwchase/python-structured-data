@@ -94,39 +94,6 @@ def docs(session):
     session.run("sphinx-build", "-b", "linkcheck", "docs", "dist-docs")
 
 
-def modified_files(session):
-    for file_ in session.run(
-        "hg", "status", "--modified", silent=True, external=True
-    ).split("\n"):
-        if file_:
-            yield file_[2:]
-
-
-def cache_files(file_list):
-    for file_ in file_list:
-        dirname, fn = os.path.split(file_)
-        cache_dir = os.path.join(dirname, "__pycache__")
-        prefix = os.path.splitext(fn)[0] + os.extsep
-        try:
-            cache_files = os.listdir(cache_dir)
-        except FileNotFoundError:
-            continue
-        for cache_file in cache_files:
-            if cache_file.startswith(prefix):
-                yield os.path.join(cache_dir, cache_file)
-
-
-def test_files(file_list):
-    for file_ in file_list:
-        relpath = os.path.relpath(file_, "src")
-        if relpath.startswith(os.pardir):
-            continue
-        if not os.path.exists(f"{file_}.bak"):
-            continue
-        dirname, fn = os.path.split(relpath)
-        yield os.path.join("tests", dirname, f"test_{fn}")
-
-
 @nox.session
 def mutmut_install(session):
     session.install("pytest", ".", "mypy")
@@ -145,8 +112,9 @@ def codecov(session):
     session.run("codecov", "-f", "coverage.xml")
 
 
-@nox.session
+@nox.session(python=False)
 def bootstrap(session):
+    del session  # Unused
     jinja = jinja2.Environment(
         loader=jinja2.FileSystemLoader(os.path.join("ci", "templates")),
         trim_blocks=True,
