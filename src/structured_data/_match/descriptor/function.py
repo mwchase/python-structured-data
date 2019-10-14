@@ -1,5 +1,6 @@
 import functools
 import inspect
+import typing
 
 from ... import _class_placeholder
 from ... import _pep_570_when
@@ -30,10 +31,10 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
 class Function(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a function."""
 
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
         del func
-        super().__init__(*args, **kwargs)
-        self.matchers = []
+        super().__init__(*args, **kwargs)  # type: ignore
+        self.matchers: common.MatcherList[mapping_match.DictPattern] = []
 
     def _matchers(self):
         yield self.matchers
@@ -76,20 +77,20 @@ class Function(common.Descriptor):
         raise ValueError(values)
 
     @_pep_570_when.pep_570_when
-    def when(self, kwargs):
+    def when(self, kwargs: dict) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
-def _kwarg_structure(kwargs):
+def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
     return mapping_match.DictPattern(kwargs, exhaustive=True)
 
 
-def _placeholder_kwargs(kwargs):
+def _placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
     if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
 
         @_class_placeholder.placeholder
-        def _placeholder(cls):
+        def _placeholder(cls: type) -> mapping_match.DictPattern:
             return _kwarg_structure(
                 {
                     name: (
