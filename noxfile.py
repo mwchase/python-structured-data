@@ -127,16 +127,16 @@ def test_files(file_list):
 
 
 @nox.session
-def mutmut_clean(session):
-    for cache_file in cache_files(modified_files(session)):
-        os.remove(cache_file)
-
-
-@nox.session
 def mutmut_test(session):
-    test_paths = tuple(test_files(modified_files(session)))
+    m_files = tuple(modified_files(session))
+    c_files = tuple(cache_files(m_files))
+    for cache_file in c_files:
+        os.remove(cache_file)
+    test_paths = tuple(test_files(m_files))
     session.install("pytest", ".")
     session.run("pytest", "-vv", *test_paths)
+    for cache_file in c_files:
+        os.remove(cache_file)
 
 
 @nox.session
