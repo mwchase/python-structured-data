@@ -127,6 +127,11 @@ def test_files(file_list):
 
 
 @nox.session
+def mutmut_install(session):
+    session.install("pytest", ".", "mypy")
+
+
+@nox.session
 def mutmut_test(session):
     m_files = tuple(modified_files(session))
     c_files = tuple(cache_files(m_files))
