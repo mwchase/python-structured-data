@@ -26,11 +26,21 @@ def test_property_basics(adt, match):
     assert TestEither.Left(10).invert == TestEither.Left(-10)
     assert TestEither.Right("abc").invert == TestEither.Right("cba")
 
+    assert TestEither.Right.invert.__get__(
+        TestEither.Left(4), TestEither.Left
+    ) == TestEither.Left(-4)
+
     with pytest.raises(ValueError):
         TestEither.Left(10).invert = 0
 
     with pytest.raises(ValueError):
+        TestEither.Right.invert.__set__(TestEither.Left(0), 0)
+
+    with pytest.raises(ValueError):
         del TestEither.Left(10).invert
+
+    with pytest.raises(ValueError):
+        TestEither.Right.invert.__delete__(TestEither.Left(50))
 
 
 def test_property_advanced(adt, match):
