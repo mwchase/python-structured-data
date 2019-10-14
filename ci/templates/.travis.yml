@@ -23,7 +23,7 @@ before_install:
   - uname -a
   - lsb_release -a
 install:
-  - pip install nox
+  - pip install nox jinja2 matrix
   - virtualenv --version
   - easy_install --version
   - pip --version
