@@ -12,11 +12,24 @@ nox.options.sessions = DEFAULTS
 
 
 COVERAGE = "coverage==5.0a8"
+BUILD = None
 
 
 def default(session):
     DEFAULTS.append(session.__name__)
     return session
+
+
+def _build(session):
+    global BUILD
+    if BUILD is None:
+        session.install("wheel")
+        session.run("python", "setup.py", "bdist_wheel")
+        version = session.run("python", "setup.py", "--version", silent=True).strip()
+        for filename in os.listdir("dist"):
+            if filename.endswith(".whl") and f"-{version}-" in filename:
+                BUILD = os.path.join("dist", filename)
+                break
 
 
 @default
@@ -64,16 +77,26 @@ def mypy(session):
 
 
 @default
+@nox.session
+def build(session):
+    _build(session)
+
+
+@default
 @nox.session(python=["3.7"])
 def nocov(session):
-    session.install("pytest", ".")
+    _build(session)
+    session.install("--upgrade", BUILD)
+    session.install("pytest")
     session.run("pytest", "-vv")
 
 
 @default
 @nox.session(python=["3.7"])
 def cover(session):
-    session.install(COVERAGE, "limit-coverage", "pytest", ".")
+    _build(session)
+    session.install("--upgrade", BUILD)
+    session.install(COVERAGE, "limit-coverage", "pytest")
     session.run("coverage", "run", "-m", "pytest", "-vv")
     session.run("limit-coverage")
 
