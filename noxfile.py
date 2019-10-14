@@ -96,7 +96,8 @@ def docs(session):
 
 @nox.session
 def mutmut_install(session):
-    session.install("pytest", ".", "mypy")
+    session.install("pytest", "mypy")
+    session.install("-e", ".")
 
 
 @nox.session
