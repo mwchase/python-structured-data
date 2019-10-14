@@ -89,6 +89,40 @@ def function(
     return wrap(_func)
 
 
+@typing.overload
+def method(
+    *, positional_until: int = 1
+) -> typing.Callable[[typing.Callable], function_.Method]:
+    """Can optionally specify a number of arguments to treat as positional."""
+
+
+@typing.overload
+def method(_func: typing.Callable) -> function_.Method:
+    """Can directly decorate a method."""
+
+
+# This wraps a function that, for reasons, can't be called directly by the code
+# The function body should probably just be a docstring.
+def method(
+    _func: typing.Optional[typing.Callable] = None, *, positional_until: int = 1
+) -> typing.Union[
+    typing.Callable[[typing.Callable], function_.Method], function_.Method
+]:
+    """Convert a function to dispatch by value.
+
+    The original function is not called when the dispatch function is invoked.
+    """
+
+    def wrap(func: typing.Callable) -> function_.Method:
+        _make_args_positional(func, positional_until)
+        return function_.Method(func)
+
+    if _func is None:
+        return wrap
+
+    return wrap(_func)
+
+
 def decorate_in_order(*args):
     """Apply decorators in the order they're passed to the function."""
 
@@ -110,6 +144,7 @@ __all__ = [
     "Property",
     "decorate_in_order",
     "function",
+    "method",
     "placeholder",
     "names",
     "pat",

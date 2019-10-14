@@ -39,11 +39,6 @@ class Function(common.Descriptor):
     def _matchers(self):
         yield self.matchers
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return functools.partial(self, instance)
-
     def _bound_and_values(self, args, kwargs):
         # Then we figure out what signature we're giving the outside world.
         signature = inspect.signature(self)
@@ -80,6 +75,15 @@ class Function(common.Descriptor):
     def when(self, kwargs: dict) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
+
+
+class Method(Function):
+    """Decorator with value-based dispatch. Acts as a method."""
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return functools.partial(self, instance)
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
