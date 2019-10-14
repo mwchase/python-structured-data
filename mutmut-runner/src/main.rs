@@ -31,7 +31,6 @@ fn cache_file(file: &String) -> Option<String> {
                 }
             }
         }
-        unimplemented!()
     }
     None
 }
