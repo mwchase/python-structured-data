@@ -133,10 +133,13 @@ def mutmut_test(session):
     for cache_file in c_files:
         os.remove(cache_file)
     test_paths = tuple(test_files(m_files))
-    session.install("pytest", ".")
-    session.run("pytest", "-vv", *test_paths)
-    for cache_file in c_files:
-        os.remove(cache_file)
+    session.install("pytest", ".", "mypy")
+    session.run("mypy", "src/structured_data")
+    try:
+        session.run("pytest", "-vv", *test_paths)
+    finally:
+        for cache_file in c_files:
+            os.remove(cache_file)
 
 
 @nox.session
