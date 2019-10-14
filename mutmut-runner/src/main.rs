@@ -51,10 +51,10 @@ fn test_file(file: &String) -> Option<String> {
     test_path.to_str().map(String::from)
 }
 
-fn run_in_venv(exe: &str, args: &Vec<String>) -> std::io::Result<std::process::Output> {
+fn run_in_venv(exe: &str, args: &Vec<String>) -> std::io::Result<std::process::ExitStatus> {
     let mut bin = String::from(".nox/mutmut_install/bin/");
     bin.push_str(exe);
-    std::process::Command::new(bin).args(args).output()
+    std::process::Command::new(bin).args(args).status()
 }
 
 fn remove_files(files: &Vec<String>) -> std::io::Result<()> {
@@ -70,7 +70,7 @@ fn remove_files(files: &Vec<String>) -> std::io::Result<()> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    run_in_venv("mypy", &vec![String::from("src/structured_data")])?;
+    assert!(run_in_venv("mypy", &vec![String::from("src/structured_data")])?.success());
 
     let m_files = modified_files()?;
 
@@ -85,6 +85,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Ok(())
     }
 
-    test_result?;
+    assert!(test_result?.success());
     Ok(())
 }
