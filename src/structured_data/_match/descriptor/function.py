@@ -90,11 +90,6 @@ class MethodProxy:
 class Method(Function, common.Descriptor):
     """Decorator with value-based dispatch. Acts as a method."""
 
-    owner: type
-
-    def __set_name__(self, owner, name):
-        self.owner = owner
-
     def __get__(self, instance, owner):
         if instance is None:
             if owner is self.owner:

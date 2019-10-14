@@ -39,6 +39,11 @@ class Decorator:
 
 
 class Descriptor(Decorator):
+    owner: type
+
+    def __set_name__(self, owner, name):
+        self.owner = owner
+
     def _matchers(
         self
     ) -> typing.Iterator[typing.List[typing.Tuple[typing.Any, typing.Callable]]]:

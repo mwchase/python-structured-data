@@ -40,7 +40,10 @@ class Property(common.Descriptor):
         yield self.delete_matchers
 
     def __setattr__(self, name, value):
-        if self.protected and name != "__doc__":
+        if self.protected and (
+            name not in {"__doc__", "owner"}
+            or (name == "owner" and getattr(self, "owner", value) is not value)
+        ):
             raise AttributeError
         super().__setattr__(name, value)
 
