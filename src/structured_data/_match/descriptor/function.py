@@ -28,7 +28,7 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
     return func(*function_args.args, **function_args.kwargs)
 
 
-class Function(common.Descriptor):
+class Function(common.Decorator):
     """Decorator with value-based dispatch. Acts as a function."""
 
     def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
@@ -90,7 +90,7 @@ class MethodProxy:
         return self.func.__get__(instance, owner)
 
 
-class Method(Function):
+class Method(Function, common.Descriptor):
     """Decorator with value-based dispatch. Acts as a method."""
 
     owner: type

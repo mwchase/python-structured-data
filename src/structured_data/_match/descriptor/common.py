@@ -25,7 +25,7 @@ def decorate(matchers: MatcherList[T], structure: Matcher[T]):
     return decorator
 
 
-class Descriptor:
+class Decorator:
     """Base class for decorator classes."""
 
     __wrapped__ = None
@@ -37,6 +37,8 @@ class Descriptor:
             return new
         return functools.wraps(func)(new)
 
+
+class Descriptor(Decorator):
     def _matchers(
         self
     ) -> typing.Iterator[typing.List[typing.Tuple[typing.Any, typing.Callable]]]:
