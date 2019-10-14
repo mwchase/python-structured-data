@@ -1,5 +1,7 @@
 import os.path
 
+import jinja2
+import matrix
 import nox
 
 nox.options.reuse_existing_virtualenvs = True
@@ -93,10 +95,9 @@ def docs(session):
 
 
 def modified_files(session):
-    for file_ in (
-        session.run("hg", "status", "--modified", silent=True, external=True)
-        .split("\n")
-    ):
+    for file_ in session.run(
+        "hg", "status", "--modified", silent=True, external=True
+    ).split("\n"):
         if file_:
             yield file_[2:]
 
@@ -146,39 +147,31 @@ def codecov(session):
 
 @nox.session
 def bootstrap(session):
-    session.install("jinja2", "matrix")
-    session.run("python", "-c", """\
-import os.path
+    jinja = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(os.path.join("ci", "templates")),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+    )
 
-import jinja2
-import matrix
+    nox_environments = {}
 
-jinja = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.join("ci", "templates")),
-    trim_blocks=True,
-    lstrip_blocks=True,
-    keep_trailing_newline=True
-)
+    for (alias, conf) in matrix.from_file("setup.cfg").items():
+        python = conf["python_versions"]
+        deps = conf["dependencies"]
+        nox_environments[alias] = {
+            "python": "python" + python if "py" not in python else python,
+            "deps": deps.split(),
+        }
+        if "coverage_flags" in conf:
+            cover = {"false": False, "true": True}[conf["coverage_flags"].lower()]
+            nox_environments[alias].update(cover=cover)
+        if "environment_variables" in conf:
+            env_vars = conf["environment_variables"]
+            nox_environments[alias].update(env_vars=env_vars.split())
 
-nox_environments = {}
-
-for (alias, conf) in matrix.from_file("setup.cfg").items():
-    python = conf["python_versions"]
-    deps = conf["dependencies"]
-    nox_environments[alias] = {
-        "python": "python" + python if "py" not in python else python,
-        "deps": deps.split(),
-    }
-    if "coverage_flags" in conf:
-        cover = {"false": False, "true": True}[conf["coverage_flags"].lower()]
-        nox_environments[alias].update(cover=cover)
-    if "environment_variables" in conf:
-        env_vars = conf["environment_variables"]
-        nox_environments[alias].update(env_vars=env_vars.split())
-
-for name in os.listdir(os.path.join("ci", "templates")):
-    with open(name, "w") as fh:
-        fh.write(jinja.get_template(name).render(nox_environments=nox_environments))
-    print("Wrote {}".format(name))
-print("DONE.")
-""")
+    for name in os.listdir(os.path.join("ci", "templates")):
+        with open(name, "w") as fh:
+            fh.write(jinja.get_template(name).render(nox_environments=nox_environments))
+        print("Wrote {}".format(name))
+    print("DONE.")
