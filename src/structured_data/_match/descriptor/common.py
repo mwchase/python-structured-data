@@ -42,6 +42,8 @@ class Descriptor(Decorator):
     owner: type
 
     def __set_name__(self, owner, name):
+        if getattr(self, "owner", owner) is not owner:
+            return
         self.owner = owner
 
     def _matchers(
