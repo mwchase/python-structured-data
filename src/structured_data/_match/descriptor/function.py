@@ -36,9 +36,6 @@ class Function(common.Decorator):
         super().__init__(*args, **kwargs)  # type: ignore
         self.matchers: common.MatcherList[mapping_match.DictPattern] = []
 
-    def _matchers(self):
-        yield self.matchers
-
     def _bound_and_values(self, args, kwargs):
         # Then we figure out what signature we're giving the outside world.
         signature = inspect.signature(self)
@@ -104,6 +101,9 @@ class Method(Function, common.Descriptor):
                 return self
             return MethodProxy(self)
         return functools.partial(self, instance)
+
+    def _matchers(self):
+        yield self.matchers
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
