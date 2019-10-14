@@ -132,22 +132,6 @@ def mutmut_install(session):
 
 
 @nox.session
-def mutmut_test(session):
-    m_files = tuple(modified_files(session))
-    c_files = tuple(cache_files(m_files))
-    for cache_file in c_files:
-        os.remove(cache_file)
-    test_paths = tuple(test_files(m_files))
-    session.install("pytest", ".", "mypy")
-    session.run("mypy", "src/structured_data")
-    try:
-        session.run("pytest", "-vv", *test_paths)
-    finally:
-        for cache_file in c_files:
-            os.remove(cache_file)
-
-
-@nox.session
 def coveralls(session):
     session.install("coveralls")
     session.run("coveralls", "[]")
