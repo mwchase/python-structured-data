@@ -1,0 +1,8 @@
+# wemake-python-styleguide
+check-manifest
+docutils
+flake8
+isort
+pygments
+readme-renderer
+twine

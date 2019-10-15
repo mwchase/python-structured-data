@@ -20,10 +20,14 @@ def default(session):
     return session
 
 
+def install_from_requirements(session, filename):
+    session.install("-r", f"requirements/{filename}.txt")
+
+
 def _build(session):
     global BUILD
     if BUILD is None:
-        session.install("wheel")
+        install_from_requirements(session, "wheel")
         session.run("python", "setup.py", "bdist_wheel")
         version = session.run("python", "setup.py", "--version", silent=True).strip()
         for filename in os.listdir("dist"):
@@ -35,23 +39,14 @@ def _build(session):
 @default
 @nox.session
 def clean(session):
-    session.install(COVERAGE)
+    install_from_requirements(session, "coverage")
     session.run("coverage", "erase")
 
 
 @default
 @nox.session
 def check(session):
-    session.install(
-        "docutils",
-        "check-manifest",
-        "flake8",
-        "readme-renderer",
-        "pygments",
-        "isort",
-        "twine",
-        # "wemake-python-styleguide",
-    )
+    install_from_requirements(session, "check")
     session.run("python", "setup.py", "sdist")
     session.run("python", "setup.py", "bdist_wheel")
     session.run("twine", "check", "dist/*")
@@ -72,7 +67,7 @@ def check(session):
 @default
 @nox.session
 def mypy(session):
-    session.install("mypy")
+    install_from_requirements(session, "mypy")
     session.run("mypy", "src/structured_data")
 
 
@@ -87,7 +82,7 @@ def build(session):
 def nocov(session):
     _build(session)
     session.install("--upgrade", BUILD)
-    session.install("pytest")
+    install_from_requirements(session, "pytest")
     session.run("pytest", "-vv")
 
 
@@ -96,7 +91,7 @@ def nocov(session):
 def cover(session):
     _build(session)
     session.install("--upgrade", BUILD)
-    session.install(COVERAGE, "limit-coverage", "pytest")
+    install_from_requirements(session, "cover")
     session.run("coverage", "run", "-m", "pytest", "-vv")
     session.run("limit-coverage")
 
@@ -104,7 +99,7 @@ def cover(session):
 @default
 @nox.session
 def report(session):
-    session.install(COVERAGE)
+    install_from_requirements(session, "coverage")
     session.run("coverage", "html", "--show-contexts")
     session.run("coverage", "report", "--skip-covered", "-m", "--fail-under=100")
 
@@ -119,19 +114,19 @@ def docs(session):
 
 @nox.session
 def mutmut_install(session):
-    session.install("pytest", "mypy")
+    install_from_requirements(session, "mutmut_install")
     session.install("-e", ".")
 
 
 @nox.session
 def coveralls(session):
-    session.install("coveralls")
+    install_from_requirements(session, "coveralls")
     session.run("coveralls", "[]")
 
 
 @nox.session
 def codecov(session):
-    session.install(COVERAGE, "codecov")
+    install_from_requirements(session, "codecov")
     session.run("coverage", "xml", "--ignore-errors")
     session.run("codecov", "-f", "coverage.xml")
 

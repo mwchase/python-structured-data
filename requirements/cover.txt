@@ -1,0 +1,3 @@
+-r coverage.txt
+-r pytest.txt
+limit-coverage

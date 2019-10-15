@@ -4,6 +4,7 @@ graft ci
 graft tests
 graft test_resources
 graft mutmut-runner
+graft requirements
 
 include .bumpversion.cfg
 include .coveragerc

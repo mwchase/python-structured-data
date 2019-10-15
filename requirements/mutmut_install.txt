@@ -1,0 +1,2 @@
+-r mypy.txt
+-r pytest.txt
