@@ -136,3 +136,24 @@ def test_property_is_mostly_immutable(match):
 
     with pytest.raises(AttributeError):
         del prop2.__wrapped__
+
+
+def test_proxy(match):
+
+    class Test:
+        prop = match.Property()
+
+    class Test2(Test):
+        pass
+
+    @Test2.prop.getter
+    def prop_get(self):
+        """I'm a docstring!"""
+
+    @Test2.prop.setter
+    def prop_set(self, value):
+        """I'm a docstring!"""
+
+    @Test2.prop.deleter
+    def prop_delete(self):
+        """I'm a docstring!"""
