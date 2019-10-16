@@ -7,6 +7,7 @@ import nox
 nox.options.reuse_existing_virtualenvs = True
 
 DEFAULTS = []
+VERSIONS = ["3.7"]
 
 nox.options.sessions = DEFAULTS
 
@@ -78,7 +79,7 @@ def build(session):
 
 
 @default
-@nox.session(python=["3.7"])
+@nox.session(python=VERSIONS)
 def nocov(session):
     _build(session)
     session.install("--upgrade", BUILD)
@@ -87,7 +88,7 @@ def nocov(session):
 
 
 @default
-@nox.session(python=["3.7"])
+@nox.session(python=VERSIONS)
 def cover(session):
     _build(session)
     session.install("--upgrade", BUILD)
