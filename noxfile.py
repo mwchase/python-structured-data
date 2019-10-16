@@ -7,7 +7,7 @@ import nox
 nox.options.reuse_existing_virtualenvs = True
 
 DEFAULTS = []
-VERSIONS = ["3.7"]
+VERSIONS = ["3.7", "3.8"]
 
 nox.options.sessions = DEFAULTS
 
@@ -93,14 +93,14 @@ def cover(session):
     _build(session)
     session.install("--upgrade", BUILD)
     install_from_requirements(session, "cover")
-    session.run("coverage", "run", "-m", "pytest", "-vv")
-    session.run("limit-coverage")
+    session.run("coverage", "run", "--append", "-m", "pytest", "-vv")
 
 
 @default
 @nox.session
 def report(session):
-    install_from_requirements(session, "coverage")
+    install_from_requirements(session, "report")
+    session.run("limit-coverage")
     session.run("coverage", "html", "--show-contexts")
     session.run("coverage", "report", "--skip-covered", "-m", "--fail-under=100")
 
