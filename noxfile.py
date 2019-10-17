@@ -7,7 +7,7 @@ import nox
 nox.options.reuse_existing_virtualenvs = True
 
 DEFAULTS = []
-VERSIONS = ["3.7", "3.8"]
+VERSIONS = ["3.8"]
 
 nox.options.sessions = DEFAULTS
 
