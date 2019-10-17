@@ -1,7 +1,7 @@
 language: python
 sudo: true
 cache: pip
-python: '3.7'
+python: '3.8'
 dist: xenial
 env:
   global:
@@ -12,12 +12,12 @@ env:
     - NOXSESSION=docs
 matrix:
   include:
-    - python: '3.7'
+    - python: '3.8'
       env:
-        - NOXSESSION=cover-3.7,codecov,report
-    - python: '3.7'
+        - NOXSESSION=cover-3.8,codecov,report
+    - python: '3.8'
       env:
-        - NOXSESSION=nocov-3.7
+        - NOXSESSION=nocov-3.8
 before_install:
   - python --version
   - uname -a

@@ -7,8 +7,8 @@ environment:
     WITH_COMPILER: 'cmd /E:ON /V:ON /C .\ci\appveyor-with-compiler.cmd'
   matrix:
     - NOXSESSION: check,mypy
-      PYTHON_HOME: C:\Python37
-      PYTHON_VERSION: '3.7'
+      PYTHON_HOME: C:\Python38
+      PYTHON_VERSION: '3.8'
       PYTHON_ARCH: '32'
 {% for env, config in nox_environments|dictsort %}{{ '' }}{% if config.python.startswith('python') %}
     - NOXSESSION: '{{ env }}{% if config.cover %},codecov,report{% endif %}'
