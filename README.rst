@@ -21,7 +21,7 @@ Overview
     :target: https://readthedocs.org/projects/python-structured-data
     :alt: Documentation Status
 
-.. |travis| image:: https://travis-ci.org/mwchase/python-structured-data.svg?branch=master
+.. |travis| image:: https://api.travis-ci.org/mwchase/python-structured-data.svg?branch=master
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/mwchase/python-structured-data
 
@@ -33,7 +33,7 @@ Overview
     :alt: Requirements Status
     :target: https://requires.io/github/mwchase/python-structured-data/requirements/?branch=master
 
-.. |codecov| image:: https://codecov.io/github/mwchase/python-structured-data/coverage.svg?branch=master
+.. |codecov| image:: https://codecov.io/gh/mwchase/python-structured-data/branch/master/graphs/badge.svg?branch=master
     :alt: Coverage Status
     :target: https://codecov.io/github/mwchase/python-structured-data
 
@@ -45,7 +45,7 @@ Overview
     :alt: Codebeat Code Quality Status
 
 .. |codeclimate| image:: https://api.codeclimate.com/v1/badges/535f66af50b72ee28e62/maintainability
-    :target: https://codeclimate.com/github/mwchase/python-structured-data/maintainability
+    :target: https://codeclimate.com/github/mwchase/python-structured-data
     :alt: Code Climate Maintainability Score
 
 .. |scrutinizer| image:: https://scrutinizer-ci.com/g/mwchase/python-structured-data/badges/quality-score.png?b=master
@@ -58,7 +58,7 @@ Overview
 
 .. |version| image:: https://img.shields.io/pypi/v/structured-data.svg
     :alt: PyPI Package latest release
-    :target: https://pypi.python.org/pypi/structured-data
+    :target: https://pypi.org/project/structured-data/
 
 .. |commits-since| image:: https://img.shields.io/github/commits-since/mwchase/python-structured-data/v0.13.0.svg
     :alt: Commits since latest release
@@ -66,15 +66,15 @@ Overview
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/structured-data.svg
     :alt: PyPI Wheel
-    :target: https://pypi.python.org/pypi/structured-data
+    :target: https://pypi.org/project/structured-data/
 
 .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/structured-data.svg
     :alt: Supported versions
-    :target: https://pypi.python.org/pypi/structured-data
+    :target: https://pypi.org/project/structured-data/
 
 .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/structured-data.svg
     :alt: Supported implementations
-    :target: https://pypi.python.org/pypi/structured-data
+    :target: https://pypi.org/project/structured-data/
 
 
 .. end-badges
@@ -166,4 +166,4 @@ Development
 
 To run the all tests run::
 
-    tox
+    nox

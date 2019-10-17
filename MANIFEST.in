@@ -3,6 +3,8 @@ graft src
 graft ci
 graft tests
 graft test_resources
+graft mutmut-runner
+graft requirements
 
 include .bumpversion.cfg
 include .coveragerc
@@ -15,6 +17,8 @@ include CONTRIBUTING.rst
 include LICENSE
 include README.rst
 
-include tox.ini .travis.yml appveyor.yml readthedocs.yml bandit.yml mypy.ini mutmut_helper.py
+include .travis.yml appveyor.yml readthedocs.yml bandit.yml mypy.ini noxfile.py requirements.txt
+
+prune mutmut-runner/target
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib

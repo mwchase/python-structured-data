@@ -48,7 +48,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.function(positional_until=1)
+        @match.method
         def invert(self):
             """Reverse the the object according to some criteria."""
 
@@ -62,6 +62,16 @@ def test_method(adt, match):
 
     assert TestEither.Left(10).invert() == TestEither.Left(-10)
     assert TestEither.Right("abc").invert() == TestEither.Right("cba")
+
+
+def test_method_positional(adt, match):
+    class TestEither(adt.Sum):
+        Left: adt.Ctor[int]
+        Right: adt.Ctor[str]
+
+        @match.method(positional_until=2)
+        def dummy_func(self, arg):
+            """A dummy test function for now."""
 
 
 def test_trivial_match_function(match):

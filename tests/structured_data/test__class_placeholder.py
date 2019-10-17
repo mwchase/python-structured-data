@@ -11,7 +11,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.function(positional_until=1)
+        @match.method
         def invert(self):
             """Reverse the the object according to some criteria."""
 

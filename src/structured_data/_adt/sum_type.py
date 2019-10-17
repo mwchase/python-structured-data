@@ -11,12 +11,12 @@ from . import product_type
 _T = typing.TypeVar("_T")
 
 
-def _conditional_call(call: bool, func, *args):
+def _conditional_call(call: bool, func: typing.Callable, *args: typing.Any) -> None:
     if call:
         func(*args)
 
 
-def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
+def _set_new_functions(cls: type, *functions: typing.Callable) -> typing.Optional[str]:
     """Attempt to set the attributes corresponding to the functions on cls.
 
     If any attributes are already defined, fail *before* setting any, and
@@ -30,8 +30,8 @@ def _set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
-def _sum_new(_cls: typing.Type[_T], subclasses):
-    def base(cls: typing.Type[_T], args):
+def _sum_new(_cls: typing.Type[_T], subclasses: typing.FrozenSet[type]) -> None:
+    def base(cls: typing.Type[_T], args: tuple) -> _T:
         # By the way, this is for https://github.com/python/mypy/issues/7580
         # When that's fixed, this can be made a one-liner again.
         superclass = super(_cls, cls)
@@ -39,7 +39,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses):
 
     new = vars(_cls).get("__new__", staticmethod(base))
 
-    def __new__(cls: typing.Type[_T], args):
+    def __new__(cls: typing.Type[_T], args: tuple) -> _T:
         if cls not in subclasses:
             raise TypeError
         return new.__get__(None, cls)(cls, args)
@@ -76,13 +76,13 @@ class Sum:
     # Both of these are for consistency with modules defined in the stdlib.
     # BOOM!
     def __init_subclass__(
-        cls,
+        cls: type,
         *,
         repr: bool = True,  # pylint: disable=redefined-builtin
         eq: bool = True,  # pylint: disable=invalid-name
         order: bool = False,
-        **kwargs,
-    ):
+        **kwargs: typing.Any,
+    ) -> None:
         super().__init_subclass__(**kwargs)  # type: ignore
         if issubclass(cls, constructor.ADTConstructor):
             return
@@ -118,17 +118,17 @@ class Sum:
 
         common.for_class(cls)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return True
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: typing.Any) -> None:
         if not inspect.isdatadescriptor(
             inspect.getattr_static(self, name, _cant_modify.MISSING)
         ):
             _cant_modify.cant_modify(self, name)
         super().__setattr__(name, value)
 
-    def __delattr__(self, name):
+    def __delattr__(self, name: str) -> None:
         if not inspect.isdatadescriptor(
             inspect.getattr_static(self, name, _cant_modify.MISSING)
         ):

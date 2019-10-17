@@ -37,8 +37,8 @@ class Pattern(tuple):
         """Return the name of the matcher."""
         return tuple.__getitem__(self, 0)
 
-    def __getitem__(self, other) -> AsPattern:
-        return AsPattern(self, other)
+    def __getitem__(self, other) -> typing.Union[Pattern, AsPattern]:
+        return AsPattern.bind(self, other)
 
 
 class AsPattern(CompoundMatch, tuple):
@@ -46,12 +46,14 @@ class AsPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(  # type: ignore
-        cls, pattern: Pattern, structure
-    ) -> typing.Union[Pattern, AsPattern]:
+    def __new__(cls, pattern: Pattern, structure):
+        return super().__new__(cls, (pattern, structure))  # type: ignore
+
+    @classmethod
+    def bind(cls, pattern: Pattern, structure) -> typing.Union[Pattern, AsPattern]:
         if structure is DISCARD:
             return pattern
-        return super().__new__(cls, (pattern, structure))  # type: ignore
+        return cls(pattern, structure)
 
     @property
     def pattern(self) -> Pattern:

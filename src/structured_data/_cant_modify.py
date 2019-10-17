@@ -3,7 +3,7 @@ import inspect
 MISSING = object()
 
 
-def cant_modify(self, name):
+def cant_modify(self, name: str) -> None:
     """Prevent attempts to modify an attr of the given name."""
     class_repr = repr(self.__class__.__name__)
     name_repr = repr(name)

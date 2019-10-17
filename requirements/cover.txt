@@ -1,0 +1,2 @@
+-r coverage.txt
+-r pytest.txt

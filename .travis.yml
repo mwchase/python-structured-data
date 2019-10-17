@@ -1,38 +1,35 @@
 language: python
 sudo: true
 cache: pip
-python: '3.7'
+python: '3.8'
 dist: xenial
 env:
   global:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
     - SEGFAULT_SIGNALS=all
   matrix:
-    - TOXENV=check,mypy
-    - TOXENV=docs
+    - NOXSESSION=check,mypy
+    - NOXSESSION=docs
 matrix:
   include:
-    - python: '3.7'
+    - python: '3.8'
       env:
-        - TOXENV=3.7-cover,codecov,report
-    - python: '3.7'
+        - NOXSESSION=cover-3.8,codecov,report
+    - python: '3.8'
       env:
-        - TOXENV=3.7-nocov
+        - NOXSESSION=nocov-3.8
 before_install:
   - python --version
   - uname -a
   - lsb_release -a
 install:
-  - pip install tox
+  - pip install nox jinja2 matrix
   - virtualenv --version
   - easy_install --version
   - pip --version
-  - tox --version
+  - nox --version
 script:
-  - tox -v
-after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
+  - nox -v
 notifications:
   email:
     on_success: never

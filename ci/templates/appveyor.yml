@@ -6,19 +6,16 @@ environment:
   global:
     WITH_COMPILER: 'cmd /E:ON /V:ON /C .\ci\appveyor-with-compiler.cmd'
   matrix:
-    - TOXENV: check,mypy
-      TOXPYTHON: C:\Python37\python.exe
-      PYTHON_HOME: C:\Python37
-      PYTHON_VERSION: '3.7'
+    - NOXSESSION: check,mypy
+      PYTHON_HOME: C:\Python38
+      PYTHON_VERSION: '3.8'
       PYTHON_ARCH: '32'
-{% for env, config in tox_environments|dictsort %}{{ '' }}{% if config.python.startswith('python') %}
-    - TOXENV: '{{ env }}{% if config.cover %},codecov,report{% endif %}'
-      TOXPYTHON: C:\{{ config.python.replace('.', '').capitalize() }}\python.exe
+{% for env, config in nox_environments|dictsort %}{{ '' }}{% if config.python.startswith('python') %}
+    - NOXSESSION: '{{ env }}{% if config.cover %},codecov,report{% endif %}'
       PYTHON_HOME: C:\{{ config.python.replace('.', '').capitalize() }}
       PYTHON_VERSION: '{{ config.python[-3:] }}'
       PYTHON_ARCH: '32'
-    - TOXENV: '{{ env }}{% if config.cover %},codecov,report{% endif %}'
-      TOXPYTHON: C:\{{ config.python.replace('.', '').capitalize() }}-x64\python.exe
+    - NOXSESSION: '{{ env }}{% if config.cover %},codecov,report{% endif %}'
       {%- if config.python != 'python3.5' %}
 
       WINDOWS_SDK_VERSION: v7.{{ '1' if config.python[-3] == '3' else '0' }}
@@ -30,20 +27,17 @@ environment:
 
 {% endif %}{% endfor %}
 init:
-  - ps: echo $env:TOXENV
+  - ps: echo $env:NOXSESSION
   - ps: ls C:\Python*
 install:
   - python -u ci\appveyor-bootstrap.py
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'
   - '%PYTHON_HOME%\Scripts\pip --version'
-  - '%PYTHON_HOME%\Scripts\tox --version'
+  - '%PYTHON_HOME%\Scripts\nox --version'
 test_script:
-  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
+  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\nox'
 
-on_failure:
-  - ps: dir "env:"
-  - ps: get-content .tox\*\log\*
 artifacts:
   - path: dist\*
 

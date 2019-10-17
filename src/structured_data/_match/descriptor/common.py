@@ -4,23 +4,28 @@ import typing
 from ... import _class_placeholder
 from .. import destructure
 
+T = typing.TypeVar("T")
 
-def _check_structure(structure):
+Matcher = typing.Union[T, typing.Callable[[type], T]]
+MatcherList = typing.List[typing.Tuple[Matcher[T], typing.Callable]]
+
+
+def _check_structure(structure) -> None:
     destructure.names(structure)  # Raise ValueError if there are duplicates
 
 
-def decorate(matchers, structure):
+def decorate(matchers: MatcherList[T], structure: Matcher[T]):
     if not _class_placeholder.is_placeholder(structure):
         _check_structure(structure)
 
-    def decorator(func):
+    def decorator(func: typing.Callable) -> typing.Callable:
         matchers.append((structure, func))
         return func
 
     return decorator
 
 
-class Descriptor:
+class Decorator:
     """Base class for decorator classes."""
 
     __wrapped__ = None
@@ -31,6 +36,15 @@ class Descriptor:
         if func is None:
             return new
         return functools.wraps(func)(new)
+
+
+class Descriptor(Decorator):
+    owner: type
+
+    def __set_name__(self, owner, name):
+        if getattr(self, "owner", owner) is not owner:
+            return
+        self.owner = owner
 
     def _matchers(
         self

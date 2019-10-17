@@ -9,6 +9,30 @@ OptionalSetter = typing.Optional[typing.Callable[[typing.Any, typing.Any], None]
 OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
 
 
+class PropertyProxy:
+
+    def __init__(self, prop):
+        self.prop = prop
+
+    def getter(self, getter):
+        return self.prop.getter(getter)
+
+    def setter(self, setter):
+        return self.prop.setter(setter)
+
+    def deleter(self, deleter):
+        return self.prop.deleter(deleter)
+
+    def __get__(self, instance, owner):
+        return self.prop.__get__(instance, owner)
+
+    def __set__(self, instance, value):
+        self.prop.__set__(instance, value)
+
+    def __delete__(self, instance):
+        self.prop.__delete__(instance)
+
+
 @_doc_wrapper.DocWrapper.wrap_class
 class Property(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a property."""
@@ -40,7 +64,10 @@ class Property(common.Descriptor):
         yield self.delete_matchers
 
     def __setattr__(self, name, value):
-        if self.protected and name != "__doc__":
+        if self.protected and (
+            name not in {"__doc__", "owner"}
+            or (name == "owner" and getattr(self, "owner", value) is not value)
+        ):
             raise AttributeError
         super().__setattr__(name, value)
 
@@ -75,7 +102,9 @@ class Property(common.Descriptor):
 
     def __get__(self, instance, owner):
         if instance is None:
-            return self
+            if owner is self.owner:
+                return self
+            return PropertyProxy(self)
         matchable_ = matchable.Matchable(instance)
         for (structure, func) in self.get_matchers:
             if matchable_(structure):
