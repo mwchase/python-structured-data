@@ -37,13 +37,6 @@ def _stack_iter():
 
 
 @pytest.fixture(scope="session")
-def _pep_570_when():
-    from structured_data import _pep_570_when
-
-    return _pep_570_when
-
-
-@pytest.fixture(scope="session")
 def data():
     from structured_data import data
 

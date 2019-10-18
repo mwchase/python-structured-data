@@ -3,7 +3,6 @@ import inspect
 import typing
 
 from ... import _class_placeholder
-from ... import _pep_570_when
 from .. import matchable
 from ..patterns import mapping_match
 from . import common
@@ -68,8 +67,7 @@ class Function(common.Decorator):
                 return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
         raise ValueError(values)
 
-    @_pep_570_when.pep_570_when
-    def when(self, kwargs: dict) -> typing.Callable[[typing.Callable], typing.Callable]:
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
