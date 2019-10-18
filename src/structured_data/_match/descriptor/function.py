@@ -54,10 +54,8 @@ class Function(common.Decorator):
                 bound_kwargs = values.pop(parameter.name)
         return bound_args, bound_kwargs, values
 
-    def __call__(*args, **kwargs):
+    def __call__(self, /, *args, **kwargs):
         # Okay, so, this is a convoluted mess.
-        # First, we extract self from the beginning of the argument list
-        self, *args = args
 
         bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
 
@@ -77,8 +75,7 @@ class MethodProxy:
     def __init__(self, func):
         self.func = func
 
-    def __call__(*args, **kwargs):
-        self, *args = args
+    def __call__(self, /, *args, **kwargs):
         return self.func(*args, **kwargs)
 
     def __get__(self, instance, owner):

@@ -35,8 +35,7 @@ def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
     if "__new__" in vars(_cls):
         original_new = _cls.__new__
 
-        def __new__(*args, **kwargs):
-            cls, *args = args
+        def __new__(cls, /, *args, **kwargs):
             if cls is _cls:
                 return original_new(cls, *args, **kwargs)
             return super(_cls, cls).__new__(cls, *args, **kwargs)
@@ -44,8 +43,7 @@ def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
         signature = inspect.signature(original_new)
     else:
 
-        def __new__(*args, **kwargs):
-            cls, *args = args
+        def __new__(cls, /, *args, **kwargs):
             return super(_cls, cls).__new__(cls, *args, **kwargs)
 
         signature = _signature.replace(
@@ -96,8 +94,7 @@ class Product(constructor.ADTConstructor, tuple):
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
-        cls, *args = args
+    def __new__(cls, /, *args, **kwargs):
         if cls is Product:
             raise TypeError
         # Probably a result of not having positional-only args.

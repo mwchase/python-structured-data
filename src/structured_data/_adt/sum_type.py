@@ -67,8 +67,7 @@ class Sum:
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
-        cls, *args = args
+    def __new__(cls, /, *args, **kwargs):
         if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)
