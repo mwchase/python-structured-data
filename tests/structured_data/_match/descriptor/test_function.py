@@ -76,7 +76,7 @@ def test_match_function_errors(match):
 
     @match.function
     def takes_kwargs(arg_to_function, **kwargs):
-        """Ignore me."""
+        raise ValueError
 
     with pytest.raises(ValueError):
         takes_kwargs(None)
@@ -92,7 +92,7 @@ def test_match_function_errors(match):
 
     @match.function
     def not_enough(arg):
-        """This has an argument. Failing to provide a binding for it should fail."""
+        raise ValueError
 
     @not_enough.when()
     def bad_match():

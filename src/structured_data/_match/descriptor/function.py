@@ -63,7 +63,8 @@ class Function(common.Decorator):
         for structure, func in self.matchers:
             if matchable_(structure):
                 return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
-        raise ValueError(values)
+        # Hey, we can just fall back now.
+        return self.__wrapped__(*args, **kwargs)
 
     def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""

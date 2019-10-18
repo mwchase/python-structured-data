@@ -91,7 +91,7 @@ def test_match_function_errors(match):
 
     @match.function
     def takes_kwargs(arg_to_function, **kwargs):
-        """Ignore me."""
+        raise ValueError
 
     with pytest.raises(ValueError):
         takes_kwargs(None)
