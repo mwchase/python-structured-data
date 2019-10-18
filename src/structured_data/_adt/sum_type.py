@@ -67,7 +67,7 @@ class Sum:
 
     __slots__ = ()
 
-    def __new__(cls, /, *args, **kwargs):
+    def __new__(cls, /, *args, **kwargs):  # noqa: E225
         if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
         return super(Sum, cls).__new__(cls, *args, **kwargs)

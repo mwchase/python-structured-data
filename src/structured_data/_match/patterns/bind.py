@@ -19,7 +19,7 @@ class Bind(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, structure, /, **kwargs):
+    def __new__(cls, structure, /, **kwargs):  # noqa: E225
         if not kwargs:
             return structure
         not_in(container=kwargs, item="_")

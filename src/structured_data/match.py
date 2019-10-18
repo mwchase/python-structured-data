@@ -14,7 +14,6 @@ Given a value to destructure, called ``value``:
 
 from __future__ import annotations
 
-import inspect
 import typing
 
 from . import _attribute_constructor

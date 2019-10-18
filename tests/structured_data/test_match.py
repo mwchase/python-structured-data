@@ -70,7 +70,7 @@ def test_method_positional(adt, match):
         Right: adt.Ctor[str]
 
         @match.method
-        def dummy_func(self, arg, /):
+        def dummy_func(self, arg, /):  # noqa: E225
             """A dummy test function for now."""
 
 

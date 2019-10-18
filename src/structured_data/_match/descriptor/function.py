@@ -54,7 +54,7 @@ class Function(common.Decorator):
                 bound_kwargs = values.pop(parameter.name)
         return bound_args, bound_kwargs, values
 
-    def __call__(self, /, *args, **kwargs):
+    def __call__(self, /, *args, **kwargs):  # noqa: E225
         # Okay, so, this is a convoluted mess.
 
         bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
@@ -66,7 +66,7 @@ class Function(common.Decorator):
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
@@ -76,7 +76,7 @@ class MethodProxy:
     def __init__(self, func):
         self.func = func
 
-    def __call__(self, /, *args, **kwargs):
+    def __call__(self, /, *args, **kwargs):  # noqa: E225
         return self.func(*args, **kwargs)
 
     def __get__(self, instance, owner):
