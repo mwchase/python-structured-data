@@ -73,19 +73,6 @@ def test_trivial_match_function(match):
 
 
 def test_match_function_errors(match):
-    def double_dip(arg):
-        """Nothing interesting."""
-
-    wrapper = match.function(positional_until=1)
-    wrapper(double_dip)
-    with pytest.raises(ValueError):
-        wrapper(double_dip)
-
-    def wrong_shape(*args):
-        """Still nothing interesting."""
-
-    with pytest.raises(ValueError):
-        wrapper(wrong_shape)
 
     @match.function
     def takes_kwargs(arg_to_function, **kwargs):
