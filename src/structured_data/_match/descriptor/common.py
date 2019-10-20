@@ -62,8 +62,10 @@ class MatchTemplate(typing.Generic[T]):
             raise ValueError
         for structure, func in self._get_matchers(base):
             if matchable(structure):
-                yield func
-                return
+                break
+        else:
+            return
+        yield func
 
 
 def _check_structure(structure) -> None:
