@@ -33,7 +33,9 @@ class Function(common.Decorator):
     def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
         del func
         super().__init__(*args, **kwargs)  # type: ignore
-        self.matchers = common.MatchTemplate()
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
     def _bound_and_values(self, args, kwargs):
         # Then we figure out what signature we're giving the outside world.

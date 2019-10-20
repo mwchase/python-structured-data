@@ -7,16 +7,19 @@ from .. import destructure
 
 T = typing.TypeVar("T")
 
-Matcher = typing.Union[T, typing.Callable[[type], T]]
+Matcher = typing.Union[T, _class_placeholder.Placeholder[T]]
 
 
-def _apply(structure, base):
+def _apply(structure: Matcher[T], base: typing.Optional[type]) -> T:
     if _class_placeholder.is_placeholder(structure):
-        new = structure(base)
+        placeholder = typing.cast(_class_placeholder.Placeholder, structure)
+        # The cast is safe because we do the abstract check higher up
+        new = placeholder(typing.cast(type, base))
         _check_structure(new)
         return new
-    _check_structure(structure)
-    return structure
+    non_placeholder = typing.cast(T, structure)
+    _check_structure(non_placeholder)
+    return non_placeholder
 
 
 class MatchTemplate(typing.Generic[T]):
@@ -35,7 +38,7 @@ class MatchTemplate(typing.Generic[T]):
     # def abstract(self):
     #     return self._abstract
 
-    def add_structure(self, structure, func):
+    def add_structure(self, structure: Matcher[T], func: typing.Callable):
         self._templates.append((structure, func))
         if _class_placeholder.is_placeholder(structure):
             self._abstract = True
