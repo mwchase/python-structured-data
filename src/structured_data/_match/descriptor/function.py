@@ -33,7 +33,7 @@ class Function(common.Decorator):
     def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
         del func
         super().__init__(*args, **kwargs)  # type: ignore
-        self.matchers: common.MatcherList[mapping_match.DictPattern] = []
+        self.matchers = common.MatchTemplate()
 
     def _bound_and_values(self, args, kwargs):
         # Then we figure out what signature we're giving the outside world.
@@ -60,9 +60,8 @@ class Function(common.Decorator):
         bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
 
         matchable_ = matchable.Matchable(values)
-        for structure, func in self.matchers:
-            if matchable_(structure):
-                return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+        for func in self.matchers.match(matchable_, None):
+            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)
 
@@ -93,8 +92,16 @@ class Method(Function, common.Descriptor):
             return MethodProxy(self)
         return functools.partial(self, instance)
 
-    def _matchers(self):
-        yield self.matchers
+    def __call__(self, instance, /, *args, **kwargs):  # noqa: E225
+        # Okay, so, this is a convoluted mess.
+
+        bound_args, bound_kwargs, values = self._bound_and_values((instance,) + args, kwargs)
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.matchers.match(matchable_, instance):
+            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+        # Hey, we can just fall back now.
+        return self.__wrapped__(*args, **kwargs)
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:

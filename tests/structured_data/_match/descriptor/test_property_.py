@@ -107,8 +107,9 @@ def test_property_advanced(adt, match):
     del special.prop
     del special.prop
 
+    bad_deco = TestEither.prop.set_when(match.pat.a, match.pat.a)
     with pytest.raises(ValueError):
-        assert not TestEither.prop.set_when(match.pat.a, match.pat.a)
+        assert not bad_deco(None)
 
 
 def test_property_fallback(match):

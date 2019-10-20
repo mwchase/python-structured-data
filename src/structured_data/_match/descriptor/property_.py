@@ -53,15 +53,10 @@ class Property(common.Descriptor):
         self.fdel = fdel
         if doc is not None:
             self.__doc__ = doc
-        self.get_matchers = []
-        self.set_matchers = []
-        self.delete_matchers = []
+        self.get_matchers = common.MatchTemplate()
+        self.set_matchers = common.MatchTemplate()
+        self.delete_matchers = common.MatchTemplate()
         self.protected = True
-
-    def _matchers(self):
-        yield self.get_matchers
-        yield self.set_matchers
-        yield self.delete_matchers
 
     def __setattr__(self, name, value):
         if self.protected and (
@@ -79,25 +74,25 @@ class Property(common.Descriptor):
     def getter(self, getter):
         """Return a copy of self with the getter replaced."""
         new = Property(getter, self.fset, self.fdel, self.__doc__)
-        new.get_matchers.extend(self.get_matchers)
-        new.set_matchers.extend(self.set_matchers)
-        new.delete_matchers.extend(self.delete_matchers)
+        self.get_matchers.copy_into(new.get_matchers)
+        self.set_matchers.copy_into(new.set_matchers)
+        self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
     def setter(self, setter):
         """Return a copy of self with the setter replaced."""
         new = Property(self.__wrapped__, setter, self.fdel, self.__doc__)
-        new.get_matchers.extend(self.get_matchers)
-        new.set_matchers.extend(self.set_matchers)
-        new.delete_matchers.extend(self.delete_matchers)
+        self.get_matchers.copy_into(new.get_matchers)
+        self.set_matchers.copy_into(new.set_matchers)
+        self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
     def deleter(self, deleter):
         """Return a copy of self with the deleter replaced."""
         new = Property(self.__wrapped__, self.fset, deleter, self.__doc__)
-        new.get_matchers.extend(self.get_matchers)
-        new.set_matchers.extend(self.set_matchers)
-        new.delete_matchers.extend(self.delete_matchers)
+        self.get_matchers.copy_into(new.get_matchers)
+        self.set_matchers.copy_into(new.set_matchers)
+        self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
     def __get__(self, instance, owner):
@@ -106,29 +101,26 @@ class Property(common.Descriptor):
                 return self
             return PropertyProxy(self)
         matchable_ = matchable.Matchable(instance)
-        for (structure, func) in self.get_matchers:
-            if matchable_(structure):
-                return func(**matchable_.matches)
+        for func in self.get_matchers.match(matchable_, instance):
+            return func(**matchable_.matches)
         if self.__wrapped__ is None:
             raise ValueError(self)
         return self.__wrapped__(instance)
 
     def __set__(self, instance, value):
         matchable_ = matchable.Matchable((instance, value))
-        for (structure, func) in self.set_matchers:
-            if matchable_(structure):
-                func(**matchable_.matches)
-                return
+        for func in self.set_matchers.match(matchable_, instance):
+            func(**matchable_.matches)
+            return
         if self.fset is None:
             raise ValueError((instance, value))
         self.fset(instance, value)
 
     def __delete__(self, instance):
         matchable_ = matchable.Matchable(instance)
-        for (structure, func) in self.delete_matchers:
-            if matchable_(structure):
-                func(**matchable_.matches)
-                return
+        for func in self.delete_matchers.match(matchable_, instance):
+            func(**matchable_.matches)
+            return
         if self.fdel is None:
             raise ValueError(instance)
         self.fdel(instance)

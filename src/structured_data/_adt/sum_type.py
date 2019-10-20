@@ -2,7 +2,6 @@ import inspect
 import typing
 
 from .. import _cant_modify
-from .._match.descriptor import common
 from . import constructor
 from . import ordering
 from . import prewritten_methods
@@ -114,8 +113,6 @@ class Sum:
             ),
             cls.__name__,
         )
-
-        common.for_class(cls)
 
     def __bool__(self) -> bool:
         return True
