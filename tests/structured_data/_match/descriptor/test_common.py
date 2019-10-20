@@ -23,16 +23,6 @@ def test_function(match):
     assert function(4, 4) == 16
 
 
-def test_re_own(match):
-    class Test1:
-        prop = match.Property()
-
-    class Test2:
-        prop = Test1.prop
-
-    assert Test1.prop.owner is Test1
-
-
 def test_property_basics(adt, match):
     class TestEither(adt.Sum):
         Left: adt.Ctor[int]

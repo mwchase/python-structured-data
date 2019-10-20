@@ -59,10 +59,7 @@ class Property(common.Descriptor):
         self.protected = True
 
     def __setattr__(self, name, value):
-        if self.protected and (
-            name not in {"__doc__", "owner"}
-            or (name == "owner" and getattr(self, "owner", value) is not value)
-        ):
+        if self.protected and name != "__doc__":
             raise AttributeError
         super().__setattr__(name, value)
 
@@ -97,7 +94,7 @@ class Property(common.Descriptor):
 
     def __get__(self, instance, owner):
         if instance is None:
-            if owner is self.owner:
+            if common.owns(self, owner):
                 return self
             return PropertyProxy(self)
         matchable_ = matchable.Matchable(instance)

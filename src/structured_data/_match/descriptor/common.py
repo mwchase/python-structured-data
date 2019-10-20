@@ -82,6 +82,7 @@ class Decorator:
     """Base class for decorator classes."""
 
     __wrapped__ = None
+    __name__ = None
 
     def __new__(cls, func, *args, **kwargs):
         new = super().__new__(cls, *args, **kwargs)
@@ -92,9 +93,12 @@ class Decorator:
 
 
 class Descriptor(Decorator):
-    owner: type
-
     def __set_name__(self, owner, name):
-        if getattr(self, "owner", owner) is not owner:
-            return
-        self.owner = owner
+        vars(self).setdefault("__name__", name)
+
+
+SENTINEL = object()
+
+
+def owns(descriptor, owner):
+    return vars(owner).get(descriptor.__name__, SENTINEL) is descriptor
