@@ -91,10 +91,12 @@ class Decorator:
             return new
         return functools.wraps(func)(new)
 
-
-class Descriptor(Decorator):
     def __set_name__(self, owner, name):
         vars(self).setdefault("__name__", name)
+
+
+class Descriptor(Decorator):
+    pass
 
 
 SENTINEL = object()
