@@ -71,6 +71,13 @@ class Function(common.Decorator):
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)
 
+    def __get__(self, instance, owner):
+        if instance is None:
+            if common.owns(self, owner):
+                return self
+            return MethodProxy(self)
+        return functools.partial(self, instance)
+
     def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
@@ -90,13 +97,6 @@ class MethodProxy:
 
 class Method(Function, common.Descriptor):
     """Decorator with value-based dispatch. Acts as a method."""
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            if common.owns(self, owner):
-                return self
-            return MethodProxy(self)
-        return functools.partial(self, instance)
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
