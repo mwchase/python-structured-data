@@ -36,9 +36,9 @@ class MatchTemplate(typing.Generic[T]):
         for structure, func in self._templates:
             other.add_structure(structure, func)
 
-    @property
-    def abstract(self):
-        return self._abstract
+    # @property
+    # def abstract(self):
+    #     return self._abstract
 
     def add_structure(self, structure, func):
         self._templates.append((structure, func))
