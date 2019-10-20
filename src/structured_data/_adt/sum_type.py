@@ -46,7 +46,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses: typing.FrozenSet[type]) -> None:
     _cls.__new__ = staticmethod(__new__)  # type: ignore
 
 
-class Sum(constructor.DummyS, constructor.DummyP):
+class Sum(constructor.SumBase):
     """Base class of classes with disjoint constructors.
 
     Examines PEP 526 __annotations__ to determine subclasses.

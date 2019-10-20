@@ -72,7 +72,7 @@ def _product_signature(
         raise TypeError
 
 
-class Product(constructor.ADTConstructor, tuple, constructor.DummyP, constructor.DummyS):
+class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
     """Base class of classes with typed fields.
 
     Examines PEP 526 __annotations__ to determine fields.

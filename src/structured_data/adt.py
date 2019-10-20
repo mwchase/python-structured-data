@@ -43,6 +43,7 @@ Putting it together:
 
 import typing
 
+from ._adt.constructor import SumBase
 from ._adt.product_type import Product
 from ._adt.sum_type import Sum
 
@@ -66,4 +67,4 @@ else:
     from ._adt.ctor import Ctor
 
 
-__all__ = ["Ctor", "Product", "Sum"]
+__all__ = ["Ctor", "Product", "Sum", "SumBase"]

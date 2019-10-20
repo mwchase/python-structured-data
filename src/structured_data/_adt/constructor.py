@@ -30,6 +30,16 @@ class DummyP:
     __slots__ = ()
 
 
+class SumBase(DummyS, DummyP):
+
+    __slots__ = ()
+
+
+class ProductBase(DummyP, DummyS):
+
+    __slots__ = ()
+
+
 class ADTConstructor:
     """Base class for ADT Constructor classes."""
 
