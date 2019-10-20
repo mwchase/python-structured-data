@@ -48,7 +48,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method
+        @match.function
         def invert(self):
             """Reverse the the object according to some criteria."""
 
@@ -69,7 +69,7 @@ def test_method_positional(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method
+        @match.function
         def dummy_func(self, arg, /):  # noqa: E225
             """A dummy test function for now."""
 

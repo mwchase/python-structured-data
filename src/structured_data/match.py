@@ -34,8 +34,6 @@ pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-na
 )
 
 
-# This wraps a function that, for reasons, can't be called directly by the code
-# The function body should probably just be a docstring.
 def function(func: typing.Callable) -> function_.Function:
     """Convert a function to dispatch by value.
 
@@ -43,17 +41,6 @@ def function(func: typing.Callable) -> function_.Function:
     """
 
     return function_.Function(func)
-
-
-# This wraps a function that, for reasons, can't be called directly by the code
-# The function body should probably just be a docstring.
-def method(func: typing.Callable) -> function_.Method:
-    """Convert a function to dispatch by value.
-
-    The original function is not called when the dispatch function is invoked.
-    """
-
-    return function_.Method(func)
 
 
 def decorate_in_order(*args):
@@ -77,7 +64,6 @@ __all__ = [
     "Property",
     "decorate_in_order",
     "function",
-    "method",
     "placeholder",
     "names",
     "pat",
