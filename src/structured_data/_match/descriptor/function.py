@@ -93,7 +93,7 @@ class Method(Function, common.Descriptor):
 
     def __get__(self, instance, owner):
         if instance is None:
-            if owner is self.owner:
+            if vars(owner).get(self.__name__) is self:
                 return self
             return MethodProxy(self)
         return functools.partial(self, instance)
