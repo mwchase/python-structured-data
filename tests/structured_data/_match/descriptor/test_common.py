@@ -112,3 +112,22 @@ def test_property_advanced(adt, match):
     special.prop = 5
     with pytest.raises(IndexError):
         del special.prop
+
+    class NonSum:
+
+        prop = TestEither.prop
+
+    non_sum = NonSum()
+
+    with pytest.raises(ValueError):
+        non_sum.prop = None
+
+
+def test_copy(match):
+    prop = match.Property(doc="Hi!")
+
+    prop.get_when(None)(None)
+
+    @prop.getter
+    def prop2(self):
+        """I'm a docstring!"""

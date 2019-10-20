@@ -27,11 +27,6 @@ class MatchTemplate(typing.Generic[T]):
             typing.Optional[type], typing.List[typing.Tuple[T, typing.Callable]]
         ] = {}
 
-    def copy(self):
-        new = MatchTemplate()
-        self.copy_into(new)
-        return new
-
     def copy_into(self, other):
         for structure, func in self._templates:
             other.add_structure(structure, func)
