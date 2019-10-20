@@ -1,8 +1,8 @@
 import functools
 import typing
 
-from ..._adt import prewritten_methods
 from ... import _class_placeholder
+from ..._adt import prewritten_methods
 from .. import destructure
 
 T = typing.TypeVar("T")
