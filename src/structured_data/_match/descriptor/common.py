@@ -78,7 +78,7 @@ def decorate(matchers: MatchTemplate[T], structure: Matcher[T]):
     return decorator
 
 
-class Decorator:
+class Descriptor:
     """Base class for decorator classes."""
 
     __wrapped__ = None
@@ -93,10 +93,6 @@ class Decorator:
 
     def __set_name__(self, owner, name):
         vars(self).setdefault("__name__", name)
-
-
-class Descriptor(Decorator):
-    pass
 
 
 SENTINEL = object()

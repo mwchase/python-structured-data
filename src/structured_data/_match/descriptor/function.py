@@ -27,7 +27,7 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
     return func(*function_args.args, **function_args.kwargs)
 
 
-class Function(common.Decorator):
+class Function(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a function."""
 
     def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
@@ -93,10 +93,6 @@ class MethodProxy:
 
     def __get__(self, instance, owner):
         return self.func.__get__(instance, owner)
-
-
-class Method(Function, common.Descriptor):
-    """Decorator with value-based dispatch. Acts as a method."""
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
