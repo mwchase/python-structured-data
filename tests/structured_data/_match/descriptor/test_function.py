@@ -44,9 +44,11 @@ def test_method(adt, match):
         def __negate(number):
             return TestEither.Left(-number)
 
-        @invert.when(self=right_string)
-        def __reverse(string):
-            return TestEither.Right(string[::-1])
+    assert TestEither.Right("abc").invert() is None
+
+    @TestEither.invert.when(self=right_string)
+    def __reverse(string):
+        return TestEither.Right(string[::-1])
 
     assert TestEither.Left(10).invert() == TestEither.Left(-10)
     assert TestEither.Right("abc").invert() == TestEither.Right("cba")

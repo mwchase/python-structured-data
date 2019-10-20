@@ -101,7 +101,7 @@ class Method(Function, common.Descriptor):
         for func in self.matchers.match(matchable_, instance):
             return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
         # Hey, we can just fall back now.
-        return self.__wrapped__(*args, **kwargs)
+        return self.__wrapped__(instance, *args, **kwargs)
 
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
