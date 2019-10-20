@@ -139,15 +139,3 @@ def test_sum_property(adt):
         del test_value.dne
     with pytest.raises(AttributeError):
         del test_value.Left
-
-
-def test_bad_subtype_sum_first(adt):
-    with pytest.raises(TypeError):
-        class Test(adt.Sum, adt.Product):
-            pass
-
-
-def test_bad_subtype_product_first(adt):
-    with pytest.raises(TypeError):
-        class Test(adt.Product, adt.Sum):
-            pass

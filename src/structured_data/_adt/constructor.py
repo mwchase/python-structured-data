@@ -20,6 +20,16 @@ def _should_include(name, static):
     return True
 
 
+class DummyS:
+
+    __slots__ = ()
+
+
+class DummyP:
+
+    __slots__ = ()
+
+
 class ADTConstructor:
     """Base class for ADT Constructor classes."""
 
