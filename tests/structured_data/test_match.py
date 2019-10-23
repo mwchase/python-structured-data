@@ -104,3 +104,20 @@ def test_match_function_errors(match):
 
     with pytest.raises(TypeError):
         takes_kwargs(1, kwarg=1)
+
+
+def test_function_types(match):
+    @match.function
+    @classmethod
+    def class_method(cls):
+        """This is a class method."""
+
+    @match.function
+    @staticmethod
+    def static_method():
+        """This is a static method."""
+
+    @match.function
+    @property
+    def prop(self):
+        """This is a property."""
