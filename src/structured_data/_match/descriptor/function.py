@@ -3,6 +3,7 @@ import inspect
 import typing
 
 from ... import _class_placeholder
+from ..._adt import prewritten_methods
 from .. import matchable
 from ..patterns import mapping_match
 from . import common
@@ -43,6 +44,102 @@ def _bound_and_values(signature, args, kwargs):
         if parameter.kind is inspect.Parameter.VAR_KEYWORD:
             bound_kwargs = values.pop(parameter.name)
     return bound_args, bound_kwargs, values
+
+
+class FakeSum:
+
+    def __init__(self, cls):
+        self.__class__ = cls
+
+
+class ClassMethod(common.Descriptor):
+    """Decorator with value-based dispatch. Acts as a classmethod."""
+
+    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+        del func
+        super().__init__(*args, **kwargs)  # type: ignore
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+
+    def __get__(self, instance, owner):
+        if instance is None and common.owns(self, owner):
+            return ClassMethodWhen(self, owner)
+        return ClassMethodCall(self, owner)
+
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+        """Add a binding for this function."""
+        return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
+
+
+class ClassMethodCall:
+
+    def __init__(self, class_method, owner):
+        self.class_method = class_method
+        self.owner = owner
+
+    def __call__(self, /, *args, **kwargs):  # noqa: E225
+        owner = prewritten_methods.sum_base(FakeSum(self.owner))
+        bound_args, bound_kwargs, values = _bound_and_values(
+            inspect.signature(self.class_method),
+            (owner,) + args,
+            kwargs,
+        )
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.class_method.matchers.match(matchable_, FakeSum(self.owner)):
+            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+        return self.class_method.__wrapped__(owner, *args, **kwargs)
+
+
+class ClassMethodWhen(ClassMethodCall):
+
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+        return self.class_method.when(**kwargs)
+
+
+class StaticMethod(common.Descriptor):
+    """Decorator with value-based dispatch. Acts as a classmethod."""
+
+    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+        del func
+        super().__init__(*args, **kwargs)  # type: ignore
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+
+    def __get__(self, instance, owner):
+        if instance is None and common.owns(self, owner):
+            return StaticMethodWhen(self)
+        return StaticMethodCall(self)
+
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+        """Add a binding for this function."""
+        return common.decorate(self.matchers, _no_placeholder_kwargs(kwargs))
+
+
+class StaticMethodCall:
+
+    def __init__(self, static_method):
+        self.static_method = static_method
+
+    def __call__(self, /, *args, **kwargs):  # noqa: E225
+        bound_args, bound_kwargs, values = _bound_and_values(
+            inspect.signature(self.static_method),
+            args,
+            kwargs,
+        )
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.static_method.matchers.match(matchable_, None):
+            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+        return self.static_method.__wrapped__(*args, **kwargs)
+
+
+class StaticMethodWhen(StaticMethodCall):
+
+    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+        return self.static_method.when(**kwargs)
 
 
 class Function(common.Descriptor):
@@ -98,6 +195,13 @@ class MethodProxy:
 
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
     return mapping_match.DictPattern(kwargs, exhaustive=True)
+
+
+def _no_placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
+    if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
+        raise ValueError
+
+    return _kwarg_structure(kwargs)
 
 
 def _placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:

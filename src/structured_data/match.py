@@ -18,8 +18,9 @@ import typing
 
 from . import _attribute_constructor
 from ._class_placeholder import placeholder
+from ._match.descriptor import common
 from ._match.descriptor import function as function_
-from ._match.descriptor.property_ import Property
+from ._match.descriptor import property_
 from ._match.destructure import names
 from ._match.match_dict import MatchDict
 from ._match.matchable import Matchable
@@ -34,12 +35,19 @@ pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-na
 )
 
 
-def function(func: typing.Callable) -> function_.Function:
+def function(func: typing.Callable) -> common.Descriptor:
     """Convert a function to dispatch by value.
 
     The original function is not called when the dispatch function is invoked.
     """
-
+    if isinstance(func, staticmethod):
+        return function_.StaticMethod(func.__func__)
+    if isinstance(func, classmethod):
+        return function_.ClassMethod(func.__func__)
+    if isinstance(func, property):
+        return property_.Property(
+            func.fget, func.fset, func.fdel, func.__doc__
+        )
     return function_.Function(func)
 
 
@@ -61,7 +69,6 @@ __all__ = [
     "MatchDict",
     "Matchable",
     "Pattern",
-    "Property",
     "decorate_in_order",
     "function",
     "placeholder",

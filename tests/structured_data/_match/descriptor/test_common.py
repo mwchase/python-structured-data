@@ -28,7 +28,7 @@ def test_property_basics(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        invert = match.Property()
+        invert = match.function(property())
 
         @invert.getter
         def invert(self):
@@ -67,7 +67,7 @@ def test_property_advanced(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        prop = match.Property()
+        prop = match.function(property())
 
         @prop.setter
         def prop(self, value):
@@ -114,7 +114,7 @@ def test_property_advanced(adt, match):
 
 
 def test_copy(match):
-    prop = match.Property(doc="Hi!")
+    prop = match.function(property(doc="Hi!"))
 
     prop.get_when(None)(None)
 
