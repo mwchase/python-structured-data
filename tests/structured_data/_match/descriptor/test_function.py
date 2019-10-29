@@ -102,3 +102,35 @@ def test_match_function_errors(match):
 
     with pytest.raises(ValueError):
         assert not_enough(None)
+
+
+def test_class_method(adt, match):
+    @match.placeholder
+    def left_exception(cls):
+        return cls.Left(match.pat.exception)
+
+    @match.placeholder
+    def right_number(cls):
+        return cls.Right(match.pat.number)
+
+    class TestEither(adt.Sum):
+        Left: adt.Ctor[Exception]
+        Right: adt.Ctor[int]
+
+        @match.function
+        @classmethod
+        def increment(cls, value):
+            """Test classmethod that should be a method but nyeh"""
+
+        @increment.when(cls=match.pat.cls, value=right_number)
+        def __increment_int(cls, number):
+            return cls.Right(number + 1)
+
+        @increment.when(cls=match.pat._, value=left_exception)
+        def __increment_exception(exception):
+            return exception
+
+    dbz = TestEither.Left(ZeroDivisionError())
+    assert TestEither.increment(dbz) == dbz
+
+    assert TestEither.increment(TestEither.Right(5)) == TestEither.Right(6)
