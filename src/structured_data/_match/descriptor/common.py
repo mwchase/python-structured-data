@@ -54,8 +54,11 @@ class MatchTemplate(typing.Generic[T]):
             [(_apply(structure, base), func) for (structure, func) in self._templates],
         )
 
-    def match(self, matchable, instance):
+    def match_instance(self, matchable, instance):
         base = prewritten_methods.sum_base(instance) if self._abstract else None
+        yield from self.match(matchable, base)
+
+    def match(self, matchable, base):
         if base is None and self._abstract:
             raise ValueError
         for structure, func in self._get_matchers(base):

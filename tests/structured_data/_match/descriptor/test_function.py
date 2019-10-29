@@ -126,9 +126,9 @@ def test_class_method(adt, match):
         def __increment_int(cls, number):
             return cls.Right(number + 1)
 
-        @increment.when(cls=match.pat._, value=left_exception)
-        def __increment_exception(exception):
-            return exception
+        @increment.when(cls=match.pat.cls, value=left_exception)
+        def __increment_exception(cls, exception):
+            return cls.Left(exception)
 
     dbz = TestEither.Left(ZeroDivisionError())
     assert TestEither.increment(dbz) == dbz

@@ -9,6 +9,7 @@ from .constructor import ADT_BASES
 
 def sum_base(obj):
     """Return the immediate base class of the type of a ``Sum`` instance."""
+    print(obj.__class__)
     return ADT_BASES.get(obj.__class__)
 
 

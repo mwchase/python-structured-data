@@ -3,7 +3,6 @@ import inspect
 import typing
 
 from ... import _class_placeholder
-from ..._adt import prewritten_methods
 from .. import matchable
 from ..patterns import mapping_match
 from . import common
@@ -46,12 +45,6 @@ def _bound_and_values(signature, args, kwargs):
     return bound_args, bound_kwargs, values
 
 
-class FakeSum:
-
-    def __init__(self, cls):
-        self.__class__ = cls
-
-
 class ClassMethod(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
@@ -79,17 +72,16 @@ class ClassMethodCall:
         self.owner = owner
 
     def __call__(self, /, *args, **kwargs):  # noqa: E225
-        owner = prewritten_methods.sum_base(FakeSum(self.owner))
         bound_args, bound_kwargs, values = _bound_and_values(
-            inspect.signature(self.class_method),
-            (owner,) + args,
+            inspect.signature(self.class_method.__wrapped__),
+            (self.owner,) + args,
             kwargs,
         )
 
         matchable_ = matchable.Matchable(values)
-        for func in self.class_method.matchers.match(matchable_, FakeSum(self.owner)):
+        for func in self.class_method.matchers.match(matchable_, self.owner):
             return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
-        return self.class_method.__wrapped__(owner, *args, **kwargs)
+        return self.class_method.__wrapped__(self.owner, *args, **kwargs)
 
 
 class ClassMethodWhen(ClassMethodCall):
@@ -164,7 +156,7 @@ class Function(common.Descriptor):
             instance = args[0]
 
         matchable_ = matchable.Matchable(values)
-        for func in self.matchers.match(matchable_, instance):
+        for func in self.matchers.match_instance(matchable_, instance):
             return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)

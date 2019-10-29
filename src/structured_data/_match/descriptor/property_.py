@@ -98,7 +98,7 @@ class Property(common.Descriptor):
                 return self
             return PropertyProxy(self)
         matchable_ = matchable.Matchable(instance)
-        for func in self.get_matchers.match(matchable_, instance):
+        for func in self.get_matchers.match_instance(matchable_, instance):
             return func(**matchable_.matches)
         if self.__wrapped__ is None:
             raise ValueError(self)
@@ -106,7 +106,7 @@ class Property(common.Descriptor):
 
     def __set__(self, instance, value):
         matchable_ = matchable.Matchable((instance, value))
-        for func in self.set_matchers.match(matchable_, instance):
+        for func in self.set_matchers.match_instance(matchable_, instance):
             func(**matchable_.matches)
             return
         if self.fset is None:
@@ -115,7 +115,7 @@ class Property(common.Descriptor):
 
     def __delete__(self, instance):
         matchable_ = matchable.Matchable(instance)
-        for func in self.delete_matchers.match(matchable_, instance):
+        for func in self.delete_matchers.match_instance(matchable_, instance):
             func(**matchable_.matches)
             return
         if self.fdel is None:
