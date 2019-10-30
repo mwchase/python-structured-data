@@ -244,3 +244,41 @@ def test_empty_doc(match):
 
     assert test_func() is None
     assert test_func.__doc__ is None
+
+
+def test_subclass_method_doc(match):
+    class Base:
+        @match.function
+        def test_method(self):
+            """Method docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.test_method.__doc__ == "Method docstring."
+
+
+def test_subclass_classmethod_doc(match):
+    class Base:
+        @match.function
+        @classmethod
+        def test_classmethod(cls):
+            """Classmethod docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.test_classmethod.__doc__ == "Classmethod docstring."
+
+
+def test_subclass_staticmethod_doc(match):
+    class Base:
+        @match.function
+        @staticmethod
+        def test_staticmethod():
+            """Staticmethod docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.test_staticmethod.__doc__ == "Staticmethod docstring."
