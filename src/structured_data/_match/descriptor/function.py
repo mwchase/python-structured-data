@@ -117,7 +117,7 @@ class StaticMethodCall:
 
     def __call__(self, /, *args, **kwargs):  # noqa: E225
         bound_args, bound_kwargs, values = _bound_and_values(
-            inspect.signature(self.static_method),
+            inspect.signature(self.static_method.__wrapped__),
             args,
             kwargs,
         )

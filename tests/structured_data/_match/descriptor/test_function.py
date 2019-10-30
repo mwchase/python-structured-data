@@ -134,3 +134,90 @@ def test_class_method(adt, match):
     assert TestEither.increment(dbz) == dbz
 
     assert TestEither.increment(TestEither.Right(5)) == TestEither.Right(6)
+
+
+def test_class_method_with_subclass(adt, match):
+    @match.placeholder
+    def left_exception(cls):
+        return cls.Left(match.pat.exception)
+
+    @match.placeholder
+    def right_number(cls):
+        return cls.Right(match.pat.number)
+
+    class Base:
+        Left: adt.Ctor[Exception]
+        Right: adt.Ctor[int]
+
+        @match.function
+        @classmethod
+        def increment(cls, value):
+            """Test classmethod that should be a method but nyeh"""
+
+        @increment.when(cls=match.pat.cls, value=right_number)
+        def __increment_int(cls, number):
+            return cls.Right(number + 1)
+
+        @increment.when(cls=match.pat.cls, value=left_exception)
+        def __increment_exception(cls, exception):
+            return cls.Left(exception)
+
+    class TestEither(Base, adt.Sum):
+        pass
+
+    dbz = TestEither.Left(ZeroDivisionError())
+    assert TestEither.increment(dbz) == dbz
+
+    assert TestEither.increment(TestEither.Right(5)) == TestEither.Right(6)
+
+
+def test_define_after(adt, match):
+    @match.placeholder
+    def left_exception(cls):
+        return cls.Left(match.pat.exception)
+
+    @match.placeholder
+    def right_number(cls):
+        return cls.Right(match.pat.number)
+
+    class TestEither(adt.Sum):
+        Left: adt.Ctor[Exception]
+        Right: adt.Ctor[int]
+
+        @match.function
+        @classmethod
+        def increment(cls, value):
+            """Test classmethod that should be a method but nyeh"""
+            return "placeholder"
+
+    assert TestEither.increment(None) == "placeholder"
+
+    @TestEither.increment.when(cls=match.pat.cls, value=right_number)
+    def __increment_int(cls, number):
+        return cls.Right(number + 1)
+
+    @TestEither.increment.when(cls=match.pat.cls, value=left_exception)
+    def __increment_exception(cls, exception):
+        return cls.Left(exception)
+
+    dbz = TestEither.Left(ZeroDivisionError())
+    assert TestEither.increment(dbz) == dbz
+
+    assert TestEither.increment(TestEither.Right(5)) == TestEither.Right(6)
+
+
+def test_static(match):
+    class Test:
+
+        @match.function
+        @staticmethod
+        def test_func(value):
+            return value
+
+    assert Test.test_func(5) == 5
+
+    @Test.test_func.when(value=1)
+    def _tf_1():
+        return 2
+
+    assert Test().test_func(1) == 2
