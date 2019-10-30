@@ -221,3 +221,17 @@ def test_static(match):
         return 2
 
     assert Test().test_func(1) == 2
+
+
+def test_cant_abstract_static(match):
+    @match.placeholder
+    def placeholder(cls):
+        """Unimportant function"""
+
+    @match.function
+    @staticmethod
+    def test_func(arg):
+        """Another function"""
+
+    with pytest.raises(ValueError):
+        test_func.when(arg=placeholder)
