@@ -1,3 +1,5 @@
+"""Helper funtion for common pseudo-immutable use case."""
+
 import inspect
 
 MISSING = object()

@@ -51,6 +51,7 @@ class AsPattern(CompoundMatch, tuple):
 
     @classmethod
     def bind(cls, pattern: Pattern, structure) -> typing.Union[Pattern, AsPattern]:
+        """Bind the given pattern and structure, if possible."""
         if structure is DISCARD:
             return pattern
         return cls(pattern, structure)

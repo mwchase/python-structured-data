@@ -1,3 +1,5 @@
+"""A class for holding match data and allowing rich access."""
+
 from __future__ import annotations
 
 import collections
@@ -25,6 +27,7 @@ def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
 
 
 def match(target, value) -> MatchDict:
+    """Extract all of the matches between target and value."""
     match_dict = MatchDict()
     for pattern, local_value in _stack_iter.stack_iter(
         (target, value), _stack_iteration

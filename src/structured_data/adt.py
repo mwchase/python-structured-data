@@ -49,7 +49,7 @@ from ._adt.sum_type import Sum
 
 if typing.TYPE_CHECKING:  # pragma: nocover
 
-    T = typing.TypeVar("T")
+    T = typing.TypeVar("T")  # pylint: disable=invalid-name
 
     class Ctor:
         """Dummy class for type-checking purposes."""

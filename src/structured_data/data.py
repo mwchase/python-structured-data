@@ -11,6 +11,7 @@ E = typing.TypeVar("E")  # pylint: disable=invalid-name
 
 
 class MaybeMixin(adt.SumBase, typing.Generic[T]):
+    """Mixin that defines Maybe semantics."""
 
     Just: adt.Ctor[T]  # type: ignore
     Nothing: adt.Ctor
@@ -21,6 +22,7 @@ class Maybe(MaybeMixin, adt.Sum):
 
 
 class EitherMixin(adt.SumBase, typing.Generic[E, R]):
+    """Mixin that defines Either semantics."""
 
     Left: adt.Ctor[E]  # type: ignore
     Right: adt.Ctor[R]  # type: ignore

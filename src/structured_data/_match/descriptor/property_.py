@@ -1,3 +1,5 @@
+"""Property-like descriptors that expose decorators for value-based dispatch."""
+
 import typing
 
 from ... import _class_placeholder
@@ -10,17 +12,21 @@ OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
 
 
 class PropertyProxy:
+    """Wrapper for Property that doesn't expose the when methods."""
 
     def __init__(self, prop):
         self.prop = prop
 
     def getter(self, getter):
+        """Return a copy of the wrapped property with the getter replaced."""
         return self.prop.getter(getter)
 
     def setter(self, setter):
+        """Return a copy of the wrapped property with the setter replaced."""
         return self.prop.setter(setter)
 
     def deleter(self, deleter):
+        """Return a copy of the wrapped property with the deleter replaced."""
         return self.prop.deleter(deleter)
 
     def __get__(self, instance, owner):
@@ -102,7 +108,8 @@ class Property(common.Descriptor):
             return func(**matchable_.matches)
         if self.__wrapped__ is None:
             raise ValueError(self)
-        return self.__wrapped__(instance)
+        # Yes it is.
+        return self.__wrapped__(instance)  # pylint: disable=not-callable
 
     def __set__(self, instance, value):
         matchable_ = matchable.Matchable((instance, value))

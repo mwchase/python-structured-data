@@ -1,3 +1,5 @@
+"""Callable descriptors that expose decorators for value-based dispatch."""
+
 import functools
 import inspect
 import typing
@@ -60,12 +62,14 @@ class ClassMethod(common.Descriptor):
             return ClassMethodWhen(self, owner)
         return ClassMethodCall(self, owner)
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+    def when(self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
 class ClassMethodCall:
+    """Wrapper class that conceals the ``when()`` decorators."""
 
     def __init__(self, class_method, owner):
         self.class_method = class_method
@@ -85,8 +89,11 @@ class ClassMethodCall:
 
 
 class ClassMethodWhen(ClassMethodCall):
+    """Wrapper class that exposes the ``when()`` decorators."""
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+    def when(self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for the wrapped method."""
         return self.class_method.when(**kwargs)
 
 
@@ -105,12 +112,14 @@ class StaticMethod(common.Descriptor):
             return StaticMethodWhen(self)
         return StaticMethodCall(self)
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+    def when(self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _no_placeholder_kwargs(kwargs))
 
 
 class StaticMethodCall:
+    """Wrapper class that conceals the ``when()`` decorators."""
 
     def __init__(self, static_method):
         self.static_method = static_method
@@ -129,8 +138,11 @@ class StaticMethodCall:
 
 
 class StaticMethodWhen(StaticMethodCall):
+    """Wrapper class that exposes the ``when()`` decorators."""
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+    def when(self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for the wrapped method."""
         return self.static_method.when(**kwargs)
 
 
@@ -168,12 +180,14 @@ class Function(common.Descriptor):
             return MethodProxy(self)
         return functools.partial(self, instance)
 
-    def when(self, /, **kwargs) -> typing.Callable[[typing.Callable], typing.Callable]:  # noqa: E225
+    def when(self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
 class MethodProxy:
+    """Wrapper class that conceals the ``when()`` decorators."""
 
     def __init__(self, func):
         self.func = func

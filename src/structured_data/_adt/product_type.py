@@ -1,3 +1,5 @@
+"""Internal implementation of the Product base class."""
+
 import inspect
 import typing
 
@@ -11,14 +13,18 @@ from . import prewritten_methods
 _T = typing.TypeVar("_T")
 
 
-def _name(cls: type, function) -> str:
+def name_(cls: type, function) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
 
 
-def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
+def cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
+    """Determine if attributes corresponding to functions on cls could be set.
+
+    If any attributes are already defined, return the already-defined name.
+    """
     for function in functions:
-        name = _name(cls, function)
+        name = name_(cls, function)
         existing = getattr(cls, name, None)
         if existing not in (
             getattr(object, name, None),
@@ -55,7 +61,7 @@ def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
 
 
 def _product_signature(
-    annotations: typing.Dict[str, typing.Any], cls
+    annotations_: typing.Dict[str, typing.Any], cls
 ) -> inspect.Signature:
     params = [
         inspect.Parameter(
@@ -64,7 +70,7 @@ def _product_signature(
             default=getattr(cls, name, inspect.Parameter.empty),
             annotation=annotation,
         )
-        for (name, annotation) in annotations.items()
+        for (name, annotation) in annotations_.items()
     ]
     try:
         return inspect.Signature(parameters=params, return_annotation=cls)
@@ -140,7 +146,7 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
         del repr, eq, order
         cls.__clear_nones()
 
-        ordering._ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
+        ordering.ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
         annotations_ = annotations.product_args_from_annotations(cls)
         cls.__signature = _product_signature(annotations_, cls)
@@ -150,15 +156,15 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
 
         source = prewritten_methods.PrewrittenProductMethods
 
-        cls.__eq_succeeded = cls.__eq and not _cant_set_new_functions(
+        cls.__eq_succeeded = cls.__eq and not cant_set_new_functions(
             cls, source.__eq__, source.__ne__
         )
 
         ordering.raise_for_collision(
             (
                 cls.__order
-                and ordering._can_set_ordering(can_set=cls.__eq_succeeded)
-                and _cant_set_new_functions(
+                and ordering.can_set_ordering(can_set=cls.__eq_succeeded)
+                and cant_set_new_functions(
                     cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
                 )
             ),

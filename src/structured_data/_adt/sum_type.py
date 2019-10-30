@@ -1,3 +1,5 @@
+"""Internal implementation of the Sum base class."""
+
 import inspect
 import typing
 
@@ -21,11 +23,11 @@ def _set_new_functions(cls: type, *functions: typing.Callable) -> typing.Optiona
     If any attributes are already defined, fail *before* setting any, and
     return the already-defined name.
     """
-    cant_set = product_type._cant_set_new_functions(cls, *functions)
+    cant_set = product_type.cant_set_new_functions(cls, *functions)
     if cant_set:
         return cant_set
     for function in functions:
-        setattr(cls, product_type._name(cls, function), function)
+        setattr(cls, product_type.name_(cls, function), function)
     return None
 
 
@@ -84,7 +86,7 @@ class Sum(constructor.SumBase):
         super().__init_subclass__(**kwargs)  # type: ignore
         if issubclass(cls, constructor.ADTConstructor):
             return
-        ordering._ordering_options_are_valid(eq=eq, order=order)
+        ordering.ordering_options_are_valid(eq=eq, order=order)
 
         prewritten_methods.SUBCLASS_ORDER[cls] = constructor.make_constructors(cls)
 
@@ -106,7 +108,7 @@ class Sum(constructor.SumBase):
         ordering.raise_for_collision(
             (
                 order
-                and ordering._can_set_ordering(can_set=equality_methods_were_set)
+                and ordering.can_set_ordering(can_set=equality_methods_were_set)
                 and _set_new_functions(
                     cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
                 )

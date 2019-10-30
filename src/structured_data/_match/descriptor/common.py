@@ -1,3 +1,5 @@
+"""Common classes and functions for implementing dynamic matchers."""
+
 import functools
 import typing
 
@@ -5,7 +7,7 @@ from ... import _class_placeholder
 from ..._adt import prewritten_methods
 from .. import destructure
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T")  # pylint: disable=invalid-name
 
 Matcher = typing.Union[T, _class_placeholder.Placeholder[T]]
 
@@ -23,6 +25,7 @@ def _apply(structure: Matcher[T], base: typing.Optional[type]) -> T:
 
 
 class MatchTemplate(typing.Generic[T]):
+    """The core data type for managing dynamic matching functions."""
     def __init__(self) -> None:
         self._templates: typing.List[typing.Tuple[Matcher[T], typing.Callable]] = []
         self._abstract = False
@@ -31,6 +34,7 @@ class MatchTemplate(typing.Generic[T]):
         ] = {}
 
     def copy_into(self, other):
+        """Given another template, copy this one's contents into it."""
         for structure, func in self._templates:
             other.add_structure(structure, func)
 
@@ -39,6 +43,7 @@ class MatchTemplate(typing.Generic[T]):
     #     return self._abstract
 
     def add_structure(self, structure: Matcher[T], func: typing.Callable):
+        """Add the given structure and function to the match template."""
         self._templates.append((structure, func))
         if _class_placeholder.is_placeholder(structure):
             self._abstract = True
@@ -55,10 +60,12 @@ class MatchTemplate(typing.Generic[T]):
         )
 
     def match_instance(self, matchable, instance):
+        """Get the base associated with instance, if any, and match with it."""
         base = prewritten_methods.sum_base(instance) if self._abstract else None
         yield from self.match(matchable, base)
 
     def match(self, matchable, base):
+        """If there is a match in the context of base, yield implementation."""
         if base is None and self._abstract:
             raise ValueError
         for structure, func in self._get_matchers(base):
@@ -66,7 +73,8 @@ class MatchTemplate(typing.Generic[T]):
                 break
         else:
             return
-        yield func
+        # https://github.com/PyCQA/pylint/issues/1175
+        yield func  # pylint: disable=undefined-loop-variable
 
 
 def _check_structure(structure) -> None:
@@ -74,6 +82,7 @@ def _check_structure(structure) -> None:
 
 
 def decorate(matchers: MatchTemplate[T], structure: Matcher[T]):
+    """Create a function decorator using the given structure, MatchTemplate."""
     def decorator(func: typing.Callable) -> typing.Callable:
         matchers.add_structure(structure, func)
         return func
@@ -84,7 +93,7 @@ def decorate(matchers: MatchTemplate[T], structure: Matcher[T]):
 class Descriptor:
     """Base class for decorator classes."""
 
-    __wrapped__ = None
+    __wrapped__: typing.Optional[typing.Callable] = None
     __name__ = None
 
     def __new__(cls, func):
@@ -102,4 +111,5 @@ SENTINEL = object()
 
 
 def owns(descriptor, owner):
+    """Return whether the given class owns the given descriptor."""
     return vars(owner).get(descriptor.__name__, SENTINEL) is descriptor

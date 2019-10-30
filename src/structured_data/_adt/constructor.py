@@ -21,21 +21,25 @@ def _should_include(name, static):
 
 
 class DummyS:
+    """Dummy class to help keep Sum and Product separate."""
 
     __slots__ = ()
 
 
 class DummyP:
+    """Dummy class to help keep Sum and Product separate."""
 
     __slots__ = ()
 
 
 class SumBase(DummyS, DummyP):
+    """Dummy class to help keep Sum and Product separate."""
 
     __slots__ = ()
 
 
 class ProductBase(DummyP, DummyS):
+    """Dummy class to help keep Sum and Product separate."""
 
     __slots__ = ()
 
