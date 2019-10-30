@@ -25,6 +25,7 @@ class DocWrapper:
 
 
 class ProxyWrapper:
+    """Custom descriptor that forwards instance doc to an attribute."""
     def __init__(self, name, doc):
         self.name = name
         self.doc = doc
