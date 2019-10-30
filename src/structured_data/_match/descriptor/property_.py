@@ -11,6 +11,7 @@ OptionalSetter = typing.Optional[typing.Callable[[typing.Any, typing.Any], None]
 OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
 
 
+@_doc_wrapper.ProxyWrapper.wrap_class("prop")
 class PropertyProxy:
     """Wrapper for Property that doesn't expose the when methods."""
 

@@ -158,3 +158,17 @@ def test_proxy(match):
     @Test2.prop.deleter
     def prop_delete(self):
         """I'm a docstring!"""
+
+
+def test_proxy_doc(match):
+
+    class Base:
+        @match.function
+        @property
+        def prop(self):
+            """Docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.prop.__doc__ == "Docstring."
