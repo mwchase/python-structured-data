@@ -48,9 +48,9 @@ def _bound_and_values(signature, args, kwargs):
 class ClassMethod(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
-    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+    def __init__(self, func: typing.Callable) -> None:
         del func
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__()
         # A more specific annotation would be good, but that's waiting on
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
@@ -93,9 +93,9 @@ class ClassMethodWhen(ClassMethodCall):
 class StaticMethod(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
-    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+    def __init__(self, func: typing.Callable) -> None:
         del func
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__()
         # A more specific annotation would be good, but that's waiting on
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
@@ -137,9 +137,9 @@ class StaticMethodWhen(StaticMethodCall):
 class Function(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a function."""
 
-    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+    def __init__(self, func: typing.Callable) -> None:
         del func
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__()
         # A more specific annotation would be good, but that's waiting on
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()

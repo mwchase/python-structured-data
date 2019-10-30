@@ -42,13 +42,13 @@ class Property(common.Descriptor):
 
     protected = False
 
-    def __new__(cls, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+    def __new__(cls, func=None, fset=None, fdel=None, doc=None):
         del fset, fdel, doc
-        return super().__new__(cls, func, *args, **kwargs)
+        return super().__new__(cls, func)
 
-    def __init__(self, func=None, fset=None, fdel=None, doc=None, *args, **kwargs):
+    def __init__(self, func=None, fset=None, fdel=None, doc=None):
         del func
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.fset = fset
         self.fdel = fdel
         if doc is not None:

@@ -87,8 +87,8 @@ class Descriptor:
     __wrapped__ = None
     __name__ = None
 
-    def __new__(cls, func, *args, **kwargs):
-        new = super().__new__(cls, *args, **kwargs)
+    def __new__(cls, func):
+        new = super().__new__(cls)
         new.__doc__ = None
         if func is None:
             return new
