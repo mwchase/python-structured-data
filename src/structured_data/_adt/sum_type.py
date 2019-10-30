@@ -1,6 +1,5 @@
 """Internal implementation of the Sum base class."""
 
-import inspect
 import typing
 
 from .. import _cant_modify
@@ -120,15 +119,9 @@ class Sum(constructor.SumBase):
         return True
 
     def __setattr__(self, name: str, value: typing.Any) -> None:
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__setattr__(name, value)
 
     def __delattr__(self, name: str) -> None:
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__delattr__(name)

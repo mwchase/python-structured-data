@@ -181,17 +181,11 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
         return tuple.__getitem__(self, index)
 
     def __setattr__(self, name, value):
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__setattr__(name, value)
 
     def __delattr__(self, name):
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__delattr__(name)
 
     def __bool__(self):

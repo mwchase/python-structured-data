@@ -14,3 +14,9 @@ def cant_modify(self, name: str) -> None:
     else:
         format_msg = "{class_repr} object attribute {name_repr} is read-only"
     raise AttributeError(format_msg.format(class_repr=class_repr, name_repr=name_repr))
+
+
+def guard(instance, name: str) -> None:
+    """Wrap up the common logic for using cant_modify."""
+    if not inspect.isdatadescriptor(inspect.getattr_static(instance, name, MISSING)):
+        cant_modify(instance, name)
