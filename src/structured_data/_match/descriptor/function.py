@@ -5,6 +5,7 @@ import inspect
 import typing
 
 from ... import _class_placeholder
+from ... import _doc_wrapper
 from .. import matchable
 from ..patterns import mapping_match
 from . import common
@@ -68,6 +69,7 @@ class ClassMethod(common.Descriptor):
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
+@_doc_wrapper.ProxyWrapper.wrap_class("class_method")
 class ClassMethodCall:
     """Wrapper class that conceals the ``when()`` decorators."""
 
@@ -118,6 +120,7 @@ class StaticMethod(common.Descriptor):
         return common.decorate(self.matchers, _no_placeholder_kwargs(kwargs))
 
 
+@_doc_wrapper.ProxyWrapper.wrap_class("static_method")
 class StaticMethodCall:
     """Wrapper class that conceals the ``when()`` decorators."""
 
@@ -186,6 +189,7 @@ class Function(common.Descriptor):
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
+@_doc_wrapper.ProxyWrapper.wrap_class("func")
 class MethodProxy:
     """Wrapper class that conceals the ``when()`` decorators."""
 
