@@ -235,3 +235,12 @@ def test_cant_abstract_static(match):
 
     with pytest.raises(ValueError):
         test_func.when(arg=placeholder)
+
+
+def test_empty_doc(match):
+    @match.function
+    def test_func():
+        pass
+
+    assert test_func() is None
+    assert test_func.__doc__ is None
