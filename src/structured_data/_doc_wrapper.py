@@ -1,4 +1,8 @@
+"""Wrapper to control documentation visibility."""
+
+
 class DocWrapper:
+    """Custom descriptor that hides class doc on instances."""
     def __init__(self, doc=None):
         self.doc = doc
 
