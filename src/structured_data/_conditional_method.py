@@ -40,7 +40,7 @@ def _manual_partial(source: type) -> typing.Callable[[str], ConditionalMethod]:
 
 
 def conditional_method(
-    source: type
+    source: type,
 ) -> _attribute_constructor.AttributeConstructor[ConditionalMethod[_T]]:
     """Given a source class, return an attribute constructor that makes ConditionalMethods
 

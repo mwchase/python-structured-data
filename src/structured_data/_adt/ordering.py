@@ -22,6 +22,6 @@ def raise_for_collision(collision: typing.Union[bool, None, str], name: str) -> 
     """Create an informational message about ordering method collisions."""
     if collision:
         raise TypeError(
-                f"Cannot overwrite attribute {collision} in class "
-                f"{name}. Consider using functools.total_ordering"
-            )
+            f"Cannot overwrite attribute {collision} in class "
+            f"{name}. Consider using functools.total_ordering"
+        )

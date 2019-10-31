@@ -9,6 +9,7 @@ T_co = typing.TypeVar("T_co", covariant=True)  # pylint: disable=invalid-name
 
 class Placeholder(typing_extensions.Protocol, typing.Generic[T_co]):
     """Protocol class for representing placeholder functions."""
+
     def __call__(self, type_: type) -> T_co:
         ...  # pragma: nocover
 

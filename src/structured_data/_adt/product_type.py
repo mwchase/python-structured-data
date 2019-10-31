@@ -21,7 +21,6 @@ class Named(typing_extensions.Protocol):
 
 
 class MethodLike(typing_extensions.Protocol):
-
     def __get__(self, instance: typing.Any, owner: type) -> Named:
         """Methods allow for binding and have names."""
 
@@ -51,9 +50,7 @@ def cant_set_new_functions(
     return None
 
 
-def _product_new(
-    _cls: typing.Type[TProduct], _signature: inspect.Signature
-) -> None:
+def _product_new(_cls: typing.Type[TProduct], _signature: inspect.Signature) -> None:
     signature: inspect.Signature
     if "__new__" in vars(_cls):
         original_new = _cls.__new__
@@ -62,7 +59,7 @@ def _product_new(
             cls: typing.Type[TProduct],
             /,  # noqa: E225
             *args: typing.Any,
-            **kwargs: typing.Any
+            **kwargs: typing.Any,
         ) -> TProduct:
             if cls is _cls:
                 return original_new(cls, *args, **kwargs)
@@ -75,7 +72,7 @@ def _product_new(
             cls: typing.Type[TProduct],
             /,  # noqa: E225
             *args: typing.Any,
-            **kwargs: typing.Any
+            **kwargs: typing.Any,
         ) -> TProduct:
             return super(_cls, cls).__new__(cls, *args, **kwargs)
 
@@ -131,7 +128,7 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
         cls: typing.Type[TProduct],
         /,  # noqa: E225
         *args: typing.Any,
-        **kwargs: typing.Any
+        **kwargs: typing.Any,
     ) -> TProduct:
         if cls is Product:
             raise TypeError

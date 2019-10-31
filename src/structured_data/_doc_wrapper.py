@@ -9,6 +9,7 @@ T = typing.TypeVar("T")
 
 class DocWrapper:
     """Custom descriptor that hides class doc on instances."""
+
     def __init__(self, doc: typing.Optional[str] = None) -> None:
         self.doc = doc
 
@@ -36,18 +37,19 @@ class DocWrapper:
 
 class ProxyWrapper:
     """Custom descriptor that forwards instance doc to an attribute."""
+
     def __init__(self, name: str, doc: typing.Optional[str]) -> None:
         self.name = name
         self.doc = doc
 
     @classmethod
-    def wrap_class(
-        cls, name: str
-    ) -> typing.Callable[[typing.Type[T]], typing.Type[T]]:
+    def wrap_class(cls, name: str) -> typing.Callable[[typing.Type[T]], typing.Type[T]]:
         """Wrap a proxy's docstring to forward it for instances."""
+
         def decorator(klass: typing.Type[T]) -> typing.Type[T]:
             klass.__doc__ = cls(name, klass.__doc__)  # type: ignore
             return klass
+
         return decorator
 
     def __get__(

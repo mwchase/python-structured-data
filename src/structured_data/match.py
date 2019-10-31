@@ -66,9 +66,7 @@ def function(func: typing.Any) -> common.Descriptor:
     if isinstance(func, classmethod):
         return function_.ClassMethod(func.__func__)
     if isinstance(func, property):
-        return property_.Property(
-            func.fget, func.fset, func.fdel, func.__doc__
-        )
+        return property_.Property(func.fget, func.fset, func.fdel, func.__doc__)
     return function_.Function(func)
 
 

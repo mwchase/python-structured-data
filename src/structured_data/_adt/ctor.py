@@ -44,7 +44,7 @@ ARGS[Ctor] = ()
 
 
 def _interpret_args_from_non_string(
-    constructor: typing.Any
+    constructor: typing.Any,
 ) -> typing.Optional[typing.Tuple]:
     try:
         return ARGS.get(constructor)

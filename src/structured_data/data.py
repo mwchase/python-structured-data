@@ -19,6 +19,7 @@ def just(pat: match.Pattern) -> match.Placeholder:
     @match.placeholder
     def placeholder(cls: typing.Type[MaybeT]) -> MaybeT:
         return cls.Just(pat)  # type: ignore
+
     return placeholder
 
 

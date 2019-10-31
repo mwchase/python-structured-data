@@ -26,6 +26,7 @@ def _apply(structure: Matcher[T], base: typing.Optional[type]) -> T:
 
 class MatchTemplate(typing.Generic[T]):
     """The core data type for managing dynamic matching functions."""
+
     def __init__(self) -> None:
         self._templates: typing.List[typing.Tuple[Matcher[T], typing.Callable]] = []
         self._abstract = False
@@ -83,6 +84,7 @@ def _check_structure(structure) -> None:
 
 def decorate(matchers: MatchTemplate[T], structure: Matcher[T]):
     """Create a function decorator using the given structure, MatchTemplate."""
+
     def decorator(func: typing.Callable) -> typing.Callable:
         matchers.add_structure(structure, func)
         return func
