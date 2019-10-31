@@ -17,6 +17,7 @@ from __future__ import annotations
 import typing
 
 from . import _attribute_constructor
+from ._class_placeholder import Placeholder
 from ._class_placeholder import placeholder
 from ._match.descriptor import common
 from ._match.descriptor import function as function_
@@ -89,6 +90,7 @@ __all__ = [
     "MatchDict",
     "Matchable",
     "Pattern",
+    "Placeholder",
     "decorate_in_order",
     "function",
     "placeholder",

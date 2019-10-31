@@ -11,9 +11,11 @@ R = typing.TypeVar("R")  # pylint: disable=invalid-name
 E = typing.TypeVar("E")  # pylint: disable=invalid-name
 
 
-@match.placeholder
-def just(cls):
-    return cls.Just(match.pat.value)
+def just(pat: match.Pattern) -> match.Placeholder:
+    @match.placeholder
+    def placeholder(cls):
+        return cls.Just(pat)
+    return placeholder
 
 
 @match.placeholder
@@ -32,9 +34,8 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
         """Implement coercion to bool."""
 
 
-@MaybeMixin.__bool__.when(self=just)
-def __bool_true(value):
-    del value
+@MaybeMixin.__bool__.when(self=just(match.pat._))
+def __bool_true():
     return True
 
 
