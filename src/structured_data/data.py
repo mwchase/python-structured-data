@@ -2,6 +2,8 @@
 
 import typing
 
+import typing_extensions
+
 from . import adt
 from . import match
 
@@ -10,17 +12,19 @@ T = typing.TypeVar("T")  # pylint: disable=invalid-name
 R = typing.TypeVar("R")  # pylint: disable=invalid-name
 E = typing.TypeVar("E")  # pylint: disable=invalid-name
 
+MaybeT = typing.TypeVar("MaybeT", bound="MaybeMixin")
+
 
 def just(pat: match.Pattern) -> match.Placeholder:
     @match.placeholder
-    def placeholder(cls):
-        return cls.Just(pat)
+    def placeholder(cls: typing.Type[MaybeT]) -> MaybeT:
+        return cls.Just(pat)  # type: ignore
     return placeholder
 
 
 @match.placeholder
-def nothing(cls):
-    return cls.Nothing()
+def nothing(cls: typing.Type[MaybeT]) -> MaybeT:
+    return cls.Nothing()  # type: ignore
 
 
 class MaybeMixin(adt.SumBase, typing.Generic[T]):
@@ -35,12 +39,12 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
 
 
 @MaybeMixin.__bool__.when(self=just(match.pat._))
-def __bool_true():
+def __bool_true() -> typing_extensions.Literal[True]:
     return True
 
 
 @MaybeMixin.__bool__.when(self=nothing)
-def __bool_false():
+def __bool_false() -> typing_extensions.Literal[False]:
     return False
 
 
