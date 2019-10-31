@@ -5,7 +5,7 @@ import typing
 Item = typing.TypeVar("Item")
 
 
-def not_in(*, container: typing.Container[Item], item: Item):
+def not_in(*, container: typing.Container[Item], item: Item) -> None:
     """Raise ValueError if ``item`` is in ``container``."""
     if item in container:
         raise ValueError

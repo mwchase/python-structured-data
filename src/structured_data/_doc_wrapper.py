@@ -3,7 +3,7 @@
 
 class DocWrapper:
     """Custom descriptor that hides class doc on instances."""
-    def __init__(self, doc=None):
+    def __init__(self, doc=None) -> None:
         self.doc = doc
 
     @classmethod
@@ -26,7 +26,7 @@ class DocWrapper:
 
 class ProxyWrapper:
     """Custom descriptor that forwards instance doc to an attribute."""
-    def __init__(self, name, doc):
+    def __init__(self, name, doc) -> None:
         self.name = name
         self.doc = doc
 
