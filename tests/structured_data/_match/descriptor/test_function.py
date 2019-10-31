@@ -24,11 +24,11 @@ def test_function(match):
 
 
 def test_method(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_number(cls):
         return cls.Left(match.pat.number)
 
-    @match.placeholder
+    @match.Placeholder
     def right_string(cls):
         return cls.Right(match.pat.string)
 
@@ -105,11 +105,11 @@ def test_match_function_errors(match):
 
 
 def test_class_method(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_exception(cls):
         return cls.Left(match.pat.exception)
 
-    @match.placeholder
+    @match.Placeholder
     def right_number(cls):
         return cls.Right(match.pat.number)
 
@@ -137,11 +137,11 @@ def test_class_method(adt, match):
 
 
 def test_class_method_with_subclass(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_exception(cls):
         return cls.Left(match.pat.exception)
 
-    @match.placeholder
+    @match.Placeholder
     def right_number(cls):
         return cls.Right(match.pat.number)
 
@@ -172,11 +172,11 @@ def test_class_method_with_subclass(adt, match):
 
 
 def test_define_after(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_exception(cls):
         return cls.Left(match.pat.exception)
 
-    @match.placeholder
+    @match.Placeholder
     def right_number(cls):
         return cls.Right(match.pat.number)
 
@@ -224,7 +224,7 @@ def test_static(match):
 
 
 def test_cant_abstract_static(match):
-    @match.placeholder
+    @match.Placeholder
     def placeholder(cls):
         """Unimportant function"""
 

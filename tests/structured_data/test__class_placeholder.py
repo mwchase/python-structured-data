@@ -1,9 +1,9 @@
 def test_method(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_number(cls):
         return cls.Left(match.pat.number)
 
-    @match.placeholder
+    @match.Placeholder
     def right_string(cls):
         return cls.Right(match.pat.string)
 

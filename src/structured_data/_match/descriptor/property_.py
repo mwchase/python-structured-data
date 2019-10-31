@@ -152,25 +152,25 @@ class Property(common.Descriptor):
 
 
 def _fst_placeholder(fst, snd):
-    @_class_placeholder.placeholder
+    @_class_placeholder.Placeholder
     def _placeholder(cls):
-        return (fst(cls), snd)
+        return (fst.func(cls), snd)
 
     return _placeholder
 
 
 def _snd_placeholder(fst, snd):
-    @_class_placeholder.placeholder
+    @_class_placeholder.Placeholder
     def _placeholder(cls):
-        return (fst, snd(cls))
+        return (fst, snd.func(cls))
 
     return _placeholder
 
 
 def _both_placeholder(fst, snd):
-    @_class_placeholder.placeholder
+    @_class_placeholder.Placeholder
     def _placeholder(cls):
-        return (fst(cls), snd(cls))
+        return (fst.func(cls), snd.func(cls))
 
     return _placeholder
 
@@ -184,7 +184,10 @@ _PLACEHOLDERS = {
 
 def _placeholder_tuple2(fst, snd):
     _placeholder = _PLACEHOLDERS.get(
-        (_class_placeholder.is_placeholder(fst), _class_placeholder.is_placeholder(snd))
+        (
+            isinstance(fst, _class_placeholder.Placeholder),
+            isinstance(snd, _class_placeholder.Placeholder),
+        )
     )
     if _placeholder:
         return _placeholder(fst, snd)

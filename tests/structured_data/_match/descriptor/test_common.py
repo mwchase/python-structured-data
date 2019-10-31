@@ -59,7 +59,7 @@ def test_property_advanced(adt, match):
     values = {}
     special_values = []
 
-    @match.placeholder
+    @match.Placeholder
     def special(cls):
         return cls.Left(10)
 

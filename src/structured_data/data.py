@@ -16,14 +16,14 @@ MaybeT = typing.TypeVar("MaybeT", bound="MaybeMixin")
 
 
 def just(pat: match.Pattern) -> match.Placeholder:
-    @match.placeholder
+    @match.Placeholder
     def placeholder(cls: typing.Type[MaybeT]) -> MaybeT:
         return cls.Just(pat)  # type: ignore
 
     return placeholder
 
 
-@match.placeholder
+@match.Placeholder
 def nothing(cls: typing.Type[MaybeT]) -> MaybeT:
     return cls.Nothing()  # type: ignore
 

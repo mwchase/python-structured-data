@@ -18,7 +18,6 @@ import typing
 
 from . import _attribute_constructor
 from ._class_placeholder import Placeholder
-from ._class_placeholder import placeholder
 from ._match.descriptor import common
 from ._match.descriptor import function as function_
 from ._match.descriptor import property_
@@ -94,7 +93,6 @@ __all__ = [
     "Placeholder",
     "decorate_in_order",
     "function",
-    "placeholder",
     "names",
     "pat",
 ]

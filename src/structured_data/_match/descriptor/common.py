@@ -13,10 +13,9 @@ Matcher = typing.Union[T, _class_placeholder.Placeholder[T]]
 
 
 def _apply(structure: Matcher[T], base: typing.Optional[type]) -> T:
-    if _class_placeholder.is_placeholder(structure):
-        placeholder = typing.cast(_class_placeholder.Placeholder, structure)
+    if isinstance(structure, _class_placeholder.Placeholder):
         # The cast is safe because we do the abstract check higher up
-        new = placeholder(typing.cast(type, base))
+        new = structure.func(typing.cast(type, base))
         _check_structure(new)
         return new
     non_placeholder = typing.cast(T, structure)
@@ -46,7 +45,7 @@ class MatchTemplate(typing.Generic[T]):
     def add_structure(self, structure: Matcher[T], func: typing.Callable):
         """Add the given structure and function to the match template."""
         self._templates.append((structure, func))
-        if _class_placeholder.is_placeholder(structure):
+        if isinstance(structure, _class_placeholder.Placeholder):
             self._abstract = True
             self._cache.pop(None, None)
         for base, structures in self._cache.items():

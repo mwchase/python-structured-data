@@ -209,22 +209,26 @@ def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
 
 
 def _no_placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
-    if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
+    if any(
+        isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
+    ):
         raise ValueError
 
     return _kwarg_structure(kwargs)
 
 
 def _placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
-    if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
+    if any(
+        isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
+    ):
 
-        @_class_placeholder.placeholder
+        @_class_placeholder.Placeholder
         def _placeholder(cls: type) -> mapping_match.DictPattern:
             return _kwarg_structure(
                 {
                     name: (
-                        kwarg(cls)
-                        if _class_placeholder.is_placeholder(kwarg)
+                        kwarg.func(cls)
+                        if isinstance(kwarg, _class_placeholder.Placeholder)
                         else kwarg
                     )
                     for (name, kwarg) in kwargs.items()
