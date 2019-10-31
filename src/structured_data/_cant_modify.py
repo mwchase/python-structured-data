@@ -1,11 +1,12 @@
 """Helper funtion for common pseudo-immutable use case."""
 
 import inspect
+import typing
 
 MISSING = object()
 
 
-def cant_modify(self, name: str) -> None:
+def cant_modify(self: typing.Any, name: str) -> None:
     """Prevent attempts to modify an attr of the given name."""
     class_repr = repr(self.__class__.__name__)
     name_repr = repr(name)
@@ -16,7 +17,7 @@ def cant_modify(self, name: str) -> None:
     raise AttributeError(format_msg.format(class_repr=class_repr, name_repr=name_repr))
 
 
-def guard(instance, name: str) -> None:
+def guard(instance: typing.Any, name: str) -> None:
     """Wrap up the common logic for using cant_modify."""
     if not inspect.isdatadescriptor(inspect.getattr_static(instance, name, MISSING)):
         cant_modify(instance, name)

@@ -23,7 +23,7 @@ class Bind(CompoundMatch, tuple):
         if not kwargs:
             return structure
         not_in(container=kwargs, item="_")
-        return super(Bind, cls).__new__(cls, (structure, tuple(kwargs.items())))
+        return super().__new__(cls, (structure, tuple(kwargs.items())))
 
     @property
     def structure(self):

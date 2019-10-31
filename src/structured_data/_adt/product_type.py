@@ -140,7 +140,7 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
             *args, **kwargs
         )  # pylint: disable=protected-access
         bound_arguments.apply_defaults()
-        return super(Product, cls).__new__(cls, bound_arguments.arguments.values())
+        return super().__new__(cls, bound_arguments.arguments.values())
 
     __repr: typing.ClassVar[bool] = True
     __eq: typing.ClassVar[bool] = True

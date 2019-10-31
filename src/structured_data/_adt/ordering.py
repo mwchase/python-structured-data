@@ -5,7 +5,7 @@ import typing
 
 def ordering_options_are_valid(
     *, eq: bool, order: bool  # pylint: disable=invalid-name
-):
+) -> None:
     """Check constraint: we can't define order if we didn't define equality."""
     if order and not eq:
         raise ValueError("eq must be true if order is true")
