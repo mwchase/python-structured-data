@@ -26,7 +26,9 @@ def _set_new_functions(cls: type, *functions: typing.Callable) -> typing.Optiona
     if cant_set:
         return cant_set
     for function in functions:
-        setattr(cls, product_type.name_(cls, function), function)
+        setattr(cls, product_type.name_(
+            cls, typing.cast(product_type.MethodLike, function)), function
+        )
     return None
 
 

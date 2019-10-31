@@ -72,10 +72,13 @@ def function(func: typing.Any) -> common.Descriptor:
     return function_.Function(func)
 
 
-def decorate_in_order(*args):
+Deco = typing.Callable[[typing.Callable], typing.Callable]
+
+
+def decorate_in_order(*args: Deco) -> Deco:
     """Apply decorators in the order they're passed to the function."""
 
-    def decorator(func):
+    def decorator(func: typing.Callable) -> typing.Callable:
         for arg in args:
             func = arg(func)
         return func
