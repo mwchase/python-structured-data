@@ -35,7 +35,27 @@ pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-na
 )
 
 
-def function(func: typing.Callable) -> common.Descriptor:
+@typing.overload
+def function(func: typing.Callable) -> function_.Function:
+    """Normal functions and methods go to Functions"""
+
+
+@typing.overload
+def function(func: staticmethod) -> function_.StaticMethod:
+    """Static methods go to StaticMethods"""
+
+
+@typing.overload
+def function(func: classmethod) -> function_.ClassMethod:
+    """Class methods go to ClassMethods."""
+
+
+@typing.overload
+def function(func: property) -> property_.Property:
+    """And properties go to Properties."""
+
+
+def function(func: typing.Any) -> common.Descriptor:
     """Convert a function to dispatch by value.
 
     The original function is not called when the dispatch function is invoked.

@@ -53,16 +53,24 @@ class Property(common.Descriptor):
         del fset, fdel, doc
         return super().__new__(cls, func)
 
-    def __init__(self, func=None, fset=None, fdel=None, doc=None):
+    def __init__(
+        self,
+        func: typing.Optional[typing.Callable] = None,
+        fset: typing.Optional[typing.Callable] = None,
+        fdel: typing.Optional[typing.Callable] = None,
+        doc: typing.Optional[str] = None,
+    ):
         del func
         super().__init__()
         self.fset = fset
         self.fdel = fdel
         if doc is not None:
             self.__doc__ = doc
-        self.get_matchers = common.MatchTemplate()
-        self.set_matchers = common.MatchTemplate()
-        self.delete_matchers = common.MatchTemplate()
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.get_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+        self.set_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+        self.delete_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
         self.protected = True
 
     def __setattr__(self, name, value):

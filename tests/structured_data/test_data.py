@@ -1,6 +1,6 @@
 def test_maybe(data):
     assert data.Maybe.Just(1)
-    assert data.Maybe.Nothing()  # No boolean override yet.
+    assert not data.Maybe.Nothing()
     assert data.Maybe.Nothing() != ()
 
 

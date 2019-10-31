@@ -3,11 +3,22 @@
 import typing
 
 from . import adt
+from . import match
 
 # Name type variables like type variables.
 T = typing.TypeVar("T")  # pylint: disable=invalid-name
 R = typing.TypeVar("R")  # pylint: disable=invalid-name
 E = typing.TypeVar("E")  # pylint: disable=invalid-name
+
+
+@match.placeholder
+def just(cls):
+    return cls.Just(match.pat.value)
+
+
+@match.placeholder
+def nothing(cls):
+    return cls.Nothing()
 
 
 class MaybeMixin(adt.SumBase, typing.Generic[T]):
@@ -16,8 +27,23 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     Just: adt.Ctor[T]  # type: ignore
     Nothing: adt.Ctor
 
+    @match.function
+    def __bool__(self) -> bool:
+        """Implement coercion to bool."""
 
-class Maybe(MaybeMixin, adt.Sum):
+
+@MaybeMixin.__bool__.when(self=just)
+def __bool_true(value):
+    del value
+    return True
+
+
+@MaybeMixin.__bool__.when(self=nothing)
+def __bool_false():
+    return False
+
+
+class Maybe(MaybeMixin, adt.Sum):  # type: ignore
     """An ADT that wraps a value, or nothing."""
 
 
