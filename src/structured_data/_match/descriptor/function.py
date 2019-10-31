@@ -166,9 +166,7 @@ class Function(common.Descriptor):
             inspect.signature(self), args, kwargs
         )
 
-        instance = None
-        if args:
-            instance = args[0]
+        instance = args[0] if args else None
 
         matchable_ = matchable.Matchable(values)
         for func in self.matchers.match_instance(matchable_, instance):
