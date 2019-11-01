@@ -121,3 +121,12 @@ def test_copy(match):
     @prop.getter
     def prop2(self):
         """I'm a docstring!"""
+
+
+def test_owns(match):
+    prop = match.function(property())
+
+    class Test:
+        pass
+    Test.prop = prop
+    assert not hasattr(Test.prop, "get_when")
