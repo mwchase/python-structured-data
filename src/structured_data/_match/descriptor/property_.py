@@ -1,5 +1,7 @@
 """Property-like descriptors that expose decorators for value-based dispatch."""
 
+from __future__ import annotations
+
 import typing
 
 from ... import _class_placeholder
@@ -9,6 +11,9 @@ from . import common
 
 OptionalSetter = typing.Optional[typing.Callable[[typing.Any, typing.Any], None]]
 OptionalDeleter = typing.Optional[typing.Callable[[typing.Any], None]]
+
+T = typing.TypeVar("T")
+U = typing.TypeVar("U")
 
 
 @_doc_wrapper.ProxyWrapper.wrap_class("prop")
@@ -83,7 +88,7 @@ class Property(common.Descriptor):
             raise AttributeError
         super().__delattr__(name)
 
-    def getter(self, getter):
+    def getter(self, getter) -> Property:
         """Return a copy of self with the getter replaced."""
         new = Property(getter, self.fset, self.fdel, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
@@ -91,7 +96,7 @@ class Property(common.Descriptor):
         self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
-    def setter(self, setter):
+    def setter(self, setter) -> Property:
         """Return a copy of self with the setter replaced."""
         new = Property(self.__wrapped__, setter, self.fdel, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
@@ -99,7 +104,7 @@ class Property(common.Descriptor):
         self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
-    def deleter(self, deleter):
+    def deleter(self, deleter) -> Property:
         """Return a copy of self with the deleter replaced."""
         new = Property(self.__wrapped__, self.fset, deleter, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
@@ -114,25 +119,25 @@ class Property(common.Descriptor):
             return PropertyProxy(self)
         matchable_ = matchable.Matchable(instance)
         for func in self.get_matchers.match_instance(matchable_, instance):
-            return func(**matchable_.matches)
+            return func(**typing.cast(typing.Mapping, matchable_.matches))
         if self.__wrapped__ is None:
             raise ValueError(self)
         # Yes it is.
         return self.__wrapped__(instance)  # pylint: disable=not-callable
 
-    def __set__(self, instance, value):
+    def __set__(self, instance, value) -> None:
         matchable_ = matchable.Matchable((instance, value))
         for func in self.set_matchers.match_instance(matchable_, instance):
-            func(**matchable_.matches)
+            func(**typing.cast(typing.Mapping, matchable_.matches))
             return
         if self.fset is None:
             raise ValueError((instance, value))
         self.fset(instance, value)
 
-    def __delete__(self, instance):
+    def __delete__(self, instance) -> None:
         matchable_ = matchable.Matchable(instance)
         for func in self.delete_matchers.match_instance(matchable_, instance):
-            func(**matchable_.matches)
+            func(**typing.cast(typing.Mapping, matchable_.matches))
             return
         if self.fdel is None:
             raise ValueError(instance)
@@ -151,38 +156,55 @@ class Property(common.Descriptor):
         return common.decorate(self.delete_matchers, instance)
 
 
-def _fst_placeholder(fst, snd):
+def _fst_placeholder(
+    fst: _class_placeholder.Placeholder[T], snd: U
+) -> _class_placeholder.Placeholder[typing.Tuple[T, U]]:
     @_class_placeholder.Placeholder
-    def _placeholder(cls):
+    def _placeholder(cls: type) -> typing.Tuple[T, U]:
         return (fst.func(cls), snd)
 
     return _placeholder
 
 
-def _snd_placeholder(fst, snd):
+def _snd_placeholder(
+    fst: T, snd: _class_placeholder.Placeholder[U]
+) -> _class_placeholder.Placeholder[typing.Tuple[T, U]]:
     @_class_placeholder.Placeholder
-    def _placeholder(cls):
+    def _placeholder(cls: type) -> typing.Tuple[T, U]:
         return (fst, snd.func(cls))
 
     return _placeholder
 
 
-def _both_placeholder(fst, snd):
+def _both_placeholder(
+    fst: _class_placeholder.Placeholder[T], snd: _class_placeholder.Placeholder[U]
+) -> _class_placeholder.Placeholder[typing.Tuple[T, U]]:
     @_class_placeholder.Placeholder
-    def _placeholder(cls):
+    def _placeholder(cls: type) -> typing.Tuple[T, U]:
         return (fst.func(cls), snd.func(cls))
 
     return _placeholder
 
 
-_PLACEHOLDERS = {
+_PLACEHOLDERS: typing.Dict[
+    typing.Tuple[bool, bool],
+    typing.Callable[
+        [typing.Any, typing.Any],
+        _class_placeholder.Placeholder[typing.Tuple[typing.Any, typing.Any]],
+    ],
+] = {
     (True, False): _fst_placeholder,
     (False, True): _snd_placeholder,
     (True, True): _both_placeholder,
 }
 
 
-def _placeholder_tuple2(fst, snd):
+def _placeholder_tuple2(
+    fst: typing.Any, snd: typing.Any
+) -> typing.Union[
+    _class_placeholder.Placeholder[typing.Tuple[typing.Any, typing.Any]],
+    typing.Tuple[typing.Any, typing.Any],
+]:
     _placeholder = _PLACEHOLDERS.get(
         (
             isinstance(fst, _class_placeholder.Placeholder),

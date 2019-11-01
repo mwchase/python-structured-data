@@ -77,7 +77,7 @@ class ClassMethod(common.Descriptor):
         return ClassMethodCall(self, owner)
 
     def when(
-        self, /, **kwargs  # noqa: E225
+        self, /, **kwargs: typing.Any  # noqa: E225
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
@@ -91,7 +91,9 @@ class ClassMethodCall:
         self.class_method = class_method
         self.owner = owner
 
-    def __call__(self, /, *args, **kwargs):  # noqa: E225
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
         bound_args, bound_kwargs, values = _bound_and_values(
             inspect.signature(self.class_method.__wrapped__),
             (self.owner,) + args,
@@ -100,7 +102,12 @@ class ClassMethodCall:
 
         matchable_ = matchable.Matchable(values)
         for func in self.class_method.matchers.match(matchable_, self.owner):
-            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
         return self.class_method.__wrapped__(self.owner, *args, **kwargs)
 
 
