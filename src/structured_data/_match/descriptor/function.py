@@ -196,19 +196,7 @@ class Function(common.Descriptor):
         # Hey, we can just fall back now.
         return typing.cast(typing.Callable, self.__wrapped__)(*args, **kwargs)
 
-    @typing.overload
-    def __get__(
-        self, instance: None, owner: typing.Type[T]
-    ) -> typing.Union[Function, MethodProxy]:
-        ...
-
-    @typing.overload
-    def __get__(self, instance: T, owner: typing.Type[T]) -> functools.partial:
-        ...
-
-    def __get__(
-        self, instance: typing.Optional[T], owner: typing.Type[T]
-    ) -> typing.Union[Function, MethodProxy, functools.partial]:
+    def __get__(self, instance: typing.Optional[T], owner: typing.Type[T]):
         if instance is None:
             if common.owns(self, owner):
                 return self
