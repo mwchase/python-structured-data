@@ -1,5 +1,7 @@
 """Internal implementation of the Sum base class."""
 
+from __future__ import annotations
+
 import typing
 
 from .. import _cant_modify
@@ -71,7 +73,7 @@ class Sum(constructor.SumBase):
 
     __slots__ = ()
 
-    def __new__(cls, /, *args, **kwargs):  # noqa: E225
+    def __new__(cls, /, *args: typing.Any, **kwargs: typing.Any) -> Sum:  # noqa: E225
         if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
         return super().__new__(cls, *args, **kwargs)

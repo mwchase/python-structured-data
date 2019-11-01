@@ -83,8 +83,8 @@ class MatchDict(collections.abc.MutableMapping):
     def __delitem__(self, key):
         del self.data[_as_name(key)]
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[str]:
         yield from self.data
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
