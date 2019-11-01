@@ -20,7 +20,7 @@ U = typing.TypeVar("U")
 class PropertyProxy:
     """Wrapper for Property that doesn't expose the when methods."""
 
-    def __init__(self, prop):
+    def __init__(self, prop: Property) -> None:
         self.prop = prop
 
     def getter(self, getter):
@@ -54,7 +54,13 @@ class Property(common.Descriptor):
 
     protected = False
 
-    def __new__(cls, func=None, fset=None, fdel=None, doc=None):
+    def __new__(
+        cls,
+        func: typing.Optional[typing.Callable] = None,
+        fset: typing.Optional[typing.Callable] = None,
+        fdel: typing.Optional[typing.Callable] = None,
+        doc: typing.Optional[str] = None,
+    ):
         del fset, fdel, doc
         return super().__new__(cls, func)
 
@@ -64,7 +70,7 @@ class Property(common.Descriptor):
         fset: typing.Optional[typing.Callable] = None,
         fdel: typing.Optional[typing.Callable] = None,
         doc: typing.Optional[str] = None,
-    ):
+    ) -> None:
         del func
         super().__init__()
         self.fset = fset
@@ -78,12 +84,12 @@ class Property(common.Descriptor):
         self.delete_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
         self.protected = True
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: typing.Any) -> None:
         if self.protected and name != "__doc__":
             raise AttributeError
         super().__setattr__(name, value)
 
-    def __delattr__(self, name):
+    def __delattr__(self, name: str) -> None:
         if self.protected and name != "__doc__":
             raise AttributeError
         super().__delattr__(name)

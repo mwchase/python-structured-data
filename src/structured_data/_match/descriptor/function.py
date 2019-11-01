@@ -64,6 +64,8 @@ def _bound_and_values(
 class ClassMethod(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
+    __wrapped__: typing.Callable
+
     def __init__(self, func: typing.Callable) -> None:
         del func
         super().__init__()
@@ -87,7 +89,7 @@ class ClassMethod(common.Descriptor):
 class ClassMethodCall:
     """Wrapper class that conceals the ``when()`` decorators."""
 
-    def __init__(self, class_method, owner):
+    def __init__(self, class_method: ClassMethod, owner: type) -> None:
         self.class_method = class_method
         self.owner = owner
 
@@ -124,6 +126,8 @@ class ClassMethodWhen(ClassMethodCall):
 class StaticMethod(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
+    __wrapped__: typing.Callable
+
     def __init__(self, func: typing.Callable) -> None:
         del func
         super().__init__()
@@ -147,17 +151,24 @@ class StaticMethod(common.Descriptor):
 class StaticMethodCall:
     """Wrapper class that conceals the ``when()`` decorators."""
 
-    def __init__(self, static_method):
+    def __init__(self, static_method: StaticMethod) -> None:
         self.static_method = static_method
 
-    def __call__(self, /, *args, **kwargs):  # noqa: E225
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
         bound_args, bound_kwargs, values = _bound_and_values(
             inspect.signature(self.static_method.__wrapped__), args, kwargs,
         )
 
         matchable_ = matchable.Matchable(values)
         for func in self.static_method.matchers.match(matchable_, None):
-            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
         return self.static_method.__wrapped__(*args, **kwargs)
 
 
@@ -165,7 +176,7 @@ class StaticMethodWhen(StaticMethodCall):
     """Wrapper class that exposes the ``when()`` decorators."""
 
     def when(
-        self, /, **kwargs  # noqa: E225
+        self, /, **kwargs: typing.Any  # noqa: E225
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for the wrapped method."""
         return self.static_method.when(**kwargs)
@@ -173,6 +184,8 @@ class StaticMethodWhen(StaticMethodCall):
 
 class Function(common.Descriptor):
     """Decorator with value-based dispatch. Acts as a function."""
+
+    __wrapped__: typing.Callable
 
     def __init__(self, func: typing.Callable) -> None:
         del func
@@ -201,7 +214,7 @@ class Function(common.Descriptor):
                 bound_kwargs,
             )
         # Hey, we can just fall back now.
-        return typing.cast(typing.Callable, self.__wrapped__)(*args, **kwargs)
+        return self.__wrapped__(*args, **kwargs)
 
     def __get__(self, instance: typing.Optional[T], owner: typing.Type[T]):
         if instance is None:
