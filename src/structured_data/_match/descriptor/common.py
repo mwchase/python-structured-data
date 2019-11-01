@@ -112,7 +112,7 @@ class Descriptor:
         vars(self).setdefault("__name__", name)
 
 
-SENTINEL = typing.cast(Descriptor, object())
+SENTINEL = object()
 
 
 def owns(descriptor: Descriptor, owner: type) -> bool:
