@@ -1,5 +1,7 @@
 """Callable descriptors that expose decorators for value-based dispatch."""
 
+from __future__ import annotations
+
 import functools
 import inspect
 import typing
@@ -10,14 +12,23 @@ from .. import matchable
 from ..patterns import mapping_match
 from . import common
 
+T = typing.TypeVar("T")
 
-def _varargs(signature):
+Kwargs = typing.Dict[str, typing.Any]
+
+
+def _varargs(signature: inspect.Signature) -> typing.Iterator[inspect.Parameter]:
     for parameter in signature.parameters.values():
         if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
             yield parameter
 
 
-def _dispatch(func, matches, bound_args, bound_kwargs):
+def _dispatch(
+    func: typing.Callable,
+    matches: typing.Mapping,
+    bound_args: typing.Tuple,
+    bound_kwargs: Kwargs,
+) -> typing.Any:
     for key, value in matches.items():
         if key in bound_kwargs:
             raise TypeError
@@ -30,7 +41,9 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
     return func(*function_args.args, **function_args.kwargs)
 
 
-def _bound_and_values(signature, args, kwargs):
+def _bound_and_values(
+    signature: inspect.Signature, args: typing.Tuple, kwargs: Kwargs,
+) -> typing.Tuple[typing.Tuple, Kwargs, Kwargs]:
     # The signature lets us regularize the call and apply any defaults
     bound_arguments = signature.bind(*args, **kwargs)
     bound_arguments.apply_defaults()
@@ -38,7 +51,7 @@ def _bound_and_values(signature, args, kwargs):
     # Extract the *args and **kwargs, if any.
     # These are never used in the matching, just passed to the underlying function
     bound_args = ()
-    bound_kwargs = {}
+    bound_kwargs: Kwargs = {}
     values = bound_arguments.arguments.copy()
     for parameter in signature.parameters.values():
         if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
@@ -161,7 +174,9 @@ class Function(common.Descriptor):
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    def __call__(self, /, *args, **kwargs):  # noqa: E225
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
         # Okay, so, this is a convoluted mess.
 
         bound_args, bound_kwargs, values = _bound_and_values(
@@ -172,11 +187,28 @@ class Function(common.Descriptor):
 
         matchable_ = matchable.Matchable(values)
         for func in self.matchers.match_instance(matchable_, instance):
-            return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
         # Hey, we can just fall back now.
-        return self.__wrapped__(*args, **kwargs)
+        return typing.cast(typing.Callable, self.__wrapped__)(*args, **kwargs)
 
-    def __get__(self, instance, owner):
+    @typing.overload
+    def __get__(
+        self, instance: None, owner: typing.Type[T]
+    ) -> typing.Union[Function, MethodProxy]:
+        ...
+
+    @typing.overload
+    def __get__(self, instance: T, owner: typing.Type[T]) -> functools.partial:
+        ...
+
+    def __get__(
+        self, instance: typing.Optional[T], owner: typing.Type[T]
+    ) -> typing.Union[Function, MethodProxy, functools.partial]:
         if instance is None:
             if common.owns(self, owner):
                 return self
@@ -184,7 +216,7 @@ class Function(common.Descriptor):
         return functools.partial(self, instance)
 
     def when(
-        self, /, **kwargs  # noqa: E225
+        self, /, **kwargs: typing.Any  # noqa: E225
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
@@ -194,10 +226,12 @@ class Function(common.Descriptor):
 class MethodProxy:
     """Wrapper class that conceals the ``when()`` decorators."""
 
-    def __init__(self, func):
+    def __init__(self, func: Function) -> None:
         self.func = func
 
-    def __call__(self, /, *args, **kwargs):  # noqa: E225
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
         return self.func(*args, **kwargs)
 
     def __get__(self, instance, owner):

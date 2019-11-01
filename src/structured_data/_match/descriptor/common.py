@@ -1,5 +1,7 @@
 """Common classes and functions for implementing dynamic matchers."""
 
+from __future__ import annotations
+
 import functools
 import typing
 
@@ -33,7 +35,7 @@ class MatchTemplate(typing.Generic[T]):
             typing.Optional[type], typing.List[typing.Tuple[T, typing.Callable]]
         ] = {}
 
-    def copy_into(self, other):
+    def copy_into(self, other: MatchTemplate[T]) -> None:
         """Given another template, copy this one's contents into it."""
         for structure, func in self._templates:
             other.add_structure(structure, func)
@@ -42,7 +44,7 @@ class MatchTemplate(typing.Generic[T]):
     # def abstract(self):
     #     return self._abstract
 
-    def add_structure(self, structure: Matcher[T], func: typing.Callable):
+    def add_structure(self, structure: Matcher[T], func: typing.Callable) -> None:
         """Add the given structure and function to the match template."""
         self._templates.append((structure, func))
         if isinstance(structure, _class_placeholder.Placeholder):
@@ -51,7 +53,9 @@ class MatchTemplate(typing.Generic[T]):
         for base, structures in self._cache.items():
             structures.append((_apply(structure, base), func))
 
-    def _get_matchers(self, base):
+    def _get_matchers(
+        self, base: type
+    ) -> typing.List[typing.Tuple[T, typing.Callable]]:
         if base in self._cache:
             return self._cache[base]
         return self._cache.setdefault(
@@ -59,12 +63,12 @@ class MatchTemplate(typing.Generic[T]):
             [(_apply(structure, base), func) for (structure, func) in self._templates],
         )
 
-    def match_instance(self, matchable, instance):
+    def match_instance(self, matchable, instance) -> typing.Iterator[typing.Callable]:
         """Get the base associated with instance, if any, and match with it."""
         base = prewritten_methods.sum_base(instance) if self._abstract else None
         yield from self.match(matchable, base)
 
-    def match(self, matchable, base):
+    def match(self, matchable, base) -> typing.Iterator[typing.Callable]:
         """If there is a match in the context of base, yield implementation."""
         if base is None and self._abstract:
             raise ValueError
@@ -95,22 +99,25 @@ class Descriptor:
     """Base class for decorator classes."""
 
     __wrapped__: typing.Optional[typing.Callable] = None
-    __name__ = None
+    __name__: typing.Optional[str] = None
 
-    def __new__(cls, func):
+    def __new__(cls, func: typing.Optional[typing.Callable]) -> Descriptor:
         new = super().__new__(cls)
         new.__doc__ = None
         if func is None:
             return new
-        return functools.wraps(func)(new)
+        return typing.cast(Descriptor, functools.wraps(func)(new))
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, owner: type, name: str) -> None:
         vars(self).setdefault("__name__", name)
 
 
-SENTINEL = object()
+SENTINEL = typing.cast(Descriptor, object())
 
 
-def owns(descriptor, owner):
+def owns(descriptor: Descriptor, owner: type) -> bool:
     """Return whether the given class owns the given descriptor."""
-    return vars(owner).get(descriptor.__name__, SENTINEL) is descriptor
+    name = descriptor.__name__
+    if name is None:
+        return False
+    return vars(owner).get(name, SENTINEL) is descriptor
