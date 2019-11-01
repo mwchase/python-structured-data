@@ -242,7 +242,7 @@ def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
     return mapping_match.DictPattern(kwargs, exhaustive=True)
 
 
-def _no_placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
+def _no_placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
     if any(
         isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
     ):
@@ -251,7 +251,7 @@ def _no_placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
     return _kwarg_structure(kwargs)
 
 
-def _placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
+def _placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
     if any(
         isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
     ):
