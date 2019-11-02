@@ -115,7 +115,7 @@ def make_constructor(
 
         __slots__ = ()
 
-        def __new__(cls, *args):
+        def __new__(cls, *args: typing.Any):
             if len(args) != length:
                 raise ValueError
             return super().__new__(cls, args)
