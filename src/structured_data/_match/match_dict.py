@@ -7,9 +7,13 @@ import typing
 
 from .. import _not_in
 from .. import _stack_iter
+from .. import _structure
 from . import destructure
 from . import match_failure
 from .patterns import basic_patterns
+
+
+T = typing.TypeVar("T")
 
 
 def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
@@ -26,9 +30,11 @@ def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
     return None
 
 
-def match(target, value) -> MatchDict:
+def match(target: _structure.Structure[T], value: _structure.Literal[T]) -> MatchDict:
     """Extract all of the matches between target and value."""
     match_dict = MatchDict()
+    pattern: basic_patterns.Pattern
+    local_value: _structure.Literal[T]
     for pattern, local_value in _stack_iter.stack_iter(
         (target, value), _stack_iteration
     ):
