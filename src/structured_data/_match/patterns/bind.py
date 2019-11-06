@@ -1,11 +1,17 @@
 """A pattern to bind external values to a match."""
 
+from __future__ import annotations
+
+import typing
+
+from ... import _structure
 from ..._not_in import not_in
 from .basic_patterns import Pattern
-from .compound_match import CompoundMatch
+
+T = typing.TypeVar("T")
 
 
-class Bind(CompoundMatch, tuple):
+class Bind(_structure.CompoundMatch[T], tuple):
     """A wrapper that adds additional bindings to a successful match.
 
     The ``Bind`` constructor takes a single required argument, and any number
@@ -19,23 +25,27 @@ class Bind(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, structure, /, **kwargs):  # noqa: E225
+    def __new__(
+        cls, structure: _structure.Structure[T], /, **kwargs: typing.Any  # noqa: E225
+    ):
         if not kwargs:
             return structure
         not_in(container=kwargs, item="_")
         return super().__new__(cls, (structure, tuple(kwargs.items())))
 
     @property
-    def structure(self):
+    def structure(self) -> _structure.Structure[T]:
         """Return the structure to match against."""
         return self[0]
 
     @property
-    def bindings(self):
+    def bindings(self) -> typing.Tuple[typing.Tuple[str, typing.Any], ...]:
         """Return the bindings to add to the match."""
         return self[1]
 
-    def destructure(self, value):
+    def destructure(
+        self, value: typing.Union[Bind[T], _structure.Literal[T]]
+    ) -> typing.Sequence[_structure.Structure]:
         """Return a list of sub-values to check.
 
         If ``value is self``, return all of the bindings, and the structure.
@@ -43,11 +53,15 @@ class Bind(CompoundMatch, tuple):
         Otherwise, return the corresponding bound values, followed by the
         original value.
         """
+        beginning: typing.List[_structure.Structure]
+        end: _structure.Structure
         # Letting mutmut touch this line thoroughly locked things up.
         if value is self:  # pragma: no mutate
-            return [Pattern(name) for (name, _) in reversed(self.bindings)] + [
-                self.structure
+            beginning = [Pattern(name) for (name, _) in reversed(self.bindings)]
+            end = self.structure
+        else:
+            beginning = [
+                binding_value for (_, binding_value) in reversed(self.bindings)
             ]
-        return [binding_value for (_, binding_value) in reversed(self.bindings)] + [
-            value
-        ]
+            end = value
+        return beginning + [end]

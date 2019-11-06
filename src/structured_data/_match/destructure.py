@@ -5,10 +5,10 @@ import typing
 from .. import _stack_iter
 from .._adt.constructor import ADTConstructor
 from .._not_in import not_in
+from .._structure import CompoundMatch
 from .._unpack import unpack
 from .match_failure import MatchFailure
 from .patterns.basic_patterns import Pattern
-from .patterns.compound_match import CompoundMatch
 
 
 class Destructurer:

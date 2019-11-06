@@ -6,12 +6,14 @@ import keyword
 import sys
 import typing
 
-from .compound_match import CompoundMatch
+from ... import _structure
 
 DISCARD = object()
 
+T = typing.TypeVar("T")
 
-class Pattern(tuple):
+
+class Pattern(tuple, typing.Generic[T]):
     """A matcher that binds a value to a name.
 
     A ``Pattern`` can be indexed with another matcher to produce an
@@ -37,36 +39,44 @@ class Pattern(tuple):
         """Return the name of the matcher."""
         return tuple.__getitem__(self, 0)
 
-    def __getitem__(self, other) -> typing.Union[Pattern, AsPattern]:
+    # I have no idea if this is behaving as I want it to.
+    # TODO: Get ``# type: ignore`` away from core user-facing interfaces.
+    def __getitem__(  # type: ignore
+        self, other: _structure.Structure[T]
+    ) -> typing.Union[Pattern[T], AsPattern[T]]:
         return AsPattern.bind(self, other)
 
 
-class AsPattern(CompoundMatch, tuple):
+class AsPattern(_structure.CompoundMatch[T], tuple):
     """A matcher that contains further bindings."""
 
     __slots__ = ()
 
-    def __new__(cls, pattern: Pattern, structure):
+    def __new__(cls, pattern: Pattern[T], structure: _structure.Structure[T]):
         return super().__new__(cls, (pattern, structure))  # type: ignore
 
     @classmethod
-    def bind(cls, pattern: Pattern, structure) -> typing.Union[Pattern, AsPattern]:
+    def bind(
+        cls, pattern: Pattern[T], structure: _structure.Structure[T]
+    ) -> typing.Union[Pattern[T], AsPattern[T]]:
         """Bind the given pattern and structure, if possible."""
         if structure is DISCARD:
             return pattern
         return cls(pattern, structure)
 
     @property
-    def pattern(self) -> Pattern:
+    def pattern(self) -> Pattern[T]:
         """Return the left-hand-side of the as-match."""
         return self[0]
 
     @property
-    def structure(self):
+    def structure(self) -> _structure.Structure[T]:
         """Return the right-hand-side of the as-match."""
         return self[1]
 
-    def destructure(self, value):
+    def destructure(
+        self, value: typing.Union[AsPattern[T], _structure.Literal[T]]
+    ) -> typing.Tuple[_structure.Structure[T], _structure.Structure[T]]:
         """Return a tuple of sub-values to check.
 
         By default, return the value twice.

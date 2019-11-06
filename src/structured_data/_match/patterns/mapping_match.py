@@ -1,9 +1,14 @@
 """Matches that extract values via attribute access or dict indexing."""
 
+from __future__ import annotations
+
 import typing
 
+from ... import _structure
 from ..match_failure import MatchFailure
-from .compound_match import CompoundMatch
+
+T = typing.TypeVar("T")
+D = typing.TypeVar("D", bound=dict)
 
 
 def value_cant_be_smaller(
@@ -14,7 +19,7 @@ def value_cant_be_smaller(
         raise MatchFailure
 
 
-class AttrPattern(CompoundMatch, tuple):
+class AttrPattern(_structure.CompoundMatch[T], tuple):
     """A matcher that destructures an object using attribute access.
 
     The ``AttrPattern`` constructor takes keyword arguments. Each name-value
@@ -36,8 +41,10 @@ class AttrPattern(CompoundMatch, tuple):
         return self[0]
 
     def destructure(
-        self, value
-    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
+        self, value: typing.Union[AttrPattern[T], _structure.Literal[T]]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[_structure.Structure[T], _structure.Structure]
+    ]:
         """Return a tuple of sub-values to check.
 
         If self is empty, return no values from self or the target.
@@ -66,7 +73,7 @@ class AttrPattern(CompoundMatch, tuple):
             raise MatchFailure
 
 
-def dict_pattern_length(dp_or_d: typing.Sized):
+def dict_pattern_length(dp_or_d: typing.Sized) -> int:
     """Return the length of the argument for the purposes of ``DictPattern``.
 
     Normally, this is just the length of the argument, but if the argument is a
@@ -77,7 +84,7 @@ def dict_pattern_length(dp_or_d: typing.Sized):
     return len(dp_or_d)
 
 
-class DictPattern(CompoundMatch, tuple):
+class DictPattern(_structure.CompoundMatch[D], tuple):
     """A matcher that destructures a dictionary by key.
 
     The ``DictPattern`` constructor takes a required argument, a dictionary
@@ -93,29 +100,31 @@ class DictPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    def __new__(cls, match_dict, *, exhaustive=False) -> "DictPattern":
+    def __new__(cls, match_dict: D, *, exhaustive: bool = False) -> DictPattern[D]:
         return super().__new__(
             cls, (tuple(match_dict.items()), exhaustive)  # type: ignore
         )
 
     @property
-    def match_dict(self):
+    def match_dict(self) -> typing.Tuple[typing.Tuple[typing.Any, typing.Any], ...]:
         """Return the dict of matches to check."""
         return self[0]
 
     @property
-    def exhaustive(self):
+    def exhaustive(self) -> bool:
         """Return whether the target must of the exact keys as self."""
         return self[1]
 
-    def exhaustive_length_must_match(self, value: typing.Sized):
+    def exhaustive_length_must_match(self, value: typing.Sized) -> None:
         """If the match is exhaustive and the lengths differ, fail."""
         if self.exhaustive and dict_pattern_length(value) != dict_pattern_length(self):
             raise MatchFailure
 
     def destructure(
-        self, value
-    ) -> typing.Union[typing.Tuple[()], typing.Tuple[typing.Any, typing.Any]]:
+        self, value: typing.Union[DictPattern[D], _structure.Literal[D]]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[_structure.Structure[D], _structure.Structure]
+    ]:
         """Return a tuple of sub-values to check.
 
         If self is exhaustive and the lengths don't match, fail.
@@ -136,15 +145,31 @@ class DictPattern(CompoundMatch, tuple):
         returns the original value, and the result of indexing the target with
         the match's key.
         """
-        self.exhaustive_length_must_match(value)
+        self.exhaustive_length_must_match(from_literal(value))
         if not self.match_dict:
             return ()
         if isinstance(value, DictPattern):
             value_cant_be_smaller(self.match_dict, value.match_dict)
             first_match, *remainder = value.match_dict
-            return (DictPattern(dict(remainder)), first_match[1])
+            return (DictPattern(typing.cast(D, dict(remainder))), first_match[1])
         first_match = self.match_dict[0]
         try:
-            return (value, value[first_match[0]])
+            return (value, from_literal(value)[first_match[0]])
         except KeyError:
             raise MatchFailure
+
+
+@typing.overload
+def from_literal(value: DictPattern[D]) -> DictPattern[D]:
+    """Leave DictPatterns unchanged."""
+
+
+@typing.overload
+def from_literal(value: _structure.Literal[D]) -> D:
+    """Through a mysterious process, convert a literal to a value."""
+
+
+def from_literal(
+    value: typing.Union[DictPattern[D], _structure.Literal[D]]
+) -> typing.Union[DictPattern[D], D]:
+    return value  # type: ignore
