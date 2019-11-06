@@ -6,7 +6,7 @@ from .. import _stack_iter
 from .._adt.constructor import ADTConstructor
 from .._not_in import not_in
 from .._structure import CompoundMatch
-from .._unpack import unpack
+from .._unpack import structuring_unpack
 from .match_failure import MatchFailure
 from .patterns.basic_patterns import Pattern
 
@@ -42,7 +42,7 @@ class ADTDestructurer(Destructurer, type=ADTConstructor):
         """Unpack a value into a sequence of instances if the classes match."""
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
-        return reversed(unpack(value))
+        return reversed(structuring_unpack(value))
 
 
 class TupleDestructurer(Destructurer, type=tuple):
@@ -60,7 +60,7 @@ class TupleDestructurer(Destructurer, type=tuple):
         if isinstance(value, ADTConstructor):
             raise MatchFailure
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
-            return reversed(value)
+            return reversed(structuring_unpack(value))
         raise MatchFailure
 
 
