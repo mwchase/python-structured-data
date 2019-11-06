@@ -45,6 +45,18 @@ class Destructurer(typing.Generic[T]):
     ) -> typing.Iterable[_structure.Structure]:
         return self.destructure(value)
 
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[T]
+    ) -> typing.Iterable[_structure.Literal]:
+        """Literals only destructure to literals."""
+
+    @typing.overload
+    def destructure(
+        self, value: _structure.Structure[T]
+    ) -> typing.Iterable[_structure.Structure]:
+        """Don't have more specific typing..."""
+
     def destructure(
         self, value: _structure.Structure[T]
     ) -> typing.Iterable[_structure.Structure]:
@@ -58,6 +70,18 @@ class ADTDestructurer(Destructurer[ADTConstructor]):
     While all ADT instances are tuples in practice, this is ignored.
     """
 
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[ADTConstructor]
+    ) -> typing.Iterable[_structure.Literal]:
+        """Literals only destructure to literals."""
+
+    @typing.overload
+    def destructure(
+        self, value: _structure.Structure[ADTConstructor]
+    ) -> typing.Iterable[_structure.Structure]:
+        """Don't have more specific typing..."""
+
     def destructure(
         self, value: _structure.Structure[ADTConstructor]
     ) -> typing.Iterable[_structure.Structure]:
@@ -69,6 +93,18 @@ class ADTDestructurer(Destructurer[ADTConstructor]):
 
 class TupleDestructurer(Destructurer[tuple]):
     """Unpack tuples into a sequence of values."""
+
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[tuple]
+    ) -> typing.Iterable[_structure.Literal]:
+        """Literals only destructure to literals."""
+
+    @typing.overload
+    def destructure(
+        self, value: _structure.Structure[tuple]
+    ) -> typing.Iterable[_structure.Structure]:
+        """Don't have more specific typing..."""
 
     def destructure(
         self, value: _structure.Structure[tuple]

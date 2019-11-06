@@ -22,6 +22,14 @@ class CompoundMatch(typing.Generic[T]):
 
     __slots__ = ()
 
+    @typing.overload
+    def destructure(self, value: Literal[T]) -> typing.Iterable[Literal]:
+        """Literals can only destructure to Literals."""
+
+    @typing.overload
+    def destructure(self: S, value: S) -> typing.Iterable[Structure]:
+        """Instances can destructure to anything."""
+
     def destructure(
         self: S, value: typing.Union[S, Literal[T]]
     ) -> typing.Iterable[Structure]:

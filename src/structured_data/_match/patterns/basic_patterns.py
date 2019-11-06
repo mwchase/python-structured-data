@@ -77,6 +77,18 @@ class AsPattern(_structure.CompoundMatch[T], tuple):
         """Return the right-hand-side of the as-match."""
         return self[1]
 
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[T]
+    ) -> typing.Tuple[_structure.Literal[T], _structure.Literal[T]]:
+        """Literals destructure to themselves."""
+
+    @typing.overload
+    def destructure(
+        self, value: AsPattern[T]
+    ) -> typing.Tuple[_structure.Structure[T], typing.Union[Pattern[T], AsPattern[T]]]:
+        """AsPatterns destructure to component patterns."""
+
     def destructure(
         self, value: typing.Union[AsPattern[T], _structure.Literal[T]]
     ) -> typing.Tuple[_structure.Structure[T], _structure.Structure[T]]:

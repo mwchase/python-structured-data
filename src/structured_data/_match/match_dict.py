@@ -12,7 +12,6 @@ from . import destructure
 from . import match_failure
 from .patterns import basic_patterns
 
-
 T = typing.TypeVar("T")
 
 

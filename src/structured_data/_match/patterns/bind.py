@@ -43,6 +43,16 @@ class Bind(_structure.CompoundMatch[T], tuple):
         """Return the bindings to add to the match."""
         return self[1]
 
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[T]
+    ) -> typing.Sequence[_structure.Literal]:
+        """Literals just get passed through, with other values added."""
+
+    @typing.overload
+    def destructure(self, value: Bind[T]) -> typing.Sequence[_structure.Structure]:
+        """Bindings produce a heterogeneous collection."""
+
     def destructure(
         self, value: typing.Union[Bind[T], _structure.Literal[T]]
     ) -> typing.Sequence[_structure.Structure]:

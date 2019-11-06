@@ -40,6 +40,22 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
         """Return the dict of matches to check."""
         return self[0]
 
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[T]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[_structure.Literal[T], _structure.Literal]
+    ]:
+        """Literals return themselves, as needed."""
+
+    @typing.overload
+    def destructure(
+        self, value: AttrPattern[T]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[_structure.Structure[T], _structure.Structure]
+    ]:
+        """AttrPatterns break themselves down."""
+
     def destructure(
         self, value: typing.Union[AttrPattern[T], _structure.Literal[T]]
     ) -> typing.Union[
@@ -119,6 +135,22 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
         """If the match is exhaustive and the lengths differ, fail."""
         if self.exhaustive and dict_pattern_length(value) != dict_pattern_length(self):
             raise MatchFailure
+
+    @typing.overload
+    def destructure(
+        self, value: _structure.Literal[D]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[_structure.Literal[D], _structure.Literal]
+    ]:
+        """Dicts get returned unchanged, and indexed."""
+
+    @typing.overload
+    def destructure(
+        self, value: DictPattern[D]
+    ) -> typing.Union[
+        typing.Tuple[()], typing.Tuple[DictPattern[D], _structure.Structure]
+    ]:
+        """DictPatterns get reconfigured."""
 
     def destructure(
         self, value: typing.Union[DictPattern[D], _structure.Literal[D]]
