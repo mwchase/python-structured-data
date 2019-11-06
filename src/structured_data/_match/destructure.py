@@ -1,38 +1,48 @@
 """Classes for destructuring complex data."""
 
+from __future__ import annotations
+
 import typing
 
 from .. import _stack_iter
+from .. import _structure
 from .._adt.constructor import ADTConstructor
 from .._not_in import not_in
-from .._structure import CompoundMatch
 from .._unpack import structuring_unpack
 from .match_failure import MatchFailure
 from .patterns.basic_patterns import Pattern
 
+T = typing.TypeVar("T")
 
-class Destructurer:
+
+class Destructurer(typing.Generic[T]):
     """Abstract base class for destructuring third-party code."""
 
-    type: typing.ClassVar[type]
+    @classmethod
+    def get_type(cls):
+        # It's not right to stop this just because, but I don't care,
+        # and it's hard to see how to hit the branches this misses anyway.
+        # TODO: factor this out into something I can test somehow.
+        for super_cls in cls.__orig_bases__:  # pragma: nocover
+            if super_cls.__origin__ is Destructurer:
+                return super_cls.__args__[0]
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        type_: type = kwargs.pop("type")
-        super().__init_subclass__(**kwargs)  # type: ignore
-        cls.type = type_
-
-    def __init__(self, target):
+    def __init__(self, target: T) -> None:
         self.target = target
 
-    def __call__(self, value):
+    def __call__(
+        self, value: _structure.Structure[T]
+    ) -> typing.Sequence[_structure.Structure]:
         return self.destructure(value)
 
-    def destructure(self, value):
+    def destructure(
+        self, value: _structure.Structure[T]
+    ) -> typing.Sequence[_structure.Structure]:
         """Return a sequence of subvalues, or raise MatchFailure."""
         raise NotImplementedError
 
 
-class ADTDestructurer(Destructurer, type=ADTConstructor):
+class ADTDestructurer(Destructurer[ADTConstructor]):
     """Unpack ADT instances into a sequence of values.
 
     While all ADT instances are tuples in practice, this is ignored.
@@ -45,7 +55,7 @@ class ADTDestructurer(Destructurer, type=ADTConstructor):
         return reversed(structuring_unpack(value))
 
 
-class TupleDestructurer(Destructurer, type=tuple):
+class TupleDestructurer(Destructurer[tuple]):
     """Unpack tuples into a sequence of values."""
 
     def destructure(self, value):
@@ -64,7 +74,7 @@ class TupleDestructurer(Destructurer, type=tuple):
         raise MatchFailure
 
 
-T = typing.TypeVar("T", bound="DestructurerList")  # pylint: disable=invalid-name
+DL = typing.TypeVar("DL", bound="DestructurerList")  # pylint: disable=invalid-name
 
 
 class DestructurerList(tuple):
@@ -91,7 +101,9 @@ class DestructurerList(tuple):
 
     def get_destructurer(
         self, item
-    ) -> typing.Optional[typing.Callable[[typing.Any], typing.Sequence[typing.Any]]]:
+    ) -> typing.Optional[
+        typing.Callable[[typing.Any], typing.Sequence[_structure.Structure]]
+    ]:
         """Return the destructurer for the item, if any.
 
         In the first case, the item is an instance of ``CompoundMatch``, and
@@ -102,34 +114,36 @@ class DestructurerList(tuple):
         In the third case, we assume it's not a structure and therefore can't
         be recursed into.
         """
-        if isinstance(item, CompoundMatch):
+        if isinstance(item, _structure.CompoundMatch):
             return item.destructure
         for destructurer in self:
-            if isinstance(item, destructurer.type):
+            if isinstance(item, destructurer.get_type()):
                 return destructurer(item)
         return None
 
     @classmethod
-    def custom(cls: typing.Type[T], *destructurers) -> T:
+    def custom(cls: typing.Type[DL], *destructurers) -> DL:
         """Construct a new ``DestructurerList``, with custom destructurers.
 
         Custom destructurers are tried before the builtins.
         """
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
-    def destructure(self, item) -> typing.Generator:
+    def destructure(self, item) -> typing.Iterator[_structure.Structure]:
         """If we can destructure ``item``, do so, otherwise ignore it."""
         destructurer = self.get_destructurer(item)
         if destructurer:
             yield from destructurer(item)
 
-    def stack_iteration(self, item) -> _stack_iter.Action:
+    def stack_iteration(
+        self, item: _structure.Structure
+    ) -> _stack_iter.Action[_structure.Structure, Pattern]:
         """If ``item`` is a ``Pattern``, yield its name. Otherwise, recurse."""
         if isinstance(item, Pattern):
             return _stack_iter.Yield(item)
         return _stack_iter.Extend(self.destructure(item))
 
-    def names(self, target) -> typing.List[str]:
+    def names(self, target: _structure.Structure) -> typing.List[str]:
         """Return a list of names bound by the given structure.
 
         Raise ValueError if there are duplicate names.
@@ -144,6 +158,6 @@ class DestructurerList(tuple):
 DESTRUCTURERS = DestructurerList.custom()
 
 
-def names(target) -> typing.List[str]:
+def names(target: _structure.Structure) -> typing.List[str]:
     """Return every name bound by a target."""
     return DESTRUCTURERS.names(target)
