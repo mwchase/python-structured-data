@@ -42,12 +42,12 @@ class Destructurer(typing.Generic[T]):
 
     def __call__(
         self, value: _structure.Structure[T]
-    ) -> typing.Sequence[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure]:
         return self.destructure(value)
 
     def destructure(
         self, value: _structure.Structure[T]
-    ) -> typing.Sequence[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure]:
         """Return a sequence of subvalues, or raise MatchFailure."""
         raise NotImplementedError
 
@@ -58,17 +58,21 @@ class ADTDestructurer(Destructurer[ADTConstructor]):
     While all ADT instances are tuples in practice, this is ignored.
     """
 
-    def destructure(self, value):
+    def destructure(
+        self, value: _structure.Structure[ADTConstructor]
+    ) -> typing.Iterable[_structure.Structure]:
         """Unpack a value into a sequence of instances if the classes match."""
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
-        return reversed(structuring_unpack(value))
+        return reversed(structuring_unpack(typing.cast(tuple, value)))
 
 
 class TupleDestructurer(Destructurer[tuple]):
     """Unpack tuples into a sequence of values."""
 
-    def destructure(self, value):
+    def destructure(
+        self, value: _structure.Structure[tuple]
+    ) -> typing.Iterable[_structure.Structure]:
         """Match against non-ADT tuple subclasses.
 
         Fail outright when matching ADTs.
@@ -82,9 +86,6 @@ class TupleDestructurer(Destructurer[tuple]):
         if isinstance(value, self.target.__class__) and len(self.target) == len(value):
             return reversed(structuring_unpack(value))
         raise MatchFailure
-
-
-DL = typing.TypeVar("DL", bound="DestructurerList")  # pylint: disable=invalid-name
 
 
 class DestructurerList(tuple):
@@ -106,13 +107,13 @@ class DestructurerList(tuple):
 
     __slots__ = ()
 
-    def __new__(cls, *destructurers):
-        return super().__new__(cls, destructurers)
+    def __new__(cls, *destructurers: typing.Type[Destructurer]) -> DestructurerList:
+        return super().__new__(cls, destructurers)  # type: ignore
 
     def get_destructurer(
-        self, item
+        self, item: typing.Any
     ) -> typing.Optional[
-        typing.Callable[[typing.Any], typing.Sequence[_structure.Structure]]
+        typing.Callable[[typing.Any], typing.Iterable[_structure.Structure]]
     ]:
         """Return the destructurer for the item, if any.
 
@@ -132,14 +133,14 @@ class DestructurerList(tuple):
         return None
 
     @classmethod
-    def custom(cls: typing.Type[DL], *destructurers) -> DL:
+    def custom(cls, *destructurers: typing.Type[Destructurer]) -> DestructurerList:
         """Construct a new ``DestructurerList``, with custom destructurers.
 
         Custom destructurers are tried before the builtins.
         """
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
-    def destructure(self, item) -> typing.Iterator[_structure.Structure]:
+    def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
         """If we can destructure ``item``, do so, otherwise ignore it."""
         destructurer = self.get_destructurer(item)
         if destructurer:

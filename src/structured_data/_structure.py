@@ -24,7 +24,7 @@ class CompoundMatch(typing.Generic[T]):
 
     def destructure(
         self: S, value: typing.Union[S, Literal[T]]
-    ) -> typing.Sequence[Structure]:
+    ) -> typing.Iterable[Structure]:
         """Given a value, return a sequence of values extracted from the match.
 
         Usually has special-case behavior when ``value is self``, possibly as
