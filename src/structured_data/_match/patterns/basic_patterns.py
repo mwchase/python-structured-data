@@ -8,8 +8,6 @@ import typing
 
 from ... import _structure
 
-DISCARD = object()
-
 T = typing.TypeVar("T")
 
 
@@ -25,7 +23,7 @@ class Pattern(tuple, typing.Generic[T]):
 
     __slots__ = ()
 
-    def __new__(cls, name: str):
+    def __new__(cls, name: str) -> Pattern:
         if name == "_":
             return DISCARD
         if not name.isidentifier():
@@ -47,12 +45,17 @@ class Pattern(tuple, typing.Generic[T]):
         return AsPattern.bind(self, other)
 
 
+DISCARD = typing.cast(Pattern, object())
+
+
 class AsPattern(_structure.CompoundMatch[T], tuple):
     """A matcher that contains further bindings."""
 
     __slots__ = ()
 
-    def __new__(cls, pattern: Pattern[T], structure: _structure.Structure[T]):
+    def __new__(
+        cls, pattern: Pattern[T], structure: _structure.Structure[T]
+    ) -> AsPattern[T]:
         return super().__new__(cls, (pattern, structure))  # type: ignore
 
     @classmethod

@@ -15,17 +15,27 @@ from .patterns.basic_patterns import Pattern
 T = typing.TypeVar("T")
 
 
+# It's not right to stop this just because, but I don't care,
+# and it's hard to see how to hit the branches this misses anyway.
+# TODO: get this tested now that it's factored out.
+def find_superclass(
+    bases: typing.Iterable[type], origin: type
+) -> type:  # pragma: nocover
+    for super_cls in bases:
+        if getattr(super_cls, "__origin__", None) is origin:
+            return super_cls.__args__[0]  # type: ignore
+    raise ValueError
+
+
 class Destructurer(typing.Generic[T]):
     """Abstract base class for destructuring third-party code."""
 
     @classmethod
-    def get_type(cls):
-        # It's not right to stop this just because, but I don't care,
-        # and it's hard to see how to hit the branches this misses anyway.
-        # TODO: factor this out into something I can test somehow.
-        for super_cls in cls.__orig_bases__:  # pragma: nocover
-            if super_cls.__origin__ is Destructurer:
-                return super_cls.__args__[0]
+    def get_type(cls) -> typing.Type[T]:
+        return find_superclass(
+            cls.__orig_bases__,  # type: ignore
+            Destructurer,
+        )
 
     def __init__(self, target: T) -> None:
         self.target = target

@@ -30,13 +30,13 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
 
     __slots__ = ()
 
-    def __new__(cls, /, **kwargs) -> "AttrPattern":  # noqa: E225
+    def __new__(cls, /, **kwargs: typing.Any) -> "AttrPattern":  # noqa: E225
         return super().__new__(
             cls, (tuple(kwargs.items()),)  # type: ignore
         )
 
     @property
-    def match_dict(self):
+    def match_dict(self) -> typing.Tuple[typing.Tuple[str, typing.Any], ...]:
         """Return the dict of matches to check."""
         return self[0]
 
