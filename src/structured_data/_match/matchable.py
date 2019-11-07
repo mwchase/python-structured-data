@@ -8,7 +8,6 @@ from .. import _structure
 from . import match_dict
 from . import match_failure
 
-
 T = typing.TypeVar("T")
 
 

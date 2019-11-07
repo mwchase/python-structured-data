@@ -22,18 +22,18 @@ class DestructurerCall(typing_extensions.Protocol):
     def __call__(
         self, value: _structure.Literal[T]
     ) -> typing.Iterable[_structure.Literal]:
-        ...
+        """Literals go to Literals."""
 
     @typing.overload
     def __call__(
         self, value: typing.Any
     ) -> typing.Iterable[_structure.Structure]:
-        ...
+        """Everything else goes to Structures in general."""
 
     def __call__(
         self, value: typing.Any
     ) -> typing.Iterable[_structure.Structure]:
-        ...
+        """This is the concrete abstract implementation via not implementing."""
 
 
 # It's not right to stop this just because, but I don't care,
@@ -195,11 +195,11 @@ class DestructurerList(tuple):
 
     @typing.overload
     def destructure(self, item: _structure.Literal) -> typing.Iterable[_structure.Literal]:
-        ...
+        """As always, Literals go to Literals."""
 
     @typing.overload
     def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
-        ...
+        """And everything else goes to general Structures."""
 
     def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
         """If we can destructure ``item``, do so, otherwise ignore it."""
