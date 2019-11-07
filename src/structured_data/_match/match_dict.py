@@ -15,12 +15,19 @@ from .patterns import basic_patterns
 T = typing.TypeVar("T")
 
 
-def _stack_iteration(item) -> typing.Optional[_stack_iter.Action]:
+def _stack_iteration(
+    item: typing.Tuple[_structure.Structure[T], _structure.Literal[T]]
+) -> typing.Optional[
+    _stack_iter.Action[
+        typing.Tuple[_structure.Structure[T], _structure.Literal[T]],
+        typing.Tuple[basic_patterns.Pattern[T], _structure.Literal[T]],
+    ]
+]:
     target, value = item
     if target is basic_patterns.DISCARD:
         return None
     if isinstance(target, basic_patterns.Pattern):
-        return _stack_iter.Yield(item)
+        return _stack_iter.Yield((target, value))
     destructurer = destructure.DESTRUCTURERS.get_destructurer(target)
     if destructurer:
         return _stack_iter.Extend(zip(destructurer(target), destructurer(value)))

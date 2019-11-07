@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typing
 
+import typing_extensions
+
 from .. import _stack_iter
 from .. import _structure
 from .._adt.constructor import ADTConstructor
@@ -13,6 +15,25 @@ from .match_failure import MatchFailure
 from .patterns.basic_patterns import Pattern
 
 T = typing.TypeVar("T")
+
+
+class DestructurerCall(typing_extensions.Protocol):
+    @typing.overload
+    def __call__(
+        self, value: _structure.Literal[T]
+    ) -> typing.Iterable[_structure.Literal]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self, value: typing.Any
+    ) -> typing.Iterable[_structure.Structure]:
+        ...
+
+    def __call__(
+        self, value: typing.Any
+    ) -> typing.Iterable[_structure.Structure]:
+        ...
 
 
 # It's not right to stop this just because, but I don't care,
@@ -146,11 +167,7 @@ class DestructurerList(tuple):
     def __new__(cls, *destructurers: typing.Type[Destructurer]) -> DestructurerList:
         return super().__new__(cls, destructurers)  # type: ignore
 
-    def get_destructurer(
-        self, item: typing.Any
-    ) -> typing.Optional[
-        typing.Callable[[typing.Any], typing.Iterable[_structure.Structure]]
-    ]:
+    def get_destructurer(self, item: typing.Any) -> typing.Optional[DestructurerCall]:
         """Return the destructurer for the item, if any.
 
         In the first case, the item is an instance of ``CompoundMatch``, and
@@ -175,6 +192,14 @@ class DestructurerList(tuple):
         Custom destructurers are tried before the builtins.
         """
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
+
+    @typing.overload
+    def destructure(self, item: _structure.Literal) -> typing.Iterable[_structure.Literal]:
+        ...
+
+    @typing.overload
+    def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
+        ...
 
     def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
         """If we can destructure ``item``, do so, otherwise ignore it."""
