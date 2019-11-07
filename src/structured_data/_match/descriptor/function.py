@@ -13,6 +13,8 @@ from ..patterns import mapping_match
 from . import common
 
 T = typing.TypeVar("T")
+U = typing.TypeVar("U")
+
 
 Kwargs = typing.Dict[str, typing.Any]
 
@@ -61,7 +63,7 @@ def _bound_and_values(
     return bound_args, bound_kwargs, values
 
 
-class ClassMethod(common.Descriptor):
+class ClassMethod(common.Descriptor[T]):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
     __wrapped__: typing.Callable
@@ -73,7 +75,18 @@ class ClassMethod(common.Descriptor):
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    def __get__(self, instance, owner):
+    # We want this to be invariant, but it's not.
+    @typing.overload
+    def __get__(self, instance: None, owner: typing.Type[T]) -> ClassMethodWhen:
+        """When accessed from the defining class, allow adding variants."""
+
+    @typing.overload
+    def __get__(self, instance: typing.Any, owner: type) -> ClassMethodCall:
+        """Otherwise, only allow calling."""
+
+    def __get__(
+        self, instance: typing.Any, owner: type
+    ) -> typing.Union[ClassMethodWhen, ClassMethodCall]:
         if instance is None and common.owns(self, owner):
             return ClassMethodWhen(self, owner)
         return ClassMethodCall(self, owner)
@@ -123,7 +136,7 @@ class ClassMethodWhen(ClassMethodCall):
         return self.class_method.when(**kwargs)
 
 
-class StaticMethod(common.Descriptor):
+class StaticMethod(common.Descriptor[T]):
     """Decorator with value-based dispatch. Acts as a classmethod."""
 
     __wrapped__: typing.Callable
@@ -135,7 +148,18 @@ class StaticMethod(common.Descriptor):
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    def __get__(self, instance, owner):
+    # We want this to be invariant, but it's not.
+    @typing.overload
+    def __get__(self, instance: None, owner: typing.Type[T]) -> StaticMethodWhen:
+        """When accessed from the defining class, allow adding variants."""
+
+    @typing.overload
+    def __get__(self, instance: typing.Any, owner: type) -> StaticMethodCall:
+        """Otherwise, just allow calling."""
+
+    def __get__(
+        self, instance: typing.Any, owner: type
+    ) -> typing.Union[StaticMethodWhen, StaticMethodCall]:
         if instance is None and common.owns(self, owner):
             return StaticMethodWhen(self)
         return StaticMethodCall(self)
@@ -182,7 +206,7 @@ class StaticMethodWhen(StaticMethodCall):
         return self.static_method.when(**kwargs)
 
 
-class Function(common.Descriptor):
+class Function(common.Descriptor[T]):
     """Decorator with value-based dispatch. Acts as a function."""
 
     __wrapped__: typing.Callable
@@ -216,7 +240,22 @@ class Function(common.Descriptor):
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)
 
-    def __get__(self, instance: typing.Optional[T], owner: typing.Type[T]):
+    # We want this to be invariant, but it's not.
+    @typing.overload
+    def __get__(self, instance: None, owner: typing.Type[T]) -> Function:
+        """When accessed from the defining class, allow adding variants."""
+
+    @typing.overload
+    def __get__(self, instance: None, owner: type) -> MethodProxy:
+        """Otherwise, only allow calling."""
+
+    @typing.overload
+    def __get__(self, instance: typing.Any, owner: type) -> functools.partial:
+        """When accessed from an instance, create a partial application."""
+
+    def __get__(
+        self, instance: typing.Optional[U], owner: typing.Type[U]
+    ) -> typing.Union[Function, MethodProxy, functools.partial]:
         if instance is None:
             if common.owns(self, owner):
                 return self

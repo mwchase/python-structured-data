@@ -95,7 +95,7 @@ def decorate(matchers: MatchTemplate[T], structure: Matcher[T]):
     return decorator
 
 
-class Descriptor:
+class Descriptor(typing.Generic[T]):
     """Base class for decorator classes."""
 
     __wrapped__: typing.Optional[typing.Callable] = None
