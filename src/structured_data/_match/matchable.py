@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import typing
 
+from .. import _structure
 from . import match_dict
 from . import match_failure
 
 
-class Matchable:
+T = typing.TypeVar("T")
+
+
+class Matchable(typing.Generic[T]):
     """Given a value, attempt to match against a target.
 
     The truthiness of ``Matchable`` values varies on whether they have bindings
@@ -20,14 +24,14 @@ class Matchable:
     truthy, and raise a ``ValueError`` otherwise.
     """
 
-    value: typing.Any
+    value: _structure.Literal[T]
     matches: typing.Optional[match_dict.MatchDict]
 
-    def __init__(self, value: typing.Any):
-        self.value = value
+    def __init__(self, value: T):
+        self.value = value  # type: ignore
         self.matches = None
 
-    def match(self, target) -> Matchable:
+    def match(self, target: _structure.Structure[T]) -> Matchable[T]:
         """Match against target, generating a set of bindings."""
         try:
             self.matches = match_dict.match(target, self.value)
@@ -35,7 +39,7 @@ class Matchable:
             self.matches = None
         return self
 
-    def __call__(self, target) -> Matchable:
+    def __call__(self, target: _structure.Structure[T]) -> Matchable[T]:
         return self.match(target)
 
     def __getitem__(self, key):
