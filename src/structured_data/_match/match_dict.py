@@ -49,13 +49,18 @@ def match(target: _structure.Structure[T], value: _structure.Literal[T]) -> Matc
     return match_dict
 
 
-def _as_name(key):
+Compound = typing.TypeVar("Compound", tuple, dict)
+Index = typing.TypeVar("Index", str, tuple, dict)
+SimpleKey = typing.Union[Index, basic_patterns.Pattern]
+
+
+def _as_name(key: SimpleKey) -> typing.Union[str, Index]:
     if isinstance(key, basic_patterns.Pattern):
         return key.name
     return key
 
 
-def _multi_index(dct, key):
+def _multi_index(dct: MatchDict, key: Compound) -> Compound:
     if isinstance(key, tuple):
         return tuple(dct[sub_key] for sub_key in key)
     if isinstance(key, dict):
@@ -80,19 +85,27 @@ class MatchDict(collections.abc.MutableMapping):
     def __init__(self) -> None:
         self.data: typing.Dict[str, typing.Any] = {}
 
-    def __getitem__(self, key):
+    @typing.overload
+    def __getitem__(self, key: typing.Union[str, basic_patterns.Pattern]) -> typing.Any:
+        """Indexing a single item gets that item."""
+
+    @typing.overload
+    def __getitem__(self, key: Compound) -> Compound:
+        """Compound indexing returns a value the same shape."""
+
+    def __getitem__(self, key: SimpleKey) -> typing.Any:
         key = _as_name(key)
         if isinstance(key, str):
             return self.data[key]
         return _multi_index(self, key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: SimpleKey, value: typing.Any) -> None:
         key = _as_name(key)
         if not isinstance(key, str):
             raise TypeError
         self.data[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: SimpleKey) -> None:
         del self.data[_as_name(key)]
 
     def __iter__(self) -> typing.Iterator[str]:
