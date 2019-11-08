@@ -25,7 +25,7 @@ from ._match.destructure import names
 from ._match.match_dict import MatchDict
 from ._match.matchable import Matchable
 from ._match.patterns.basic_patterns import Pattern
-from ._match.patterns.bind import Bind
+from ._match.patterns.bind import bind
 from ._match.patterns.mapping_match import AttrPattern
 from ._match.patterns.mapping_match import DictPattern
 
@@ -85,12 +85,12 @@ def decorate_in_order(*args: Deco) -> Deco:
 
 __all__ = [
     "AttrPattern",
-    "Bind",
     "DictPattern",
     "MatchDict",
     "Matchable",
     "Pattern",
     "Placeholder",
+    "bind",
     "decorate_in_order",
     "function",
     "names",

@@ -2,23 +2,23 @@ import pytest
 
 
 def test_bind(match):
-    bind = match.Bind(match.pat.a, b=2)
+    bind = match.bind(match.pat.a, b=2)
     assert match.names(bind) == ["a", "b"]
 
 
 def test_binding(match):
-    structure = match.Bind(match.pat._, b=1, c=2, a=3)
+    structure = match.bind(match.pat._, b=1, c=2, a=3)
     assert match.names(structure) == ["b", "c", "a"]
     matchable = match.Matchable(5)
     assert matchable(structure)["b", "c", "a"] == (1, 2, 3)
 
 
 def test_empty(match):
-    assert match.Bind(match.pat._) is match.pat._
+    assert match.bind(match.pat._) is match.pat._
 
 
 def test_no_collide(match):
-    structure = match.Bind(match.pat._, structure="hello", args="world", kwargs="!")
+    structure = match.bind(match.pat._, structure="hello", args="world", kwargs="!")
     assert match.names(structure) == ["structure", "args", "kwargs"]
     matchable = match.Matchable(5)
     assert matchable(structure)["structure", "args", "kwargs"] == (
@@ -30,4 +30,4 @@ def test_no_collide(match):
 
 def test_invalid_kwarg(match):
     with pytest.raises(ValueError):
-        assert not match.Bind(match.pat.a, _=None)
+        assert not match.bind(match.pat.a, _=None)

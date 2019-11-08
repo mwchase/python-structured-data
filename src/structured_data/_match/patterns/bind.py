@@ -26,10 +26,8 @@ class Bind(_structure.CompoundMatch[T], tuple):
     __slots__ = ()
 
     def __new__(
-        cls, structure: _structure.Structure[T], /, **kwargs: typing.Any  # noqa: E225
-    ):
-        if not kwargs:
-            return structure
+        cls, structure: _structure.Structure[T], kwargs: typing.Dict[str, typing.Any]
+    ) -> Bind[T]:
         not_in(container=kwargs, item="_")
         return super().__new__(cls, (structure, tuple(kwargs.items())))
 
@@ -75,3 +73,11 @@ class Bind(_structure.CompoundMatch[T], tuple):
             ]
             end = value
         return beginning + [end]
+
+
+def bind(
+    structure: _structure.Structure[T], /, **kwargs: typing.Any  # noqa: E225
+) -> typing.Union[_structure.Structure[T], Bind[T]]:
+    if not kwargs:
+        return structure
+    return Bind(structure, kwargs)
