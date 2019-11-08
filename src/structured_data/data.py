@@ -47,12 +47,18 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     def __iter__(self) -> typing.Iterator[T]:
         """Implement iteration."""
 
+    @match.function
+    def __reversed__(self) -> typing.Iterator[T]:
+        """Implement reversed."""
 
+
+@MaybeMixin.__reversed__.when(self=just(match.pat.value))
 @MaybeMixin.__iter__.when(self=just(match.pat.value))
 def __yield_value(value: T) -> typing.Iterator[T]:
     yield value
 
 
+@MaybeMixin.__reversed__.when(self=nothing)
 @MaybeMixin.__iter__.when(self=nothing)
 def __yield_nothing() -> typing.Iterator:
     yield from ()
