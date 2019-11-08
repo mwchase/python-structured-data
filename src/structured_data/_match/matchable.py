@@ -41,7 +41,7 @@ class Matchable(typing.Generic[T]):
     def __call__(self, target: _structure.Structure[T]) -> Matchable[T]:
         return self.match(target)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: match_dict.SimpleKey) -> typing.Any:
         if self.matches is None:
             raise ValueError
         return self.matches[key]

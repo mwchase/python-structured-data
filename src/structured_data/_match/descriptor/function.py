@@ -130,7 +130,7 @@ class ClassMethodWhen(ClassMethodCall):
     """Wrapper class that exposes the ``when()`` decorators."""
 
     def when(
-        self, /, **kwargs  # noqa: E225
+        self, /, **kwargs: typing.Any  # noqa: E225
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for the wrapped method."""
         return self.class_method.when(**kwargs)
@@ -165,7 +165,7 @@ class StaticMethod(common.Descriptor[T]):
         return StaticMethodCall(self)
 
     def when(
-        self, /, **kwargs  # noqa: E225
+        self, /, **kwargs: typing.Any  # noqa: E225
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _no_placeholder_kwargs(kwargs))
@@ -281,7 +281,9 @@ class MethodProxy:
     ) -> typing.Any:
         return self.func(*args, **kwargs)
 
-    def __get__(self, instance, owner):
+    def __get__(
+        self, instance: typing.Optional[U], owner: typing.Type[U]
+    ) -> typing.Union[Function, MethodProxy, functools.partial]:
         return self.func.__get__(instance, owner)
 
 

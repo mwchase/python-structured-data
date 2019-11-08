@@ -46,7 +46,7 @@ class PropertyProxy:
 
 
 @_doc_wrapper.DocWrapper.wrap_class
-class Property(common.Descriptor):
+class Property(common.Descriptor[T]):
     """Decorator with value-based dispatch. Acts as a property."""
 
     fset: OptionalSetter = None
@@ -94,25 +94,25 @@ class Property(common.Descriptor):
             raise AttributeError
         super().__delattr__(name)
 
-    def getter(self, getter) -> Property:
+    def getter(self, getter) -> Property[T]:
         """Return a copy of self with the getter replaced."""
-        new = Property(getter, self.fset, self.fdel, self.__doc__)
+        new: Property[T] = Property(getter, self.fset, self.fdel, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
         self.set_matchers.copy_into(new.set_matchers)
         self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
-    def setter(self, setter) -> Property:
+    def setter(self, setter) -> Property[T]:
         """Return a copy of self with the setter replaced."""
-        new = Property(self.__wrapped__, setter, self.fdel, self.__doc__)
+        new: Property[T] = Property(self.__wrapped__, setter, self.fdel, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
         self.set_matchers.copy_into(new.set_matchers)
         self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
-    def deleter(self, deleter) -> Property:
+    def deleter(self, deleter) -> Property[T]:
         """Return a copy of self with the deleter replaced."""
-        new = Property(self.__wrapped__, self.fset, deleter, self.__doc__)
+        new: Property[T] = Property(self.__wrapped__, self.fset, deleter, self.__doc__)
         self.get_matchers.copy_into(new.get_matchers)
         self.set_matchers.copy_into(new.set_matchers)
         self.delete_matchers.copy_into(new.delete_matchers)
