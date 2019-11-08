@@ -3,6 +3,8 @@ def test_maybe(data):
     assert not data.Maybe.Nothing()
     assert data.Maybe.Nothing() != ()
     assert "abc" in data.Maybe.Just("abc")
+    assert list(data.Maybe.Nothing()) == []
+    assert list(data.Maybe.Just("foo")) == ["foo"]
 
 
 def test_result(data):

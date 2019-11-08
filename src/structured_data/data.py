@@ -43,6 +43,20 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     def __contains__(self, value: T) -> bool:
         """Implement checking for value."""
 
+    @match.function
+    def __iter__(self) -> typing.Iterator[T]:
+        """Implement iteration."""
+
+
+@MaybeMixin.__iter__.when(self=just(match.pat.value))
+def __yield_value(value: T) -> typing.Iterator[T]:
+    yield value
+
+
+@MaybeMixin.__iter__.when(self=nothing)
+def __yield_nothing() -> typing.Iterator:
+    yield from ()
+
 #     @match.function
 #     def unwrap(self, msg: typing.Optional[str]) -> T:
 #         """Unwrap with an optional message."""
