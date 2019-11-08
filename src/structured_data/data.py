@@ -38,14 +38,25 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     def __bool__(self) -> bool:
         """Implement coercion to bool."""
 
+    # This works out to reimplementing the underlying behavior, but oh well.
+    @match.function
+    def __contains__(self, value: T) -> bool:
+        """Implement checking for value."""
+
 
 @MaybeMixin.__bool__.when(self=just(match.pat._))
 def __bool_true() -> typing_extensions.Literal[True]:
     return True
 
 
+@MaybeMixin.__contains__.when(self=just(match.pat.contents), value=match.pat.value)
+def __contains_just(contents: T, value: object) -> bool:
+    return contents == value
+
+
+@MaybeMixin.__contains__.when(self=nothing, value=match.pat._)
 @MaybeMixin.__bool__.when(self=nothing)
-def __bool_false() -> typing_extensions.Literal[False]:
+def __false() -> typing_extensions.Literal[False]:
     return False
 
 
