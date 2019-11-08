@@ -242,7 +242,7 @@ class Function(common.Descriptor[T]):
 
     # We want this to be invariant, but it's not.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> Function:
+    def __get__(self, instance: None, owner: typing.Type[T]) -> Function[T]:
         """When accessed from the defining class, allow adding variants."""
 
     @typing.overload
