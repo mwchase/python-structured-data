@@ -51,6 +51,10 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     def __reversed__(self) -> typing.Iterator[T]:
         """Implement reversed."""
 
+    @match.function
+    def __len__(self) -> typing_extensions.Literal[0, 1]:
+        """Implement len"""
+
 
 @MaybeMixin.__reversed__.when(self=just(match.pat.value))
 @MaybeMixin.__iter__.when(self=just(match.pat.value))
@@ -97,6 +101,16 @@ def __contains_just(contents: T, value: object) -> bool:
 @MaybeMixin.__bool__.when(self=nothing)
 def __false() -> typing_extensions.Literal[False]:
     return False
+
+
+@MaybeMixin.__len__.when(self=just(match.pat._))
+def __one() -> typing_extensions.Literal[1]:
+    return 1
+
+
+@MaybeMixin.__len__.when(self=nothing)
+def __zero() -> typing_extensions.Literal[0]:
+    return 0
 
 
 class Maybe(MaybeMixin, adt.Sum):  # type: ignore
