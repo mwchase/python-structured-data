@@ -43,6 +43,25 @@ class MaybeMixin(adt.SumBase, typing.Generic[T]):
     def __contains__(self, value: T) -> bool:
         """Implement checking for value."""
 
+#     @match.function
+#     def unwrap(self, msg: typing.Optional[str]) -> T:
+#         """Unwrap with an optional message."""
+
+
+# @MaybeMixin.unwrap.when(self=just(match.pat.value), msg=match.pat._)
+# def __just(value: T) -> T:
+#     return value
+
+
+# @MaybeMixin.unwrap.when(self=nothing, msg=None)
+# def __no_message() -> None:
+#     raise RuntimeError()
+
+
+# @MaybeMixin.unwrap.when(self=nothing, msg=match.pat.msg)
+# def __message(msg: str) -> None:
+#     raise RuntimeError(msg)
+
 
 @MaybeMixin.__bool__.when(self=just(match.pat._))
 def __bool_true() -> typing_extensions.Literal[True]:
