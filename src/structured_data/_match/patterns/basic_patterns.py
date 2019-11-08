@@ -30,7 +30,7 @@ class Pattern(tuple, typing.Generic[T]):
             raise ValueError
         if keyword.iskeyword(name):
             raise ValueError
-        return super().__new__(cls, (sys.intern(name),))  # type: ignore
+        return super().__new__(cls, (sys.intern(name),))
 
     @property
     def name(self) -> str:
@@ -56,7 +56,7 @@ class AsPattern(_structure.CompoundMatch[T], tuple):
     def __new__(
         cls, pattern: Pattern[T], structure: _structure.Structure[T]
     ) -> AsPattern[T]:
-        return super().__new__(cls, (pattern, structure))  # type: ignore
+        return super().__new__(cls, (pattern, structure))
 
     @classmethod
     def bind(

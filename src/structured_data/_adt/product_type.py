@@ -202,7 +202,7 @@ class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
 
     def __dir__(self) -> typing.List[str]:
         super_dir: typing.List[str]
-        super_dir = super().__dir__()  # type: ignore
+        super_dir = super().__dir__()
         return super_dir + list(self.__fields)
 
     def __getattribute__(self, name: str) -> typing.Any:

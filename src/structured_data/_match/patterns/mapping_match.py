@@ -32,7 +32,7 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
 
     def __new__(cls, /, **kwargs: typing.Any) -> "AttrPattern":  # noqa: E225
         return super().__new__(
-            cls, (tuple(kwargs.items()),)  # type: ignore
+            cls, (tuple(kwargs.items()),)
         )
 
     @property
@@ -118,7 +118,7 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
 
     def __new__(cls, match_dict: D, *, exhaustive: bool = False) -> DictPattern[D]:
         return super().__new__(
-            cls, (tuple(match_dict.items()), exhaustive)  # type: ignore
+            cls, (tuple(match_dict.items()), exhaustive)
         )
 
     @property
