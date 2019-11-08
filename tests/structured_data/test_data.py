@@ -5,6 +5,7 @@ def test_maybe(data):
     assert "abc" in data.Maybe.Just("abc")
     assert list(data.Maybe.Nothing()) == []
     assert list(data.Maybe.Just("foo")) == ["foo"]
+    assert list(reversed(data.Maybe.Just("oof"))) == ["oof"]
 
 
 def test_result(data):
