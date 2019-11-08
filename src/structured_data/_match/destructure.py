@@ -21,18 +21,18 @@ class DestructurerCall(typing_extensions.Protocol):
     @typing.overload
     def __call__(
         self, value: _structure.Literal[T]
-    ) -> typing.Iterable[_structure.Literal]:
+    ) -> typing.Iterable[_structure.Literal[typing.Any]]:
         """Literals go to Literals."""
 
     @typing.overload
     def __call__(
         self, value: typing.Any
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Everything else goes to Structures in general."""
 
     def __call__(
         self, value: typing.Any
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """This is the concrete abstract implementation via not implementing."""
 
 
@@ -63,24 +63,24 @@ class Destructurer(typing.Generic[T]):
 
     def __call__(
         self, value: _structure.Structure[T]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         return self.destructure(value)
 
     @typing.overload
     def destructure(
         self, value: _structure.Literal[T]
-    ) -> typing.Iterable[_structure.Literal]:
+    ) -> typing.Iterable[_structure.Literal[typing.Any]]:
         """Literals only destructure to literals."""
 
     @typing.overload
     def destructure(
         self, value: _structure.Structure[T]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Don't have more specific typing..."""
 
     def destructure(
         self, value: _structure.Structure[T]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Return a sequence of subvalues, or raise MatchFailure."""
         raise NotImplementedError
 
@@ -94,18 +94,18 @@ class ADTDestructurer(Destructurer[ADTConstructor]):
     @typing.overload
     def destructure(
         self, value: _structure.Literal[ADTConstructor]
-    ) -> typing.Iterable[_structure.Literal]:
+    ) -> typing.Iterable[_structure.Literal[typing.Any]]:
         """Literals only destructure to literals."""
 
     @typing.overload
     def destructure(
         self, value: _structure.Structure[ADTConstructor]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Don't have more specific typing..."""
 
     def destructure(
         self, value: _structure.Structure[ADTConstructor]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Unpack a value into a sequence of instances if the classes match."""
         if value.__class__ is not self.target.__class__:
             raise MatchFailure
@@ -118,18 +118,18 @@ class TupleDestructurer(Destructurer[tuple]):
     @typing.overload
     def destructure(
         self, value: _structure.Literal[tuple]
-    ) -> typing.Iterable[_structure.Literal]:
+    ) -> typing.Iterable[_structure.Literal[typing.Any]]:
         """Literals only destructure to literals."""
 
     @typing.overload
     def destructure(
         self, value: _structure.Structure[tuple]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Don't have more specific typing..."""
 
     def destructure(
         self, value: _structure.Structure[tuple]
-    ) -> typing.Iterable[_structure.Structure]:
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """Match against non-ADT tuple subclasses.
 
         Fail outright when matching ADTs.
@@ -164,7 +164,9 @@ class DestructurerList(tuple):
 
     __slots__ = ()
 
-    def __new__(cls, *destructurers: typing.Type[Destructurer]) -> DestructurerList:
+    def __new__(
+        cls, *destructurers: typing.Type[Destructurer[typing.Any]]
+    ) -> DestructurerList:
         return super().__new__(cls, destructurers)  # type: ignore
 
     def get_destructurer(self, item: typing.Any) -> typing.Optional[DestructurerCall]:
@@ -186,7 +188,9 @@ class DestructurerList(tuple):
         return None
 
     @classmethod
-    def custom(cls, *destructurers: typing.Type[Destructurer]) -> DestructurerList:
+    def custom(
+        cls, *destructurers: typing.Type[Destructurer[typing.Any]]
+    ) -> DestructurerList:
         """Construct a new ``DestructurerList``, with custom destructurers.
 
         Custom destructurers are tried before the builtins.
@@ -194,28 +198,34 @@ class DestructurerList(tuple):
         return cls(*destructurers, ADTDestructurer, TupleDestructurer)
 
     @typing.overload
-    def destructure(self, item: _structure.Literal) -> typing.Iterable[_structure.Literal]:
+    def destructure(
+        self, item: _structure.Literal[typing.Any]
+    ) -> typing.Iterable[_structure.Literal[typing.Any]]:
         """As always, Literals go to Literals."""
 
     @typing.overload
-    def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
+    def destructure(
+        self, item: typing.Any
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """And everything else goes to general Structures."""
 
-    def destructure(self, item: typing.Any) -> typing.Iterable[_structure.Structure]:
+    def destructure(
+        self, item: typing.Any
+    ) -> typing.Iterable[_structure.Structure[typing.Any]]:
         """If we can destructure ``item``, do so, otherwise ignore it."""
         destructurer = self.get_destructurer(item)
         if destructurer:
             yield from destructurer(item)
 
     def stack_iteration(
-        self, item: _structure.Structure
-    ) -> _stack_iter.Action[_structure.Structure, Pattern]:
+        self, item: _structure.Structure[typing.Any]
+    ) -> _stack_iter.Action[_structure.Structure[typing.Any], Pattern]:
         """If ``item`` is a ``Pattern``, yield its name. Otherwise, recurse."""
         if isinstance(item, Pattern):
             return _stack_iter.Yield(item)
         return _stack_iter.Extend(self.destructure(item))
 
-    def names(self, target: _structure.Structure) -> typing.List[str]:
+    def names(self, target: _structure.Structure[typing.Any]) -> typing.List[str]:
         """Return a list of names bound by the given structure.
 
         Raise ValueError if there are duplicate names.
@@ -230,6 +240,6 @@ class DestructurerList(tuple):
 DESTRUCTURERS = DestructurerList.custom()
 
 
-def names(target: _structure.Structure) -> typing.List[str]:
+def names(target: _structure.Structure[typing.Any]) -> typing.List[str]:
     """Return every name bound by a target."""
     return DESTRUCTURERS.names(target)

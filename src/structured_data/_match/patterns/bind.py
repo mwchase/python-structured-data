@@ -44,16 +44,18 @@ class Bind(_structure.CompoundMatch[T], tuple):
     @typing.overload
     def destructure(
         self, value: _structure.Literal[T]
-    ) -> typing.Sequence[_structure.Literal]:
+    ) -> typing.Sequence[_structure.Literal[typing.Any]]:
         """Literals just get passed through, with other values added."""
 
     @typing.overload
-    def destructure(self, value: Bind[T]) -> typing.Sequence[_structure.Structure]:
+    def destructure(
+        self, value: Bind[T]
+    ) -> typing.Sequence[_structure.Structure[typing.Any]]:
         """Bindings produce a heterogeneous collection."""
 
     def destructure(
         self, value: typing.Union[Bind[T], _structure.Literal[T]]
-    ) -> typing.Sequence[_structure.Structure]:
+    ) -> typing.Sequence[_structure.Structure[typing.Any]]:
         """Return a list of sub-values to check.
 
         If ``value is self``, return all of the bindings, and the structure.
@@ -61,7 +63,7 @@ class Bind(_structure.CompoundMatch[T], tuple):
         Otherwise, return the corresponding bound values, followed by the
         original value.
         """
-        beginning: typing.List[_structure.Structure]
+        beginning: typing.List[_structure.Structure[typing.Any]]
         end: _structure.Structure
         # Letting mutmut touch this line thoroughly locked things up.
         if value is self:  # pragma: no mutate

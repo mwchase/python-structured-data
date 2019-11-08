@@ -31,9 +31,7 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
     __slots__ = ()
 
     def __new__(cls, /, **kwargs: typing.Any) -> "AttrPattern":  # noqa: E225
-        return super().__new__(
-            cls, (tuple(kwargs.items()),)
-        )
+        return super().__new__(cls, (tuple(kwargs.items()),))
 
     @property
     def match_dict(self) -> typing.Tuple[typing.Tuple[str, typing.Any], ...]:
@@ -52,14 +50,16 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
     def destructure(
         self, value: AttrPattern[T]
     ) -> typing.Union[
-        typing.Tuple[()], typing.Tuple[_structure.Structure[T], _structure.Structure]
+        typing.Tuple[()],
+        typing.Tuple[_structure.Structure[T], _structure.Structure[typing.Any]],
     ]:
         """AttrPatterns break themselves down."""
 
     def destructure(
         self, value: typing.Union[AttrPattern[T], _structure.Literal[T]]
     ) -> typing.Union[
-        typing.Tuple[()], typing.Tuple[_structure.Structure[T], _structure.Structure]
+        typing.Tuple[()],
+        typing.Tuple[_structure.Structure[T], _structure.Structure[typing.Any]],
     ]:
         """Return a tuple of sub-values to check.
 
@@ -117,9 +117,7 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
     __slots__ = ()
 
     def __new__(cls, match_dict: D, *, exhaustive: bool = False) -> DictPattern[D]:
-        return super().__new__(
-            cls, (tuple(match_dict.items()), exhaustive)
-        )
+        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
 
     @property
     def match_dict(self) -> typing.Tuple[typing.Tuple[typing.Any, typing.Any], ...]:
@@ -140,7 +138,7 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
     def destructure(
         self, value: _structure.Literal[D]
     ) -> typing.Union[
-        typing.Tuple[()], typing.Tuple[_structure.Literal[D], _structure.Literal]
+        typing.Tuple[()], typing.Tuple[_structure.Literal[D], _structure.Literal[typing.Any]]
     ]:
         """Dicts get returned unchanged, and indexed."""
 
@@ -148,14 +146,15 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
     def destructure(
         self, value: DictPattern[D]
     ) -> typing.Union[
-        typing.Tuple[()], typing.Tuple[DictPattern[D], _structure.Structure]
+        typing.Tuple[()], typing.Tuple[DictPattern[D], _structure.Structure[typing.Any]]
     ]:
         """DictPatterns get reconfigured."""
 
     def destructure(
         self, value: typing.Union[DictPattern[D], _structure.Literal[D]]
     ) -> typing.Union[
-        typing.Tuple[()], typing.Tuple[_structure.Structure[D], _structure.Structure]
+        typing.Tuple[()],
+        typing.Tuple[_structure.Structure[D], _structure.Structure[typing.Any]],
     ]:
         """Return a tuple of sub-values to check.
 

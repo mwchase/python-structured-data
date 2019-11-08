@@ -73,14 +73,14 @@ class MatchTemplate(typing.Generic[T]):
         )
 
     def match_instance(
-        self, matchable: _matchable.Matchable, instance: typing.Any
+        self, matchable: _matchable.Matchable[T], instance: typing.Any
     ) -> typing.Iterator[typing.Callable]:
         """Get the base associated with instance, if any, and match with it."""
         base = prewritten_methods.sum_base(instance) if self._abstract else None
         yield from self.match(matchable, base)
 
     def match(
-        self, matchable: _matchable.Matchable, base: typing.Optional[type]
+        self, matchable: _matchable.Matchable[T], base: typing.Optional[type]
     ) -> typing.Iterator[typing.Callable]:
         """If there is a match in the context of base, yield implementation."""
         if base is None and self._abstract:

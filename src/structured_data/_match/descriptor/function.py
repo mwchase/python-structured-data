@@ -246,7 +246,7 @@ class Function(common.Descriptor[T]):
         """When accessed from the defining class, allow adding variants."""
 
     @typing.overload
-    def __get__(self, instance: None, owner: type) -> MethodProxy:
+    def __get__(self, instance: None, owner: type) -> MethodProxy[T]:
         """Otherwise, only allow calling."""
 
     @typing.overload
@@ -255,7 +255,7 @@ class Function(common.Descriptor[T]):
 
     def __get__(
         self, instance: typing.Optional[U], owner: typing.Type[U]
-    ) -> typing.Union[Function, MethodProxy, functools.partial]:
+    ) -> typing.Union[Function[T], MethodProxy[T], functools.partial]:
         if instance is None:
             if common.owns(self, owner):
                 return self
@@ -270,10 +270,10 @@ class Function(common.Descriptor[T]):
 
 
 @_doc_wrapper.ProxyWrapper.wrap_class("func")
-class MethodProxy:
+class MethodProxy(typing.Generic[T]):
     """Wrapper class that conceals the ``when()`` decorators."""
 
-    def __init__(self, func: Function) -> None:
+    def __init__(self, func: Function[T]) -> None:
         self.func = func
 
     def __call__(
@@ -283,7 +283,7 @@ class MethodProxy:
 
     def __get__(
         self, instance: typing.Optional[U], owner: typing.Type[U]
-    ) -> typing.Union[Function, MethodProxy, functools.partial]:
+    ) -> typing.Union[Function[T], MethodProxy, functools.partial]:
         return self.func.__get__(instance, owner)
 
 
@@ -291,7 +291,7 @@ def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
     return mapping_match.DictPattern(kwargs, exhaustive=True)
 
 
-def _no_placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
+def _no_placeholder_kwargs(kwargs: Kwargs) -> mapping_match.DictPattern:
     if any(
         isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
     ):
@@ -300,7 +300,7 @@ def _no_placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
     return _kwarg_structure(kwargs)
 
 
-def _placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
+def _placeholder_kwargs(kwargs: Kwargs) -> common.Matcher[mapping_match.DictPattern]:
     if any(
         isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
     ):

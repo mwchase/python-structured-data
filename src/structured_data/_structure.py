@@ -23,16 +23,16 @@ class CompoundMatch(typing.Generic[T]):
     __slots__ = ()
 
     @typing.overload
-    def destructure(self, value: Literal[T]) -> typing.Iterable[Literal]:
+    def destructure(self, value: Literal[T]) -> typing.Iterable[Literal[typing.Any]]:
         """Literals can only destructure to Literals."""
 
     @typing.overload
-    def destructure(self: S, value: S) -> typing.Iterable[Structure]:
+    def destructure(self: S, value: S) -> typing.Iterable[Structure[typing.Any]]:
         """Instances can destructure to anything."""
 
     def destructure(
         self: S, value: typing.Union[S, Literal[T]]
-    ) -> typing.Iterable[Structure]:
+    ) -> typing.Iterable[Structure[typing.Any]]:
         """Given a value, return a sequence of values extracted from the match.
 
         Usually has special-case behavior when ``value is self``, possibly as

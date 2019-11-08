@@ -15,7 +15,9 @@ def unpack(instance: tuple) -> tuple:
     return tuple.__getitem__(instance, slice(None))
 
 
-def structuring_unpack(instance: tuple) -> typing.Tuple[_structure.Structure]:
+def structuring_unpack(
+    instance: tuple,
+) -> typing.Tuple[_structure.Structure[typing.Any]]:
     return unpack(instance)  # type: ignore
 
 

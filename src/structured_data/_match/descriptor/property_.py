@@ -97,11 +97,9 @@ class Property(common.Descriptor[T], typing.Generic[T, U]):
         self.fdel = fdel
         if doc is not None:
             self.__doc__ = doc
-        # A more specific annotation would be good, but that's waiting on
-        # further development.
-        self.get_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
-        self.set_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
-        self.delete_matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+        self.get_matchers: common.MatchTemplate[T] = common.MatchTemplate()
+        self.set_matchers: common.MatchTemplate[typing.Tuple[T, U]] = common.MatchTemplate()
+        self.delete_matchers: common.MatchTemplate[T] = common.MatchTemplate()
         self.protected = True
 
     def __setattr__(self, name: str, value: typing.Any) -> None:

@@ -15,7 +15,7 @@ E = typing.TypeVar("E")  # pylint: disable=invalid-name
 MaybeT = typing.TypeVar("MaybeT", bound="MaybeMixin")
 
 
-def just(pat: match.Pattern) -> match.Placeholder:
+def just(pat: match.Pattern) -> match.Placeholder[MaybeT]:
     @match.Placeholder
     def placeholder(cls: typing.Type[MaybeT]) -> MaybeT:
         return cls.Just(pat)  # type: ignore
@@ -113,7 +113,7 @@ def __zero() -> typing_extensions.Literal[0]:
     return 0
 
 
-class Maybe(MaybeMixin, adt.Sum):  # type: ignore
+class Maybe(MaybeMixin[T], adt.Sum):  # type: ignore
     """An ADT that wraps a value, or nothing."""
 
 
@@ -124,5 +124,5 @@ class EitherMixin(adt.SumBase, typing.Generic[E, R]):
     Right: adt.Ctor[R]  # type: ignore
 
 
-class Either(EitherMixin, adt.Sum):
+class Either(EitherMixin[E, R], adt.Sum):
     """An ADT that wraps one type, or the other."""

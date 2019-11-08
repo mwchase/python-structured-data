@@ -32,8 +32,8 @@ class ConditionalMethod(typing.Generic[_T]):
         raise AttributeError  # pragma: nocover
 
 
-def _manual_partial(source: type) -> typing.Callable[[str], ConditionalMethod]:
-    def wrapped(field_check: str) -> ConditionalMethod:
+def _manual_partial(source: type) -> typing.Callable[[str], ConditionalMethod[_T]]:
+    def wrapped(field_check: str) -> ConditionalMethod[_T]:
         return ConditionalMethod(source, field_check)
 
     return wrapped
