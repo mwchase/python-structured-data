@@ -39,9 +39,9 @@ class PropertyProxy(typing.Generic[T, U]):
         """Return a copy of the wrapped property with the deleter replaced."""
         return self.prop.deleter(deleter)
 
-    # We want this to be invariant, but it's not.
+    # We want this to be invariant, but it's confusing.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> Property[T, U]:
+    def __get__(self, instance: None, owner: common.InType[T]) -> Property[T, U]:
         """Return self from the defining class."""
 
     @typing.overload
@@ -53,7 +53,7 @@ class PropertyProxy(typing.Generic[T, U]):
         """Evaluate the property otherwise."""
 
     def __get__(
-        self, instance: typing.Optional[T], owner: typing.Type[T]
+        self, instance: typing.Optional[T], owner: typing.Any
     ) -> typing.Union[Property[T, U], PropertyProxy[T, U], U]:
         return self.prop.__get__(instance, owner)
 
@@ -146,9 +146,9 @@ class Property(common.Descriptor[T], typing.Generic[T, U]):
         self.delete_matchers.copy_into(new.delete_matchers)
         return new
 
-    # We want this to be invariant, but it's not.
+    # We want this to be invariant, but it's confusing.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> Property[T, U]:
+    def __get__(self, instance: None, owner: common.InType[T]) -> Property[T, U]:
         """Return self from the defining class."""
 
     @typing.overload
@@ -160,7 +160,7 @@ class Property(common.Descriptor[T], typing.Generic[T, U]):
         """Evaluate the property otherwise."""
 
     def __get__(
-        self, instance: typing.Optional[T], owner: typing.Type[T]
+        self, instance: typing.Optional[T], owner: typing.Any
     ) -> typing.Union[Property[T, U], PropertyProxy[T, U], U]:
         if instance is None:
             if common.owns(self, owner):

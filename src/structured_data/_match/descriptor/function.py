@@ -75,9 +75,9 @@ class ClassMethod(common.Descriptor[T]):
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    # We want this to be invariant, but it's not.
+    # We want this to be invariant, but it's confusing.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> ClassMethodWhen:
+    def __get__(self, instance: None, owner: common.InType[T]) -> ClassMethodWhen:
         """When accessed from the defining class, allow adding variants."""
 
     @typing.overload
@@ -85,7 +85,7 @@ class ClassMethod(common.Descriptor[T]):
         """Otherwise, only allow calling."""
 
     def __get__(
-        self, instance: typing.Any, owner: type
+        self, instance: typing.Any, owner: typing.Any
     ) -> typing.Union[ClassMethodWhen, ClassMethodCall]:
         if instance is None and common.owns(self, owner):
             return ClassMethodWhen(self, owner)
@@ -148,9 +148,9 @@ class StaticMethod(common.Descriptor[T]):
         # further development.
         self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    # We want this to be invariant, but it's not.
+    # We want this to be invariant, but it's confusing.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> StaticMethodWhen:
+    def __get__(self, instance: None, owner: common.InType[T]) -> StaticMethodWhen:
         """When accessed from the defining class, allow adding variants."""
 
     @typing.overload
@@ -158,7 +158,7 @@ class StaticMethod(common.Descriptor[T]):
         """Otherwise, just allow calling."""
 
     def __get__(
-        self, instance: typing.Any, owner: type
+        self, instance: typing.Any, owner: typing.Any
     ) -> typing.Union[StaticMethodWhen, StaticMethodCall]:
         if instance is None and common.owns(self, owner):
             return StaticMethodWhen(self)
@@ -240,9 +240,9 @@ class Function(common.Descriptor[T]):
         # Hey, we can just fall back now.
         return self.__wrapped__(*args, **kwargs)
 
-    # We want this to be invariant, but it's not.
+    # We want this to be invariant, but it's confusing.
     @typing.overload
-    def __get__(self, instance: None, owner: typing.Type[T]) -> Function[T]:
+    def __get__(self, instance: None, owner: common.InType[T]) -> Function[T]:
         """When accessed from the defining class, allow adding variants."""
 
     @typing.overload
@@ -254,7 +254,7 @@ class Function(common.Descriptor[T]):
         """When accessed from an instance, create a partial application."""
 
     def __get__(
-        self, instance: typing.Optional[U], owner: typing.Type[U]
+        self, instance: typing.Optional[U], owner: typing.Any
     ) -> typing.Union[Function[T], MethodProxy[T], functools.partial]:
         if instance is None:
             if common.owns(self, owner):

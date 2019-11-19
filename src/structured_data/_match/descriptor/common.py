@@ -117,7 +117,7 @@ class Descriptor(typing.Generic[T]):
     __wrapped__: typing.Optional[typing.Callable] = None
     __name__: typing.Optional[str] = None
 
-    def __new__(cls, func: typing.Optional[typing.Callable]) -> Descriptor:
+    def __new__(cls, func: typing.Optional[typing.Callable]) -> Descriptor[T]:
         new = super().__new__(cls)
         new.__doc__ = None
         if func is None:
