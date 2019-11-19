@@ -13,6 +13,7 @@ from .. import matchable as _matchable
 
 T = typing.TypeVar("T")  # pylint: disable=invalid-name
 
+InType = typing.Callable[..., T]
 Matcher = typing.Union[T, _class_placeholder.Placeholder[T]]
 
 
