@@ -1,3 +1,5 @@
+"""Implementation of the matching helper class."""
+
 from __future__ import annotations
 
 import typing
@@ -41,5 +43,5 @@ class Matchable:
             raise ValueError
         return self.matches[key]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.matches is not None

@@ -1,6 +1,9 @@
 """Internal implementation of helper types for Sum annotations."""
 
+from __future__ import annotations
+
 import ast
+import types
 import typing
 import weakref
 
@@ -9,9 +12,9 @@ import astor  # type: ignore
 _CTOR_CACHE: typing.Dict[typing.Tuple, "Ctor"] = {}
 
 
-ARGS: typing.MutableMapping[
-    typing.Union["Ctor", typing.Type["Ctor"]], typing.Tuple
-] = weakref.WeakKeyDictionary()
+AnyCtor = typing.Union["Ctor", typing.Type["Ctor"]]
+
+ARGS: typing.MutableMapping[AnyCtor, typing.Tuple] = weakref.WeakKeyDictionary()
 
 
 class Ctor:
@@ -23,19 +26,21 @@ class Ctor:
 
     __slots__ = ("__weakref__",)
 
-    def __new__(cls, args):
+    def __new__(cls, args: typing.Tuple[typing.Any, ...]) -> Ctor:
         if args == ():
-            return cls
+            raise ValueError
         self = object.__new__(cls)
         ARGS[self] = args
         return _CTOR_CACHE.setdefault(args, self)
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: typing.Any) -> None:
         raise TypeError
 
-    def __class_getitem__(cls, args):
+    def __class_getitem__(cls, args: typing.Any) -> AnyCtor:
         if not isinstance(args, tuple):
             args = (args,)
+        if not args:
+            return cls
         # Yes it is.
         return cls(args)  # pylint: disable=not-callable
 
@@ -44,7 +49,7 @@ ARGS[Ctor] = ()
 
 
 def _interpret_args_from_non_string(
-    constructor: typing.Any
+    constructor: typing.Any,
 ) -> typing.Optional[typing.Tuple]:
     try:
         return ARGS.get(constructor)
@@ -74,7 +79,9 @@ def _get_args_from_index(index: ast.AST) -> typing.Tuple:
     return (astor.to_source(index),)
 
 
-def _checked_eval(source, global_ns: typing.Dict[str, typing.Any]) -> typing.Any:
+def _checked_eval(
+    source: typing.Union[str, types.CodeType], global_ns: typing.Dict[str, typing.Any]
+) -> typing.Any:
     try:
         # Oh no, the user might end up executing arbitrary code that they wrote
         # in the first place.
@@ -126,7 +133,7 @@ def _str_is_classvar(annotation: str, global_ns: typing.Dict[str, typing.Any]) -
 
 
 def get_args(
-    constructor, global_ns: typing.Dict[str, typing.Any]
+    constructor: typing.Any, global_ns: typing.Dict[str, typing.Any]
 ) -> typing.Optional[typing.Tuple]:
     """Given annotation value and module namespace, return Ctor args, if any.
 
@@ -143,7 +150,9 @@ def get_args(
     return _interpret_args_from_non_string(constructor)
 
 
-def annotation_is_classvar(annotation, global_ns: typing.Dict[str, typing.Any]) -> bool:
+def annotation_is_classvar(
+    annotation: typing.Any, global_ns: typing.Dict[str, typing.Any]
+) -> bool:
     """Given annotation value and module namespace, return whether it's a ClassVar.
 
     The function first checks if the value is a string. If so, it tries to

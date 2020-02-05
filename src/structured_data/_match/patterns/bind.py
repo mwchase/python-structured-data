@@ -1,7 +1,6 @@
 """A pattern to bind external values to a match."""
 
 from ..._not_in import not_in
-from ..._pep_570_when import pep_570_when
 from .basic_patterns import Pattern
 from .compound_match import CompoundMatch
 
@@ -20,12 +19,11 @@ class Bind(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    @pep_570_when
-    def __new__(cls, structure, kwargs):
+    def __new__(cls, structure, /, **kwargs):  # noqa: E225
         if not kwargs:
             return structure
         not_in(container=kwargs, item="_")
-        return super(Bind, cls).__new__(cls, (structure, tuple(kwargs.items())))
+        return super().__new__(cls, (structure, tuple(kwargs.items())))
 
     @property
     def structure(self):

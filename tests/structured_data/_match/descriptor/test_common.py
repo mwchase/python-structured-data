@@ -23,22 +23,12 @@ def test_function(match):
     assert function(4, 4) == 16
 
 
-def test_re_own(match):
-    class Test1:
-        prop = match.Property()
-
-    class Test2:
-        prop = Test1.prop
-
-    assert Test1.prop.owner is Test1
-
-
 def test_property_basics(adt, match):
     class TestEither(adt.Sum):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        invert = match.Property()
+        invert = match.function(property())
 
         @invert.getter
         def invert(self):
@@ -69,7 +59,7 @@ def test_property_advanced(adt, match):
     values = {}
     special_values = []
 
-    @match.placeholder
+    @match.Placeholder
     def special(cls):
         return cls.Left(10)
 
@@ -77,7 +67,7 @@ def test_property_advanced(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        prop = match.Property()
+        prop = match.function(property())
 
         @prop.setter
         def prop(self, value):
@@ -113,11 +103,30 @@ def test_property_advanced(adt, match):
     with pytest.raises(IndexError):
         del special.prop
 
+    class NonSum:
 
-def test_cant_use_matchers():
-    from structured_data._match.descriptor import common
+        prop = TestEither.prop
 
-    matchers = common.Descriptor._matchers
+    non_sum = NonSum()
 
-    with pytest.raises(NotImplementedError):
-        assert not matchers(None)
+    with pytest.raises(ValueError):
+        non_sum.prop = None
+
+
+def test_copy(match):
+    prop = match.function(property(doc="Hi!"))
+
+    prop.get_when(None)(None)
+
+    @prop.getter
+    def prop2(self):
+        """I'm a docstring!"""
+
+
+def test_owns(match):
+    prop = match.function(property())
+
+    class Test:
+        pass
+    Test.prop = prop
+    assert not hasattr(Test.prop, "get_when")

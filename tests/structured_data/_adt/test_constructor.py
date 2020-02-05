@@ -46,3 +46,15 @@ def test_non_existent_dir_entry_is_acceptable(adt):
             return super().__dir__() + ["123fake"]
 
     assert "123fake" in dir(TestDir.Int(5))
+
+
+def test_bad_subtype_sum_first(adt):
+    with pytest.raises(TypeError):
+        class Test(adt.Sum, adt.Product):
+            pass
+
+
+def test_bad_subtype_product_first(adt):
+    with pytest.raises(TypeError):
+        class Test(adt.Product, adt.Sum):
+            pass

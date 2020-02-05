@@ -1,9 +1,9 @@
 def test_method(adt, match):
-    @match.placeholder
+    @match.Placeholder
     def left_number(cls):
         return cls.Left(match.pat.number)
 
-    @match.placeholder
+    @match.Placeholder
     def right_string(cls):
         return cls.Right(match.pat.string)
 
@@ -11,7 +11,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method
+        @match.function
         def invert(self):
             """Reverse the the object according to some criteria."""
 

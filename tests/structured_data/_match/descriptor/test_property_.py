@@ -6,7 +6,7 @@ def test_property_basics(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        invert = match.Property()
+        invert = match.function(property())
 
         @invert.getter
         def invert(self):
@@ -47,7 +47,7 @@ def test_property_advanced(adt, match):
     values = {}
     special_values = []
 
-    @match.placeholder
+    @match.Placeholder
     def special(cls):
         return cls.Left(10)
 
@@ -55,7 +55,7 @@ def test_property_advanced(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        prop = match.Property()
+        prop = match.function(property())
 
         @prop.setter
         def prop(self, value):
@@ -107,14 +107,15 @@ def test_property_advanced(adt, match):
     del special.prop
     del special.prop
 
+    bad_deco = TestEither.prop.set_when(match.pat.a, match.pat.a)
     with pytest.raises(ValueError):
-        assert not TestEither.prop.set_when(match.pat.a, match.pat.a)
+        assert not bad_deco(None)
 
 
 def test_property_fallback(match):
     class Test:
 
-        prop = match.Property()
+        prop = match.function(property())
 
     test_obj = Test()
     prop = Test.prop
@@ -123,7 +124,7 @@ def test_property_fallback(match):
 
 
 def test_property_is_mostly_immutable(match):
-    prop = match.Property(doc="Hi!")
+    prop = match.function(property(doc="Hi!"))
     del prop.__doc__
     assert prop.__doc__ is None
 
@@ -141,7 +142,7 @@ def test_property_is_mostly_immutable(match):
 def test_proxy(match):
 
     class Test:
-        prop = match.Property()
+        prop = match.function(property())
 
     class Test2(Test):
         pass
@@ -157,3 +158,17 @@ def test_proxy(match):
     @Test2.prop.deleter
     def prop_delete(self):
         """I'm a docstring!"""
+
+
+def test_proxy_doc(match):
+
+    class Base:
+        @match.function
+        @property
+        def prop(self):
+            """Docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.prop.__doc__ == "Docstring."

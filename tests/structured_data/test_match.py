@@ -48,7 +48,7 @@ def test_method(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method
+        @match.function
         def invert(self):
             """Reverse the the object according to some criteria."""
 
@@ -69,8 +69,8 @@ def test_method_positional(adt, match):
         Left: adt.Ctor[int]
         Right: adt.Ctor[str]
 
-        @match.method(positional_until=2)
-        def dummy_func(self, arg):
+        @match.function
+        def dummy_func(self, arg, /):  # noqa: E225
             """A dummy test function for now."""
 
 
@@ -88,27 +88,10 @@ def test_trivial_match_function(match):
 
 
 def test_match_function_errors(match):
-    def double_dip(arg):
-        """Nothing interesting."""
-
-    wrapper = match.function(positional_until=1)
-    wrapper(double_dip)
-    with pytest.raises(
-        ValueError, match=r"^Signature already contains positional-only arguments$"
-    ):
-        wrapper(double_dip)
-
-    def wrong_shape(*args):
-        """Still nothing interesting."""
-
-    with pytest.raises(
-        ValueError, match=r"^Cannot overwrite non-POSITIONAL_OR_KEYWORD kind$"
-    ):
-        wrapper(wrong_shape)
 
     @match.function
     def takes_kwargs(arg_to_function, **kwargs):
-        """Ignore me."""
+        raise ValueError
 
     with pytest.raises(ValueError):
         takes_kwargs(None)
@@ -121,3 +104,20 @@ def test_match_function_errors(match):
 
     with pytest.raises(TypeError):
         takes_kwargs(1, kwarg=1)
+
+
+def test_function_types(match):
+    @match.function
+    @classmethod
+    def class_method(cls):
+        """This is a class method."""
+
+    @match.function
+    @staticmethod
+    def static_method():
+        """This is a static method."""
+
+    @match.function
+    @property
+    def prop(self):
+        """This is a property."""

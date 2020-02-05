@@ -1,8 +1,10 @@
-import inspect
+"""Internal implementation of the Sum base class."""
+
+from __future__ import annotations
+
 import typing
 
 from .. import _cant_modify
-from .._match.descriptor import common
 from . import constructor
 from . import ordering
 from . import prewritten_methods
@@ -22,11 +24,15 @@ def _set_new_functions(cls: type, *functions: typing.Callable) -> typing.Optiona
     If any attributes are already defined, fail *before* setting any, and
     return the already-defined name.
     """
-    cant_set = product_type._cant_set_new_functions(cls, *functions)
+    cant_set = product_type.cant_set_new_functions(cls, *functions)
     if cant_set:
         return cant_set
     for function in functions:
-        setattr(cls, product_type._name(cls, function), function)
+        setattr(
+            cls,
+            product_type.name_(cls, typing.cast(product_type.MethodLike, function)),
+            function,
+        )
     return None
 
 
@@ -47,7 +53,7 @@ def _sum_new(_cls: typing.Type[_T], subclasses: typing.FrozenSet[type]) -> None:
     _cls.__new__ = staticmethod(__new__)  # type: ignore
 
 
-class Sum:
+class Sum(constructor.SumBase):
     """Base class of classes with disjoint constructors.
 
     Examines PEP 526 __annotations__ to determine subclasses.
@@ -67,11 +73,10 @@ class Sum:
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
-        cls, *args = args
+    def __new__(cls, /, *args: typing.Any, **kwargs: typing.Any) -> Sum:  # noqa: E225
         if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
-        return super(Sum, cls).__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
 
     # Both of these are for consistency with modules defined in the stdlib.
     # BOOM!
@@ -86,7 +91,7 @@ class Sum:
         super().__init_subclass__(**kwargs)  # type: ignore
         if issubclass(cls, constructor.ADTConstructor):
             return
-        ordering._ordering_options_are_valid(eq=eq, order=order)
+        ordering.ordering_options_are_valid(eq=eq, order=order)
 
         prewritten_methods.SUBCLASS_ORDER[cls] = constructor.make_constructors(cls)
 
@@ -108,7 +113,7 @@ class Sum:
         ordering.raise_for_collision(
             (
                 order
-                and ordering._can_set_ordering(can_set=equality_methods_were_set)
+                and ordering.can_set_ordering(can_set=equality_methods_were_set)
                 and _set_new_functions(
                     cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
                 )
@@ -116,21 +121,13 @@ class Sum:
             cls.__name__,
         )
 
-        common.for_class(cls)
-
     def __bool__(self) -> bool:
         return True
 
     def __setattr__(self, name: str, value: typing.Any) -> None:
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__setattr__(name, value)
 
     def __delattr__(self, name: str) -> None:
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+        _cant_modify.guard(self, name)
         super().__delattr__(name)

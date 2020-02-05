@@ -1,21 +1,34 @@
+"""Callable descriptors that expose decorators for value-based dispatch."""
+
+from __future__ import annotations
+
 import functools
 import inspect
 import typing
 
 from ... import _class_placeholder
-from ... import _pep_570_when
+from ... import _doc_wrapper
 from .. import matchable
 from ..patterns import mapping_match
 from . import common
 
+T = typing.TypeVar("T")
 
-def _varargs(signature):
+Kwargs = typing.Dict[str, typing.Any]
+
+
+def _varargs(signature: inspect.Signature) -> typing.Iterator[inspect.Parameter]:
     for parameter in signature.parameters.values():
         if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
             yield parameter
 
 
-def _dispatch(func, matches, bound_args, bound_kwargs):
+def _dispatch(
+    func: typing.Callable,
+    matches: typing.Mapping,
+    bound_args: typing.Tuple,
+    bound_kwargs: Kwargs,
+) -> typing.Any:
     for key, value in matches.items():
         if key in bound_kwargs:
             raise TypeError
@@ -28,93 +41,236 @@ def _dispatch(func, matches, bound_args, bound_kwargs):
     return func(*function_args.args, **function_args.kwargs)
 
 
-class Function(common.Decorator):
-    """Decorator with value-based dispatch. Acts as a function."""
+def _bound_and_values(
+    signature: inspect.Signature, args: typing.Tuple, kwargs: Kwargs,
+) -> typing.Tuple[typing.Tuple, Kwargs, Kwargs]:
+    # The signature lets us regularize the call and apply any defaults
+    bound_arguments = signature.bind(*args, **kwargs)
+    bound_arguments.apply_defaults()
 
-    def __init__(self, func: typing.Callable, *args, **kwargs) -> None:
+    # Extract the *args and **kwargs, if any.
+    # These are never used in the matching, just passed to the underlying function
+    bound_args = ()
+    bound_kwargs: Kwargs = {}
+    values = bound_arguments.arguments.copy()
+    for parameter in signature.parameters.values():
+        if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+            bound_args = values.pop(parameter.name)
+        if parameter.kind is inspect.Parameter.VAR_KEYWORD:
+            bound_kwargs = values.pop(parameter.name)
+    return bound_args, bound_kwargs, values
+
+
+class ClassMethod(common.Descriptor):
+    """Decorator with value-based dispatch. Acts as a classmethod."""
+
+    __wrapped__: typing.Callable
+
+    def __init__(self, func: typing.Callable) -> None:
         del func
-        super().__init__(*args, **kwargs)  # type: ignore
-        self.matchers: common.MatcherList[mapping_match.DictPattern] = []
+        super().__init__()
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
 
-    def _bound_and_values(self, args, kwargs):
-        # Then we figure out what signature we're giving the outside world.
-        signature = inspect.signature(self)
-        # The signature lets us regularize the call and apply any defaults
-        bound_arguments = signature.bind(*args, **kwargs)
-        bound_arguments.apply_defaults()
+    def __get__(self, instance, owner):
+        if instance is None and common.owns(self, owner):
+            return ClassMethodWhen(self, owner)
+        return ClassMethodCall(self, owner)
 
-        # Extract the *args and **kwargs, if any.
-        # These are never used in the matching, just passed to the underlying function
-        bound_args = ()
-        bound_kwargs = {}
-        values = bound_arguments.arguments.copy()
-        for parameter in signature.parameters.values():
-            if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
-                bound_args = values.pop(parameter.name)
-            if parameter.kind is inspect.Parameter.VAR_KEYWORD:
-                bound_kwargs = values.pop(parameter.name)
-        return bound_args, bound_kwargs, values
-
-    def __call__(*args, **kwargs):
-        # Okay, so, this is a convoluted mess.
-        # First, we extract self from the beginning of the argument list
-        self, *args = args
-
-        bound_args, bound_kwargs, values = self._bound_and_values(args, kwargs)
-
-        matchable_ = matchable.Matchable(values)
-        for structure, func in self.matchers:
-            if matchable_(structure):
-                return _dispatch(func, matchable_.matches, bound_args, bound_kwargs)
-        raise ValueError(values)
-
-    @_pep_570_when.pep_570_when
-    def when(self, kwargs: dict) -> typing.Callable[[typing.Callable], typing.Callable]:
+    def when(
+        self, /, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
         """Add a binding for this function."""
         return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
 
 
-class MethodProxy:
+@_doc_wrapper.ProxyWrapper.wrap_class("class_method")
+class ClassMethodCall:
+    """Wrapper class that conceals the ``when()`` decorators."""
 
-    def __init__(self, func):
+    def __init__(self, class_method: ClassMethod, owner: type) -> None:
+        self.class_method = class_method
+        self.owner = owner
+
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
+        bound_args, bound_kwargs, values = _bound_and_values(
+            inspect.signature(self.class_method.__wrapped__),
+            (self.owner,) + args,
+            kwargs,
+        )
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.class_method.matchers.match(matchable_, self.owner):
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
+        return self.class_method.__wrapped__(self.owner, *args, **kwargs)
+
+
+class ClassMethodWhen(ClassMethodCall):
+    """Wrapper class that exposes the ``when()`` decorators."""
+
+    def when(
+        self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for the wrapped method."""
+        return self.class_method.when(**kwargs)
+
+
+class StaticMethod(common.Descriptor):
+    """Decorator with value-based dispatch. Acts as a classmethod."""
+
+    __wrapped__: typing.Callable
+
+    def __init__(self, func: typing.Callable) -> None:
+        del func
+        super().__init__()
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+
+    def __get__(self, instance, owner):
+        if instance is None and common.owns(self, owner):
+            return StaticMethodWhen(self)
+        return StaticMethodCall(self)
+
+    def when(
+        self, /, **kwargs  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for this function."""
+        return common.decorate(self.matchers, _no_placeholder_kwargs(kwargs))
+
+
+@_doc_wrapper.ProxyWrapper.wrap_class("static_method")
+class StaticMethodCall:
+    """Wrapper class that conceals the ``when()`` decorators."""
+
+    def __init__(self, static_method: StaticMethod) -> None:
+        self.static_method = static_method
+
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
+        bound_args, bound_kwargs, values = _bound_and_values(
+            inspect.signature(self.static_method.__wrapped__), args, kwargs,
+        )
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.static_method.matchers.match(matchable_, None):
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
+        return self.static_method.__wrapped__(*args, **kwargs)
+
+
+class StaticMethodWhen(StaticMethodCall):
+    """Wrapper class that exposes the ``when()`` decorators."""
+
+    def when(
+        self, /, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for the wrapped method."""
+        return self.static_method.when(**kwargs)
+
+
+class Function(common.Descriptor):
+    """Decorator with value-based dispatch. Acts as a function."""
+
+    __wrapped__: typing.Callable
+
+    def __init__(self, func: typing.Callable) -> None:
+        del func
+        super().__init__()
+        # A more specific annotation would be good, but that's waiting on
+        # further development.
+        self.matchers: common.MatchTemplate[typing.Any] = common.MatchTemplate()
+
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
+        # Okay, so, this is a convoluted mess.
+
+        bound_args, bound_kwargs, values = _bound_and_values(
+            inspect.signature(self), args, kwargs
+        )
+
+        instance = args[0] if args else None
+
+        matchable_ = matchable.Matchable(values)
+        for func in self.matchers.match_instance(matchable_, instance):
+            return _dispatch(
+                func,
+                typing.cast(typing.Mapping, matchable_.matches),
+                bound_args,
+                bound_kwargs,
+            )
+        # Hey, we can just fall back now.
+        return self.__wrapped__(*args, **kwargs)
+
+    def __get__(self, instance: typing.Optional[T], owner: typing.Type[T]):
+        if instance is None:
+            if common.owns(self, owner):
+                return self
+            return MethodProxy(self)
+        return functools.partial(self, instance)
+
+    def when(
+        self, /, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        """Add a binding for this function."""
+        return common.decorate(self.matchers, _placeholder_kwargs(kwargs))
+
+
+@_doc_wrapper.ProxyWrapper.wrap_class("func")
+class MethodProxy:
+    """Wrapper class that conceals the ``when()`` decorators."""
+
+    def __init__(self, func: Function) -> None:
         self.func = func
 
-    def __call__(*args, **kwargs):
-        self, *args = args
+    def __call__(
+        self, /, *args: typing.Any, **kwargs: typing.Any  # noqa: E225
+    ) -> typing.Any:
         return self.func(*args, **kwargs)
 
     def __get__(self, instance, owner):
         return self.func.__get__(instance, owner)
 
 
-class Method(Function, common.Descriptor):
-    """Decorator with value-based dispatch. Acts as a method."""
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            if owner is self.owner:
-                return self
-            return MethodProxy(self)
-        return functools.partial(self, instance)
-
-    def _matchers(self):
-        yield self.matchers
-
-
 def _kwarg_structure(kwargs: dict) -> mapping_match.DictPattern:
     return mapping_match.DictPattern(kwargs, exhaustive=True)
 
 
-def _placeholder_kwargs(kwargs: typing.Dict) -> common.Matcher:
-    if any(_class_placeholder.is_placeholder(kwarg) for kwarg in kwargs.values()):
+def _no_placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
+    if any(
+        isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
+    ):
+        raise ValueError
 
-        @_class_placeholder.placeholder
+    return _kwarg_structure(kwargs)
+
+
+def _placeholder_kwargs(kwargs: Kwargs) -> common.Matcher:
+    if any(
+        isinstance(kwarg, _class_placeholder.Placeholder) for kwarg in kwargs.values()
+    ):
+
+        @_class_placeholder.Placeholder
         def _placeholder(cls: type) -> mapping_match.DictPattern:
             return _kwarg_structure(
                 {
                     name: (
-                        kwarg(cls)
-                        if _class_placeholder.is_placeholder(kwarg)
+                        kwarg.func(cls)
+                        if isinstance(kwarg, _class_placeholder.Placeholder)
                         else kwarg
                     )
                     for (name, kwarg) in kwargs.items()

@@ -6,7 +6,9 @@ _K = typing.TypeVar("_K")
 _V = typing.TypeVar("_V")
 
 
-def nillable_write(dct: typing.Dict[_K, _V], key: _K, value: typing.Optional[_V]):
+def nillable_write(
+    dct: typing.Dict[_K, _V], key: _K, value: typing.Optional[_V]
+) -> None:
     """Set to the value or delete the given key in the given dict."""
     if value is None:
         dct.pop(key, typing.cast(_V, None))

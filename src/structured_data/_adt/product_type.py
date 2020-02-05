@@ -1,5 +1,9 @@
+"""Internal implementation of the Product base class."""
+
 import inspect
 import typing
+
+import typing_extensions
 
 from .. import _cant_modify
 from .. import _conditional_method
@@ -8,17 +12,33 @@ from . import constructor
 from . import ordering
 from . import prewritten_methods
 
-_T = typing.TypeVar("_T")
+TProduct = typing.TypeVar("TProduct", bound="Product")
 
 
-def _name(cls: type, function) -> str:
+class Named(typing_extensions.Protocol):
+
+    __name__: str
+
+
+class MethodLike(typing_extensions.Protocol):
+    def __get__(self, instance: typing.Any, owner: type) -> Named:
+        """Methods allow for binding and have names."""
+
+
+def name_(cls: type, function: MethodLike) -> str:
     """Return the name of a function accessed through a descriptor."""
     return function.__get__(None, cls).__name__
 
 
-def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
+def cant_set_new_functions(
+    cls: type, *functions: typing.Callable
+) -> typing.Optional[str]:
+    """Determine if attributes corresponding to functions on cls could be set.
+
+    If any attributes are already defined, return the already-defined name.
+    """
     for function in functions:
-        name = _name(cls, function)
+        name = name_(cls, typing.cast(MethodLike, function))
         existing = getattr(cls, name, None)
         if existing not in (
             getattr(object, name, None),
@@ -30,13 +50,17 @@ def _cant_set_new_functions(cls: type, *functions) -> typing.Optional[str]:
     return None
 
 
-def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
+def _product_new(_cls: typing.Type[TProduct], _signature: inspect.Signature) -> None:
     signature: inspect.Signature
     if "__new__" in vars(_cls):
         original_new = _cls.__new__
 
-        def __new__(*args, **kwargs):
-            cls, *args = args
+        def __new__(
+            cls: typing.Type[TProduct],
+            /,  # noqa: E225
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> TProduct:
             if cls is _cls:
                 return original_new(cls, *args, **kwargs)
             return super(_cls, cls).__new__(cls, *args, **kwargs)
@@ -44,8 +68,12 @@ def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
         signature = inspect.signature(original_new)
     else:
 
-        def __new__(*args, **kwargs):
-            cls, *args = args
+        def __new__(
+            cls: typing.Type[TProduct],
+            /,  # noqa: E225
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> TProduct:
             return super(_cls, cls).__new__(cls, *args, **kwargs)
 
         signature = _signature.replace(
@@ -57,7 +85,7 @@ def _product_new(_cls: typing.Type[_T], _signature: inspect.Signature):
 
 
 def _product_signature(
-    annotations: typing.Dict[str, typing.Any], cls
+    annotations_: typing.Dict[str, typing.Any], cls: typing.Type[TProduct]
 ) -> inspect.Signature:
     params = [
         inspect.Parameter(
@@ -66,7 +94,7 @@ def _product_signature(
             default=getattr(cls, name, inspect.Parameter.empty),
             annotation=annotation,
         )
-        for (name, annotation) in annotations.items()
+        for (name, annotation) in annotations_.items()
     ]
     try:
         return inspect.Signature(parameters=params, return_annotation=cls)
@@ -74,7 +102,7 @@ def _product_signature(
         raise TypeError
 
 
-class Product(constructor.ADTConstructor, tuple):
+class Product(constructor.ADTConstructor, tuple, constructor.ProductBase):
     """Base class of classes with typed fields.
 
     Examines PEP 526 __annotations__ to determine fields.
@@ -96,8 +124,12 @@ class Product(constructor.ADTConstructor, tuple):
 
     __slots__ = ()
 
-    def __new__(*args, **kwargs):  # pylint: disable=no-method-argument
-        cls, *args = args
+    def __new__(
+        cls: typing.Type[TProduct],
+        /,  # noqa: E225
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> TProduct:
         if cls is Product:
             raise TypeError
         # Probably a result of not having positional-only args.
@@ -105,7 +137,7 @@ class Product(constructor.ADTConstructor, tuple):
             *args, **kwargs
         )  # pylint: disable=protected-access
         bound_arguments.apply_defaults()
-        return super(Product, cls).__new__(cls, bound_arguments.arguments.values())
+        return super().__new__(cls, bound_arguments.arguments.values())
 
     __repr: typing.ClassVar[bool] = True
     __eq: typing.ClassVar[bool] = True
@@ -132,7 +164,7 @@ class Product(constructor.ADTConstructor, tuple):
         repr: typing.Optional[bool] = None,  # pylint: disable=redefined-builtin
         eq: typing.Optional[bool] = None,  # pylint: disable=invalid-name
         order: typing.Optional[bool] = None,
-        **kwargs,
+        **kwargs: typing.Any,
     ):
         super().__init_subclass__(**kwargs)  # type: ignore
 
@@ -143,7 +175,7 @@ class Product(constructor.ADTConstructor, tuple):
         del repr, eq, order
         cls.__clear_nones()
 
-        ordering._ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
+        ordering.ordering_options_are_valid(eq=cls.__eq, order=cls.__order)
 
         annotations_ = annotations.product_args_from_annotations(cls)
         cls.__signature = _product_signature(annotations_, cls)
@@ -153,45 +185,41 @@ class Product(constructor.ADTConstructor, tuple):
 
         source = prewritten_methods.PrewrittenProductMethods
 
-        cls.__eq_succeeded = cls.__eq and not _cant_set_new_functions(
+        cls.__eq_succeeded = cls.__eq and not cant_set_new_functions(
             cls, source.__eq__, source.__ne__
         )
 
         ordering.raise_for_collision(
             (
                 cls.__order
-                and ordering._can_set_ordering(can_set=cls.__eq_succeeded)
-                and _cant_set_new_functions(
+                and ordering.can_set_ordering(can_set=cls.__eq_succeeded)
+                and cant_set_new_functions(
                     cls, source.__lt__, source.__le__, source.__gt__, source.__ge__
                 )
             ),
             cls.__name__,
         )
 
-    def __dir__(self):
-        return super().__dir__() + list(self.__fields)
+    def __dir__(self) -> typing.List[str]:
+        super_dir: typing.List[str]
+        super_dir = super().__dir__()  # type: ignore
+        return super_dir + list(self.__fields)
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, name: str) -> typing.Any:
         index = object.__getattribute__(self, "_Product__fields").get(name)
         if index is None:
             return super().__getattribute__(name)
         return tuple.__getitem__(self, index)
 
-    def __setattr__(self, name, value):
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+    def __setattr__(self, name: str, value: typing.Any) -> None:
+        _cant_modify.guard(self, name)
         super().__setattr__(name, value)
 
-    def __delattr__(self, name):
-        if not inspect.isdatadescriptor(
-            inspect.getattr_static(self, name, _cant_modify.MISSING)
-        ):
-            _cant_modify.cant_modify(self, name)
+    def __delattr__(self, name: str) -> None:
+        _cant_modify.guard(self, name)
         super().__delattr__(name)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return True
 
     source = prewritten_methods.PrewrittenProductMethods

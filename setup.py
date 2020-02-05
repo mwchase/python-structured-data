@@ -51,7 +51,7 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
         # 'Programming Language :: Python :: Implementation :: PyPy',
         # uncomment if you test on these interpreters:
@@ -64,7 +64,7 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
-        "astor",
+        "astor", "typing-extensions",
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
     extras_require={
@@ -72,5 +72,5 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )

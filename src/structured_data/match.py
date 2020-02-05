@@ -14,13 +14,13 @@ Given a value to destructure, called ``value``:
 
 from __future__ import annotations
 
-import inspect
 import typing
 
 from . import _attribute_constructor
-from ._class_placeholder import placeholder
+from ._class_placeholder import Placeholder
+from ._match.descriptor import common
 from ._match.descriptor import function as function_
-from ._match.descriptor.property_ import Property
+from ._match.descriptor import property_
 from ._match.destructure import names
 from ._match.match_dict import MatchDict
 from ._match.matchable import Matchable
@@ -35,98 +35,47 @@ pat = _attribute_constructor.AttributeConstructor(  # pylint: disable=invalid-na
 )
 
 
-def _can_overwrite_kind(parameter: inspect.Parameter) -> None:
-    if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
-        raise ValueError("Signature already contains positional-only arguments")
-    if parameter.kind is not inspect.Parameter.POSITIONAL_OR_KEYWORD:
-        raise ValueError("Cannot overwrite non-POSITIONAL_OR_KEYWORD kind")
-
-
-def _make_args_positional(func: typing.Callable, positional_until: int) -> None:
-    signature = inspect.signature(func)
-    new_parameters = list(signature.parameters.values())
-    for index, parameter in enumerate(new_parameters[:positional_until]):
-        _can_overwrite_kind(parameter)
-        new_parameters[index] = parameter.replace(
-            kind=inspect.Parameter.POSITIONAL_ONLY
-        )
-    new_signature = signature.replace(parameters=new_parameters)
-    if new_signature != signature:
-        func.__signature__ = new_signature  # type: ignore
+@typing.overload
+def function(func: typing.Callable) -> function_.Function:
+    """Normal functions and methods go to Functions"""
 
 
 @typing.overload
-def function(
-    *, positional_until: int = 0
-) -> typing.Callable[[typing.Callable], function_.Function]:
-    """Can optionally specify a number of arguments to treat as positional."""
+def function(func: staticmethod) -> function_.StaticMethod:
+    """Static methods go to StaticMethods"""
 
 
 @typing.overload
-def function(_func: typing.Callable) -> function_.Function:
-    """Can directly decorate a function."""
+def function(func: classmethod) -> function_.ClassMethod:
+    """Class methods go to ClassMethods."""
 
 
-# This wraps a function that, for reasons, can't be called directly by the code
-# The function body should probably just be a docstring.
-def function(
-    _func: typing.Optional[typing.Callable] = None, *, positional_until: int = 0
-) -> typing.Union[
-    typing.Callable[[typing.Callable], function_.Function], function_.Function
-]:
+@typing.overload
+def function(func: property) -> property_.Property:
+    """And properties go to Properties."""
+
+
+def function(func: typing.Any) -> common.Descriptor:
     """Convert a function to dispatch by value.
 
     The original function is not called when the dispatch function is invoked.
     """
-
-    def wrap(func: typing.Callable) -> function_.Function:
-        _make_args_positional(func, positional_until)
-        return function_.Function(func)
-
-    if _func is None:
-        return wrap
-
-    return wrap(_func)
+    if isinstance(func, staticmethod):
+        return function_.StaticMethod(func.__func__)
+    if isinstance(func, classmethod):
+        return function_.ClassMethod(func.__func__)
+    if isinstance(func, property):
+        return property_.Property(func.fget, func.fset, func.fdel, func.__doc__)
+    return function_.Function(func)
 
 
-@typing.overload
-def method(
-    *, positional_until: int = 1
-) -> typing.Callable[[typing.Callable], function_.Method]:
-    """Can optionally specify a number of arguments to treat as positional."""
+Deco = typing.Callable[[typing.Callable], typing.Callable]
 
 
-@typing.overload
-def method(_func: typing.Callable) -> function_.Method:
-    """Can directly decorate a method."""
-
-
-# This wraps a function that, for reasons, can't be called directly by the code
-# The function body should probably just be a docstring.
-def method(
-    _func: typing.Optional[typing.Callable] = None, *, positional_until: int = 1
-) -> typing.Union[
-    typing.Callable[[typing.Callable], function_.Method], function_.Method
-]:
-    """Convert a function to dispatch by value.
-
-    The original function is not called when the dispatch function is invoked.
-    """
-
-    def wrap(func: typing.Callable) -> function_.Method:
-        _make_args_positional(func, positional_until)
-        return function_.Method(func)
-
-    if _func is None:
-        return wrap
-
-    return wrap(_func)
-
-
-def decorate_in_order(*args):
+def decorate_in_order(*args: Deco) -> Deco:
     """Apply decorators in the order they're passed to the function."""
 
-    def decorator(func):
+    def decorator(func: typing.Callable) -> typing.Callable:
         for arg in args:
             func = arg(func)
         return func
@@ -141,11 +90,9 @@ __all__ = [
     "MatchDict",
     "Matchable",
     "Pattern",
-    "Property",
+    "Placeholder",
     "decorate_in_order",
     "function",
-    "method",
-    "placeholder",
     "names",
     "pat",
 ]

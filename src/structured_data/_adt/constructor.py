@@ -12,7 +12,7 @@ from . import annotations
 _T = typing.TypeVar("_T")
 
 
-def _should_include(name, static):
+def _should_include(name: str, static: typing.Any) -> bool:
     if name in SHADOWED_ATTRIBUTES and static is None:
         return False
     if isinstance(static, SumMember):
@@ -20,12 +20,36 @@ def _should_include(name, static):
     return True
 
 
+class DummyS:
+    """Dummy class to help keep Sum and Product separate."""
+
+    __slots__ = ()
+
+
+class DummyP:
+    """Dummy class to help keep Sum and Product separate."""
+
+    __slots__ = ()
+
+
+class SumBase(DummyS, DummyP):
+    """Dummy class to help keep Sum and Product separate."""
+
+    __slots__ = ()
+
+
+class ProductBase(DummyP, DummyS):
+    """Dummy class to help keep Sum and Product separate."""
+
+    __slots__ = ()
+
+
 class ADTConstructor:
     """Base class for ADT Constructor classes."""
 
     __slots__ = ()
 
-    def __dir__(self):
+    def __dir__(self) -> typing.List[str]:
         return [
             attribute
             for attribute in super().__dir__()
@@ -64,7 +88,7 @@ class SumMember:
     def __init__(self, subcls: type):
         self.subcls = subcls
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: typing.Optional[_T], cls: typing.Type[_T]) -> type:
         if cls is ADT_BASES[self.subcls] and obj is None:
             return self.subcls
         raise AttributeError("Can only access adt members through base class.")
@@ -73,7 +97,12 @@ class SumMember:
 ADT_BASES: typing.MutableMapping[type, type] = weakref.WeakKeyDictionary()
 
 
-def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
+def make_constructor(
+    _cls: typing.Type[_T],
+    name: str,
+    args: typing.Tuple,
+    subclass_order: typing.List[typing.Type[_T]],
+) -> None:
     """Create a subclass of _cls with a constructor generated from args."""
     length = len(args)
 
@@ -86,7 +115,7 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
 
         __slots__ = ()
 
-        def __new__(cls, *args):
+        def __new__(cls, /, *args: typing.Any):  # noqa: E225
             if len(args) != length:
                 raise ValueError
             return super().__new__(cls, args)
@@ -115,7 +144,7 @@ def make_constructor(_cls, name: str, args: typing.Tuple, subclass_order):
     Constructor.__new__.__annotations__ = annotations_
 
 
-def make_constructors(cls: typing.Type[_T]):
+def make_constructors(cls: typing.Type[_T]) -> typing.Tuple[typing.Type[_T], ...]:
     """Return all of the constructors of the given class in definition order."""
     subclass_order: typing.List[typing.Type[_T]] = []
 

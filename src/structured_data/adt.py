@@ -43,12 +43,13 @@ Putting it together:
 
 import typing
 
+from ._adt.constructor import SumBase
 from ._adt.product_type import Product
 from ._adt.sum_type import Sum
 
 if typing.TYPE_CHECKING:  # pragma: nocover
 
-    T = typing.TypeVar("T")
+    T = typing.TypeVar("T")  # pylint: disable=invalid-name
 
     class Ctor:
         """Dummy class for type-checking purposes."""
@@ -66,4 +67,4 @@ else:
     from ._adt.ctor import Ctor
 
 
-__all__ = ["Ctor", "Product", "Sum"]
+__all__ = ["Ctor", "Product", "Sum", "SumBase"]

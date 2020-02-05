@@ -1,5 +1,5 @@
 def test_property_is_mostly_immutable(match):
-    prop = match.Property(doc="Hi!")
+    prop = match.function(property(doc="Hi!"))
     assert prop.__doc__ == "Hi!"
     prop.__doc__ = "Bye!"
     assert prop.__doc__ == "Bye!"
@@ -11,3 +11,17 @@ def test_property_is_mostly_immutable(match):
         """I'm a docstring!"""
 
     assert prop2.__doc__ == "I'm a docstring!"
+
+
+def test_proxy_doc(match):
+
+    class Base:
+        @match.function
+        @property
+        def prop(self):
+            """Docstring."""
+
+    class Test(Base):
+        pass
+
+    assert Test.prop.__doc__ == "Docstring."

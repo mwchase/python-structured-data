@@ -2,14 +2,13 @@
 
 import typing
 
-from ..._pep_570_when import pep_570_when
 from ..match_failure import MatchFailure
 from .compound_match import CompoundMatch
 
 
 def value_cant_be_smaller(
     target_match_dict: typing.Sized, value_match_dict: typing.Sized
-):
+) -> None:
     """If the target is too small, fail."""
     if len(value_match_dict) < len(target_match_dict):
         raise MatchFailure
@@ -26,9 +25,8 @@ class AttrPattern(CompoundMatch, tuple):
 
     __slots__ = ()
 
-    @pep_570_when
-    def __new__(cls, kwargs) -> "AttrPattern":
-        return super(AttrPattern, cls).__new__(
+    def __new__(cls, /, **kwargs) -> "AttrPattern":  # noqa: E225
+        return super().__new__(
             cls, (tuple(kwargs.items()),)  # type: ignore
         )
 

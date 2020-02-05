@@ -1,7 +1,12 @@
-def placeholder(function):
-    function.is_placeholder = True
-    return function
+"""Functions for representing placeholders, which are used in abstract matchers."""
+
+import typing
+
+T_co = typing.TypeVar("T_co", covariant=True)  # pylint: disable=invalid-name
 
 
-def is_placeholder(function) -> bool:
-    return getattr(function, "is_placeholder", False)
+class Placeholder(typing.Generic[T_co]):
+    """Class for representing placeholder functions."""
+
+    def __init__(self, func: typing.Callable[[type], T_co]):
+        self.func = func

@@ -7,6 +7,11 @@ def test_ctor_usable_as_empty(adt):
     assert adt.Ctor is adt.Ctor[()]
 
 
+def test_cant_construct_empty(adt):
+    with pytest.raises(ValueError):
+        adt.Ctor(())
+
+
 def test_ctor_converts_to_tuple(adt):
     assert adt.Ctor[(list,)] is adt.Ctor[list]
 
