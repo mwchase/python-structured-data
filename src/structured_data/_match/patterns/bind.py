@@ -29,7 +29,7 @@ class Bind(_structure.CompoundMatch[T], tuple):
         cls, structure: _structure.Structure[T], kwargs: typing.Dict[str, typing.Any]
     ) -> Bind[T]:
         not_in(container=kwargs, item="_")
-        return super().__new__(cls, (structure, tuple(kwargs.items())))
+        return super().__new__(cls, (structure, tuple(kwargs.items())))  # type: ignore
 
     @property
     def structure(self) -> _structure.Structure[T]:

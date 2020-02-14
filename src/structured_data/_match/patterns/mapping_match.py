@@ -31,7 +31,7 @@ class AttrPattern(_structure.CompoundMatch[T], tuple):
     __slots__ = ()
 
     def __new__(cls, /, **kwargs: typing.Any) -> "AttrPattern":  # noqa: E225
-        return super().__new__(cls, (tuple(kwargs.items()),))
+        return super().__new__(cls, (tuple(kwargs.items()),))  # type: ignore
 
     @property
     def match_dict(self) -> typing.Tuple[typing.Tuple[str, typing.Any], ...]:
@@ -117,7 +117,7 @@ class DictPattern(_structure.CompoundMatch[D], tuple):
     __slots__ = ()
 
     def __new__(cls, match_dict: D, *, exhaustive: bool = False) -> DictPattern[D]:
-        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))
+        return super().__new__(cls, (tuple(match_dict.items()), exhaustive))  # type: ignore
 
     @property
     def match_dict(self) -> typing.Tuple[typing.Tuple[typing.Any, typing.Any], ...]:
