@@ -51,5 +51,5 @@ napoleon_use_ivar = True
 napoleon_use_rtype = False
 napoleon_use_param = False
 
-linkcheck_retries = 10
-linkcheck_timeout = 10
+linkcheck_retries = 15
+linkcheck_timeout = 15
