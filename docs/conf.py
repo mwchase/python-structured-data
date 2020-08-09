@@ -51,5 +51,5 @@ napoleon_use_ivar = True
 napoleon_use_rtype = False
 napoleon_use_param = False
 
-linkcheck_retries = 15
-linkcheck_timeout = 15
+# I can't figure out why this should be, but Travis reliably chokes on this.
+linkcheck_ignore = [r'https://requires.io/']
