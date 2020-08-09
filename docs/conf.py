@@ -50,3 +50,6 @@ html_short_title = "%s-%s" % (project, version)
 napoleon_use_ivar = True
 napoleon_use_rtype = False
 napoleon_use_param = False
+
+linkcheck_retries = 5
+linkcheck_timeout = 5
