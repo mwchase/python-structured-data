@@ -8,7 +8,7 @@ T = typing.TypeVar("T")
 
 @pytest.fixture(scope="session", params=["current", "future"])
 def adt_module(request):
-    return importlib.import_module(f"test_resources.adt_with_{request.param}")
+    return importlib.import_module(f"tests.resources.adt_with_{request.param}")
 
 
 def test_generic_subclass_succeeds(adt):

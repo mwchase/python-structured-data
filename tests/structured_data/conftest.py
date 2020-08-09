@@ -45,9 +45,9 @@ def data():
 
 @pytest.fixture(scope="session")
 def adt_options():
-    import test_resources.adt_options
+    import tests.resources.adt_options
 
-    return test_resources.adt_options
+    return tests.resources.adt_options
 
 
 @pytest.fixture(
