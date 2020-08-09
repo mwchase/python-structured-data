@@ -51,5 +51,5 @@ napoleon_use_ivar = True
 napoleon_use_rtype = False
 napoleon_use_param = False
 
-# I can't figure out why this should be, but Travis reliably chokes on this.
-linkcheck_ignore = [r'https://requires.io/']
+# Whoa there friend, you need to slow down.
+linkcheck_workers = 1
