@@ -53,3 +53,5 @@ napoleon_use_param = False
 
 # Whoa there friend, you need to slow down.
 linkcheck_workers = 1
+# I can't figure out why this should be, but Travis reliably chokes on this.
+linkcheck_ignore = [r'https://requires.io/']
