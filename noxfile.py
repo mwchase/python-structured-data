@@ -58,7 +58,6 @@ def check(session):
         "--verbose",
         "--check-only",
         "--diff",
-        "--recursive",
         "src",
         "tests",
         "setup.py",

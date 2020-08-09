@@ -62,6 +62,7 @@ def _as_name(key: SimpleKey) -> typing.Union[str, Index]:
 
 def _multi_index(dct: MatchDict, key: Compound) -> Compound:
     if isinstance(key, tuple):
+        assert not isinstance(key, dict)  # I don't know what mypy is yelling about.
         return tuple(dct[sub_key] for sub_key in key)
     if isinstance(key, dict):
         return {name: dct[value] for (name, value) in key.items()}

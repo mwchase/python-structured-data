@@ -76,7 +76,7 @@ class Sum(constructor.SumBase):
     def __new__(cls, /, *args: typing.Any, **kwargs: typing.Any) -> Sum:  # noqa: E225
         if not issubclass(cls, constructor.ADTConstructor):
             raise TypeError
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)  # type: ignore
 
     # Both of these are for consistency with modules defined in the stdlib.
     # BOOM!
