@@ -17,7 +17,7 @@ include CONTRIBUTING.rst
 include LICENSE
 include README.rst
 
-include .travis.yml appveyor.yml readthedocs.yml bandit.yml mypy.ini noxfile.py requirements.txt
+include .bettercodehub.yml .travis.yml appveyor.yml readthedocs.yml bandit.yml mypy.ini noxfile.py requirements.txt
 
 prune mutmut-runner/target
 
